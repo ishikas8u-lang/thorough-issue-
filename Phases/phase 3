@@ -1,0 +1,122 @@
+# Campus Assist — Architecture and SOLID Design Notes
+
+**Document status:** Phase 0 baseline  
+**Version:** 1.0  
+**Architecture style:** small modular web application with a single deployable backend
+
+## 1. Architectural direction
+
+Build one responsive web client and one backend application separated into three feature modules: **Safety**, **Transport**, and **Reports**. Use a relational database for structured routes, schedules, reports, and status history. This keeps the project understandable for a four-person team while preserving boundaries that can later be extracted if real operational scale requires it. A microservice system, message broker, live map, or real-time vehicle pipeline is not justified by the agreed MVP.
+
+No language or framework has been selected. Antigravity should first inspect the repository and existing conventions; preserve a suitable established stack. If the repository is empty, choose a familiar stack with typed request/response validation, relational persistence, and straightforward deployment, then record the selection and setup steps before feature work.
+
+## 2. Context and component view
+
+```mermaid
+flowchart LR
+  Student[Student / visitor browser] --> Web[Responsive Campus Assist UI]
+  Staff[Authorized reviewer browser] --> Web
+  Web --> API[Application API]
+  API --> Safety[Safety module]
+  API --> Transport[Transport module]
+  API --> Reports[Reports module]
+  Safety --> DB[(Relational database / verified content)]
+  Transport --> DB
+  Reports --> DB
+  Reports -. optional, private .-> Files[(Private attachment storage)]
+  Maintainer[Content maintainer] -->|approved updates| Safety
+  Maintainer -->|approved updates| Transport
+```
+
+There is no emergency dispatch integration or live transport provider in the MVP. The student browser uses the phone's dialer for the official contact action; the application does not place the call or claim that anyone is monitoring it.
+
+## 3. Internal layers and ownership
+
+Use four simple layers; avoid making every data object an abstraction without a use case.
+
+1. **Presentation:** pages/components, form state, accessible controls, loading/error states. It calls application use cases through a typed client and does not contain database logic.
+2. **Application/use cases:** `GetSafetyDirectory`, `ListRoutes`, `GetRouteDetails`, `SubmitReport`, `LookupReport`, `ListStaffReports`, `ChangeReportStatus`. Coordinates validation, authorization policy, and domain operations.
+3. **Domain:** entities/value objects and business rules such as allowed report categories, public lookup projection, report status transitions, active service notices, and verified-content metadata.
+4. **Infrastructure:** database repositories, authentication provider/session adapter, private file storage adapter (only if enabled), environment configuration, and logging.
+
+Feature modules own their own domain and use cases. Shared code is limited to cross-cutting concerns such as date/time formatting, error shape, authentication context, and design system primitives. A shared folder must not become a dumping ground for unrelated feature behavior.
+
+## 4. Main data flow
+
+### Submit report
+
+`Report form → client-side feedback → POST /api/reports → request schema validation → report use case → report repository + initial history entry → response with public reference/status → confirmation screen`
+
+The browser validation improves usability but is not a security boundary. Server validation is authoritative. The use case creates the public reference; the database internal ID is never the student-facing identifier.
+
+### Update report
+
+`Staff screen → authenticated request → role authorization → allowed-transition rule → transaction saves status + public update + audit actor/time → staff response → public lookup returns safe projection`
+
+### Read transport/safety
+
+`Browser → public read endpoint → module use case → repository → public response DTO containing verified/demo and freshness metadata`
+
+The transport module returns schedule data only. A future real-time provider should be introduced behind a `VehiclePositionProvider` abstraction only after an approved feed exists; do not create fake telemetry.
+
+## 5. Suggested domain and persistence model
+
+- `SafetyContact`, `SafetyLocation`: curated records with source, verification timestamp, and demo flag.
+- `Route`, `Stop`, `ScheduledTrip`, `ServiceNotice`: route schedule and service information with explicit campus timezone and validity dates.
+- `Report`: internal ID, random public reference, optional lookup secret hash, category, location text, description, status, timestamps, and only approved reporter data.
+- `ReportStatusHistory`: report ID, prior/new status, public message, visibility, actor, and timestamp. Internal staff note is a distinct private field/record and excluded from public DTO.
+- `Attachment` (optional): generated storage key, report relation, validated media type and size. Do not store public arbitrary URLs.
+
+Use database constraints for required fields and uniqueness of the public reference. Keep status history append-only where practical. Persist a status change and its history/audit record atomically.
+
+## 6. SOLID principles applied to this product
+
+Use SOLID as practical design guidance, not as a requirement to add inheritance or interfaces everywhere.
+
+| Principle | Application in Campus Assist | Review question |
+|---|---|---|
+| **S — Single Responsibility** | `ReportStatusPolicy` decides allowed transitions; `ReportRepository` persists reports; `PublicReportPresenter` filters fields for student lookup. These have separate reasons to change. | Does a module/class have one coherent reason to change, or is it mixing UI, policy, persistence, and response formatting? |
+| **O — Open/Closed** | Add a new report category through a central category definition and validation/UI mapping; add a future transport provider behind an adapter. Keep the MVP rule set explicit rather than scattering category checks across pages. | Can a planned extension be added in one focused place without editing unrelated feature logic? Do not overgeneralize speculative changes. |
+| **L — Liskov Substitution** | If multiple `RouteScheduleSource` adapters exist, each must honor the same contract: return schedule times in the configured timezone, indicate source/freshness, and represent unavailable data consistently. A fixture adapter must not pretend to be live data. | Can any implementation replace the interface without changing the meaning or safety of its results? |
+| **I — Interface Segregation** | Keep narrow interfaces such as `SafetyDirectoryReader`, `RouteScheduleReader`, `ReportWriter`, and `ReportReviewer`; public pages do not depend on staff mutation capabilities. | Does a consumer depend only on operations it needs? Avoid one giant `CampusService` interface. |
+| **D — Dependency Inversion** | Use cases depend on repository/provider contracts, not a specific database or cloud SDK. Infrastructure implements those contracts and is wired at the app boundary. | Do business rules import a database client, cloud SDK, or UI framework directly? If yes, move the dependency to the edge. |
+
+The principles derive from Robert C. Martin's writing on responsibility and design principles; the project-specific examples above are implementation guidance. See references below.
+
+## 7. Security and privacy boundaries
+
+- Treat anonymous report submission as untrusted input. Validate field allowlists, lengths, types, request sizes, and business rules on the server.
+- Authenticate staff and authorize each staff operation server-side. Hiding a button is not authorization.
+- Public report lookup must use an allowlisted response DTO, never serialize the database entity directly.
+- Use a random non-sequential reference. Consider a separate random lookup secret; store only a hash if practical. Rate-limit lookup attempts if deployment supports it.
+- Do not log report description, phone numbers, lookup secrets, authentication tokens, or image contents. Log opaque IDs and operational events.
+- If photo upload is enabled, enforce file-size/type limits; validate actual content, generate storage names, keep files private, and serve them only after authorization. If the team cannot implement this safely, disable photos.
+- Separate public messages from internal staff notes at the data/API level.
+- Retention, deletion, authentication provider, and institutional privacy obligations must be decided before real deployment.
+
+## 8. Operational and failure behavior
+
+- Static emergency information should remain available if the reporting API is down; show its last verified date.
+- If route data is unavailable, show an explicit unavailable message and verified official source if configured.
+- If report submission fails, preserve the form contents locally for the session and show a retry path; do not claim success before server confirmation.
+- No constant polling or background tracking in MVP.
+- Configuration (campus timezone, canonical emergency number, allowed attachment setting, staff access) comes from controlled environment/configuration, not source-code literals spread across pages.
+
+## 9. Architecture decision records
+
+| Decision | Baseline | Revisit when |
+|---|---|---|
+| Deployment shape | One modular app/backend | Different teams or scaling needs justify service separation. |
+| Persistence | Relational database | A concrete data/access pattern requires otherwise. |
+| Transport capability | Timetable and service notices only | Campus provides an approved machine-readable live feed and operational owner. |
+| Emergency capability | Verified directory + phone link | Institution formally approves a response integration and staffing model. |
+| Attachments | Optional, default off until secure storage is ready | A secure private upload path is implemented and reviewed. |
+| Accounts | Public read/report flow; staff-only authenticated operations | Campus identity and privacy requirements are confirmed. |
+
+## 10. References
+
+- Robert C. Martin, [The Single Responsibility Principle](https://blog.cleancoder.com/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html).
+- W3C, [Web Content Accessibility Guidelines (WCAG) overview](https://www.w3.org/WAI/standards-guidelines/wcag/).
+- OWASP, [Input Validation Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html).
+- OWASP, [File Upload Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html).
+

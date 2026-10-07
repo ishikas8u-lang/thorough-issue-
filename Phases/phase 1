@@ -1,0 +1,119 @@
+# Campus Assist — Product Requirements Document
+
+**Document status:** Phase 0 baseline  
+**Version:** 1.0  
+**Audience:** Ishika, Tishya, Krisha, Vansh, and the implementation agent (Antigravity)  
+**Product type:** Responsive campus web application
+
+## 1. Product summary
+
+Campus Assist is a student-facing website that brings together three practical campus services: emergency and safety information, campus transport schedules, and campus problem reporting. Its value is that students can find verified, structured information and submit trackable facilities reports without searching a chat history. It is an information and reporting tool; it is not an emergency dispatch system, live vehicle tracker, or guarantee that a report will be acted upon.
+
+## 2. Problem and users
+
+Campus information is often scattered across notices, messages, and informal conversations. Students may not know which contact to call, where or when a shuttle runs, or how to report a broken light and check whether anyone has responded. Campus Assist gives these tasks a predictable, mobile-friendly home.
+
+### Primary users
+
+- **Student/visitor:** finds safety information, checks published transport schedules, and submits or checks a facilities report.
+- **Campus staff reviewer:** reviews submitted facilities reports, changes their status, and adds a short public update. This is an administrative role for the demo and must not be presented as a real staffed campus service unless the institution has approved it.
+- **Content maintainer:** provides verified emergency contacts, safety locations, routes, stops, schedules, and service notices.
+
+## 3. Product goals and success criteria
+
+1. A student can reach emergency contacts or instructions from the home page in one action.
+2. A student can find the schedule for a chosen route or stop without creating an account.
+3. A student can submit a facilities issue with a useful location and receive a reference code.
+4. A student can look up a report using its reference code and see only the report's safe public status/update.
+5. A reviewer can find new reports and update status with an auditable timestamp.
+6. All three services remain understandable on a phone-sized screen and with keyboard navigation.
+
+For a class demonstration, success means these flows work end-to-end against clearly identified sample or approved campus data. It does not mean emergency response, live transit integration, or institutional adoption has been achieved.
+
+## 4. Scope
+
+### MVP — must deliver
+
+**Safety**
+- A prominent campus security/emergency contact action using a phone `tel:` link where supported.
+- A safety information page containing only contacts and locations verified by the team or explicitly labeled as demo content.
+- Safety guidance that says to call the listed official number or local emergency services for an immediate threat. The web form is not for emergencies.
+
+**Transport**
+- Browse published routes, stops, scheduled operating days/times, and service notices.
+- Clearly mark schedules as **scheduled information** with a last-updated date. Do not imply a live vehicle location or arrival prediction.
+- Handle missing/unknown schedule data transparently.
+
+**Problem reports**
+- Submit a facilities/campus-operations issue with category, location, description, and optional photo.
+- Show a generated reference code and initial status after successful submission.
+- Look up a report by reference code and show its public status and safe update text.
+- Provide a protected reviewer screen to list reports and change status/add a public update.
+- Allow a report to be marked duplicate or rejected with an appropriate public explanation.
+
+**Shared**
+- Responsive navigation, empty/loading/error states, form validation, and a plain-language privacy note.
+- Seed/demo data clearly labeled. No invented contacts or purportedly real operating information.
+
+### Explicitly out of scope for MVP
+
+- Emergency calling, dispatch, panic alerts, or guaranteed monitoring/response.
+- GPS-based live bus tracking, vehicle telemetry, ETA prediction, route optimization, or driver tools.
+- Student-to-student chat, public comments, likes, or social feed.
+- Publicly searchable reports, exact reporter identity, or public photo galleries.
+- Payments, maps requiring a paid API, push notifications, SMS/email delivery, and native mobile apps.
+- Production launch or real staff use without campus authorization, verified ownership, and operational support.
+
+## 5. Core user journeys
+
+### A. Need urgent help
+
+1. Student opens Home or Safety.
+2. The emergency contact action and a visible urgency note appear immediately, without requiring sign-in or a form.
+3. Student taps the official phone link or follows the verified safety instruction.
+
+### B. Check transport
+
+1. Student opens Transport.
+2. Student chooses a route or stop.
+3. Site shows operating days, scheduled departure times, relevant stops, service notices, and last-updated date.
+4. If data is unavailable, site says so and points to the verified official source if one exists.
+
+### C. Report a campus issue
+
+1. Student opens Report a Problem and sees a warning that emergencies must go to official emergency contacts.
+2. Student selects one category, enters a campus location and description, optionally attaches one image, and reviews a privacy note.
+3. Server validates the request, stores the report as `RECEIVED`, and returns a non-sequential reference code.
+4. Student saves the code and can later check its public status/update.
+
+### D. Triage a report
+
+1. Authorized reviewer opens the staff view and sees reports in newest/priority order.
+2. Reviewer opens a report, checks details/photo, and chooses an allowed transition.
+3. Reviewer adds a concise public update without personal or sensitive information.
+4. The system records who changed the report and when; the student sees the updated public status.
+
+## 6. Product rules and decisions
+
+- Emergency contact data is static, verified content maintained by an authorized content owner. Never synthesize a phone number or emergency instruction.
+- The top-level report categories are: `LIGHTING_ELECTRICAL`, `BUILDING_FACILITY`, `CLEANLINESS`, `ACCESSIBILITY`, `TRANSPORT_STOP`, `OTHER`. The UI may use human-readable labels.
+- MVP report statuses are `RECEIVED`, `IN_REVIEW`, `IN_PROGRESS`, `RESOLVED`, `DUPLICATE`, `REJECTED`.
+- Student report lookup uses the reference code plus a second possession check (for example, a private lookup token) if the implementation can support it. A reference code alone must not reveal reporter identity, attachments, or sensitive detail. If the team cannot implement the second check, the public lookup must expose only a minimal status and non-sensitive update.
+- Photos are optional. The team may disable uploads in the demo if secure storage/validation is unavailable; never simulate a secure upload with a public arbitrary file URL.
+- Never collect student ID, home address, precise GPS location, or phone number unless the institution approves a justified workflow. Avoid free-text prompts for sensitive personal data.
+- Operational ownership, response-time promises, and report retention are institution decisions and are unresolved; do not imply a service-level commitment.
+
+## 7. Release boundaries
+
+- **Phase 0:** this product, requirements, architecture, UX, and delivery baseline.
+- **Phase 1:** runnable shell, navigation, and realistic seeded content.
+- **Phase 2:** working safety and schedule views, report submission and lookup.
+- **Phase 3:** staff triage, authorization, privacy/security hardening, accessibility and integration review.
+- **Phase 4:** demo readiness, content verification, and handover notes.
+
+See `05-phases-and-team-plan.md` for phase gates and assignments.
+
+## 8. Assumptions and unresolved decisions
+
+The team has not selected a framework, database, hosting provider, campus identity provider, official transport feed, or campus-approved emergency contacts. Architecture is therefore expressed as technology-neutral boundaries with a simple relational implementation as a suitable default. Before any real deployment, the institution must confirm data ownership, reporting workflow, support contact, privacy/retention rules, and approved public content.
+

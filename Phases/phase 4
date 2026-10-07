@@ -1,0 +1,132 @@
+# Campus Assist — UX and Interface Design Specification
+
+**Document status:** Phase 0 baseline  
+**Version:** 1.0  
+**Purpose:** Give the design and implementation team a concrete interface direction.
+
+## 1. Experience principles
+
+1. **Urgent help is immediately visible.** Emergency contact is a prominent action, not buried in a menu or report form.
+2. **Be honest about freshness and capability.** Distinguish verified information, demo content, scheduled services, and unavailable data.
+3. **Make the next action obvious.** Each screen has one main action and a clear recovery path.
+4. **Protect students by default.** Do not expose identity or internal report details; ask only for necessary information.
+5. **Design for quick phone use.** Large tap targets, concise copy, clear location fields, and responsive layouts.
+
+## 2. Information architecture
+
+```text
+Home
+├── Safety
+│   ├── Emergency contacts
+│   └── Safety locations
+├── Transport
+│   ├── Route list
+│   ├── Route detail / stop schedule
+│   └── Service notices
+├── Report a problem
+│   ├── New report
+│   ├── Submission confirmation + reference
+│   └── Check report status
+└── Staff review (staff only; not in student navigation)
+    ├── Report queue
+    └── Report detail / status update
+```
+
+## 3. Page specifications
+
+### Home
+
+- Header: Campus Assist wordmark, compact navigation, responsive menu button.
+- Safety callout near top: **“Need urgent help?”** and configured **Call campus security** action. Include “For emergencies, call campus security or local emergency services. This website is not monitored for emergencies.”
+- Three service cards: **Safety**, **Transport schedules**, **Report a campus problem**. Each includes a short description and single action.
+- Data freshness line or “Demo information” badge where relevant.
+- Do not put a report form or long announcements above the emergency action.
+
+### Safety
+
+- Page title and short urgency note.
+- Primary official emergency contact with readable phone number, tap-to-call action, and verification date/source label.
+- Secondary verified contacts and locations use clear categories and concise instructions.
+- If data is sample/unverified, show a visible demo label and do not encourage real reliance.
+- Optional location cards show building/landmark, hours if verified, and accessibility notes if confirmed.
+
+### Transport
+
+- Page title: **Campus transport**; status text: **Scheduled times — not live vehicle tracking**.
+- Route selector as accessible list/cards. Each route displays name, service days, first/last scheduled time if known, and update date.
+- Route detail presents stops in order and schedule grouped by operating day. Service notices appear above the affected schedule with start/end dates.
+- Distinguish unknown, not operating, and no data states. Link to an official source only if supplied and verified.
+- Avoid map as a required interaction in MVP; a text stop sequence is easier to maintain and accessible.
+
+### Report a problem
+
+- Before fields: warning panel: **“This form is not for emergencies. Call [verified contact] for urgent danger.”**
+- Form fields, in order:
+  1. Category (required, fixed allowed options).
+  2. Location (required; ask for building/area/nearest landmark, not precise GPS).
+  3. Description (required, concise prompt; do not ask for names or sensitive details).
+  4. Optional photo only if secure upload is enabled; explain that people/faces should not be included.
+  5. Privacy note and submit action.
+- Inline field errors; preserve non-sensitive field values after validation errors.
+- Confirmation page: “Report received,” reference code with copy action, initial status, and clear instruction to save the code. Do not imply response timing.
+- Status check form: reference code plus lookup secret if implemented. Explain what is shown publicly.
+
+### Staff review
+
+- Separate staff-only route and navigation. Show unauthorized state rather than exposing partial data.
+- Queue columns/cards: reference, category, broad location, submitted date, status, and optional urgency triage flag defined by staff policy (do not infer danger from AI).
+- Detail screen separates reporter-provided description/photo, internal notes (private), and public update (student visible).
+- Status dropdown only offers valid next states; require a public update for meaningful changes where appropriate.
+- Confirmation feedback includes new status and timestamp.
+
+## 4. Visual direction
+
+Use a calm, civic, campus-service look: clear neutral backgrounds, one trustworthy primary color, and restrained amber/red only for warning and urgent states. Do not use red as decoration or rely on color alone. Use a readable sans-serif typeface, generous whitespace, simple line icons, and consistent card edges. The site should feel official enough to navigate, but clearly identify itself as a student project/demo until approved.
+
+Suggested semantic tokens (adjust to campus identity when known):
+
+| Token | Intent | Guidance |
+|---|---|---|
+| `primary` | Main action/navigation | Deep blue/teal; verify contrast with white text. |
+| `urgent` | Emergency contact emphasis | High-contrast red/warm tone, used sparingly with text/icon label. |
+| `warning` | Non-emergency/report warning | Amber background with dark text and icon. |
+| `success` | Submission resolved/confirmed | Green plus explicit status text. |
+| `surface` / `surface-muted` | Page and cards | Neutral light backgrounds with visible boundaries. |
+| `text` / `text-muted` | Main/supporting copy | Ensure readable contrast; avoid low-contrast gray for important data. |
+
+Use a small spacing scale (e.g. 4/8/12/16/24/32), consistent corner radius, and a clear heading scale. Avoid crowded dashboards and map-heavy screens.
+
+## 5. Interaction and content rules
+
+- Use action labels such as **Call campus security**, **View route**, **Submit report**, **Copy reference code**, **Check status**.
+- Do not use vague labels such as “Click here,” “Track bus” (when no live data exists), or “Emergency alert” (when no alert is sent).
+- Make data recency explicit: **Last verified 7 Oct 2026** or a relative date plus exact date. Do not show stale content as current.
+- Use plain-language status labels. Include text/icons, not color alone.
+- Never promise “we will respond within…” unless the institution provides and owns that commitment.
+- Confirm before leaving a form with entered data if navigation may discard it.
+- A copy action must provide a visible success message and work by keyboard.
+- Do not use AI-generated emergency instructions or classifications in the product.
+
+## 6. Accessibility and responsive requirements
+
+- Aim for WCAG 2.2 AA. Use semantic landmarks, a logical heading structure, explicit labels, associated error messages, keyboard operability, visible focus, and sufficient contrast.
+- Announce asynchronous submission success/errors to assistive technology using an appropriate live region.
+- Tap targets should be comfortably usable on touch screens; keep the emergency call action prominent and unambiguous.
+- At 360 CSS px wide, forms and transport schedules must reflow without horizontal scrolling. Tables should become stacked cards or have an accessible alternative.
+- Do not convey route, status, or urgency solely through color, position, or an icon without a text label.
+- Respect reduced-motion preferences; no animation is required for core flows.
+
+## 7. UI states to design before implementation is complete
+
+| State | Required treatment |
+|---|---|
+| Loading routes/reports | Short status text or skeleton that does not mimic actual data. |
+| No routes available | Explain no schedule has been published; provide configured official source if available. |
+| Service notice | Affected route, dates, plain language, and clear notice styling. |
+| Report validation error | Focus first invalid field; explain the correction beside it. |
+| Report submission failure | Say report was not confirmed; preserve form; offer retry. |
+| Report submitted | Show reference/status and copy action. |
+| Invalid/unknown reference | Generic message that does not reveal whether another student's report exists. |
+| Unauthorized staff page | Explain staff access is required; no report data rendered. |
+| Demo/stale content | Persistent badge or visible verification metadata. |
+

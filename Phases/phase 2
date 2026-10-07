@@ -1,0 +1,129 @@
+# Campus Assist — Software Requirements Specification
+
+**Document status:** Phase 0 baseline  
+**Version:** 1.0  
+**Companion:** `01-product-requirements.md`
+
+## 1. Purpose and conventions
+
+This document translates Campus Assist product scope into implementation requirements. **MUST** is required for MVP acceptance; **SHOULD** is strongly recommended; **MAY** is optional. Use these IDs in issues and review notes. Requirements apply to the responsive web app unless stated otherwise.
+
+## 2. Functional requirements
+
+### Safety
+
+- **SAF-01 (MUST):** The Home page and Safety page MUST expose the verified emergency contact action without sign-in or form completion.
+- **SAF-02 (MUST):** Tapping the contact action MUST use the verified configured number and a `tel:` link where supported. The visible number MUST remain readable/copyable.
+- **SAF-03 (MUST):** The page MUST state that Campus Assist is not an emergency dispatch or monitoring service and direct imminent danger to official campus/local emergency services.
+- **SAF-04 (MUST):** Each displayed safety contact or safety location MUST have a source/verification date in the content record; demo values MUST be labeled sample data.
+- **SAF-05 (SHOULD):** A safety directory MAY list security, first aid, assembly areas, and accessible safety resources when verified. It MUST NOT claim a route is safe or provide unverified medical advice.
+
+### Transport
+
+- **TRN-01 (MUST):** A user MUST be able to browse available routes and select a route or stop.
+- **TRN-02 (MUST):** Route detail MUST show route name, stop sequence, operating days, schedule/time zone, and last-updated timestamp when available.
+- **TRN-03 (MUST):** Schedules MUST be labeled as scheduled information. The UI MUST NOT display fabricated live locations, countdowns, or ETAs.
+- **TRN-04 (MUST):** A service notice MUST show its active period and affected route(s); expired notices MUST not appear as current.
+- **TRN-05 (MUST):** When no schedule or stop data exists, the page MUST show a useful unavailable state rather than an empty panel or invented data.
+- **TRN-06 (SHOULD):** Users SHOULD be able to filter routes by stop and operating day.
+
+### Problem reporting
+
+- **RPT-01 (MUST):** The report form MUST require one allowed category, a campus location, and description; photo is optional.
+- **RPT-02 (MUST):** The form MUST tell users not to submit an emergency through the report workflow and provide the emergency contact action.
+- **RPT-03 (MUST):** The backend MUST validate allowed category, required fields, field lengths, request size, and attachment rules regardless of browser-side validation.
+- **RPT-04 (MUST):** A valid submission MUST persist a report in `RECEIVED` state and return a random, non-sequential reference code. Do not return internal database IDs as public references.
+- **RPT-05 (MUST):** A duplicate submission caused by a retry SHOULD be prevented with an idempotency key or equivalent request handling.
+- **RPT-06 (MUST):** Public lookup MUST require the reference code and MUST return only a minimal safe projection: reference, category, broad location, status, submitted date, and approved public updates. It MUST exclude reporter identity, internal notes, exact coordinates, and original filenames.
+- **RPT-07 (MUST):** Staff can list and view reports only after authorization; the backend MUST enforce role checks on every staff endpoint.
+- **RPT-08 (MUST):** Staff can change status only through allowed transitions and add a timestamped public update. Actor and time MUST be recorded in an audit record.
+- **RPT-09 (MUST):** Status changes MUST be visible to public lookup after persistence.
+- **RPT-10 (SHOULD):** A report MAY accept one image. If enabled, validate file size, extension, detected type/signature, and decoded image; generate storage names; restrict retrieval; strip unnecessary metadata. If those controls are not implemented, disable uploads and retain the report text flow.
+- **RPT-11 (MUST):** Report data MUST not be exposed in a public directory, browser source, or unprotected administrative route.
+- **RPT-12 (SHOULD):** Staff can mark a report duplicate or rejected and supply a public, non-sensitive reason.
+
+### Shared experience
+
+- **COM-01 (MUST):** Global navigation MUST link to Home, Safety, Transport, and Report a Problem.
+- **COM-02 (MUST):** Every data-driven screen MUST provide loading, success, empty, and error feedback as applicable.
+- **COM-03 (MUST):** Destructive/status-changing actions MUST show clear confirmation or undo/feedback appropriate to the action.
+- **COM-04 (MUST):** Date/time display MUST use the campus time zone configured for the project and clearly label the time zone when ambiguity is possible.
+- **COM-05 (MUST):** Seed/demo data MUST be visibly identified and MUST not masquerade as verified campus data.
+
+## 3. Data requirements
+
+### Entities
+
+| Entity | Required fields | Notes |
+|---|---|---|
+| `SafetyContact` | `id`, `label`, `phone`, `instructions`, `verifiedAt`, `source`, `isDemo` | Store one canonical official contact separately from optional support contacts. |
+| `SafetyLocation` | `id`, `name`, `kind`, `campusLocation`, `description`, `verifiedAt`, `isDemo` | No exact sensitive access instructions unless approved. |
+| `Route` | `id`, `name`, `description`, `operatingDays`, `timezone`, `lastUpdated`, `isDemo` | Does not imply vehicle feed availability. |
+| `Stop` | `id`, `routeId`, `name`, `sequence`, `campusLocation`, `isDemo` | Ordered per route. |
+| `ScheduledTrip` | `id`, `routeId`, `serviceDay`, `departureTime`, `stopTimes?` | Store local timetable plus explicit time zone. No fabricated arrival prediction. |
+| `ServiceNotice` | `id`, `title`, `body`, `startsAt`, `endsAt`, `routeIds`, `isDemo` | Date range governs visibility. |
+| `Report` | internal ID, public reference, lookup secret/hash if used, category, location text, description, status, created/updated timestamps, reporter data only if approved | Public reference is random. Minimize personal data. |
+| `Attachment` | internal ID, report ID, generated storage key, detected media type, size, created timestamp | No original filename in public response. Optional for MVP. |
+| `ReportUpdate` | ID, report ID, status, public message, visibility, actor ID, created timestamp | Store internal notes separately and never expose them in lookup. |
+
+The implementation can adapt field names to the selected stack but MUST preserve privacy boundaries and meaning.
+
+## 4. Status model
+
+Initial state is `RECEIVED`. Supported transitions:
+
+| Current | Allowed next states |
+|---|---|
+| `RECEIVED` | `IN_REVIEW`, `DUPLICATE`, `REJECTED` |
+| `IN_REVIEW` | `IN_PROGRESS`, `DUPLICATE`, `REJECTED` |
+| `IN_PROGRESS` | `RESOLVED`, `IN_REVIEW` |
+| `RESOLVED` | `IN_REVIEW` (reopened) |
+| `DUPLICATE` | `IN_REVIEW` (if duplicate decision is reversed) |
+| `REJECTED` | `IN_REVIEW` (if rejection is reversed) |
+
+Every transition MUST be performed by an authorized staff user and produce an audit entry. UI labels can say “Received,” “Being reviewed,” “In progress,” “Resolved,” “Marked duplicate,” and “Unable to action.”
+
+## 5. Interface contracts
+
+Use equivalent routes if the chosen framework differs. All mutation requests return structured validation errors; never leak stack traces.
+
+| Method and path | Purpose | Access / response |
+|---|---|---|
+| `GET /api/safety` | Contacts and locations | Public, verified/demo metadata included |
+| `GET /api/routes` | Routes, stops, schedule summary | Public |
+| `GET /api/routes/{routeId}` | Route detail and active notices | Public |
+| `POST /api/reports` | Create report | Public or campus-authenticated per decision; returns reference and initial status |
+| `GET /api/reports/lookup/{reference}` | Minimal status lookup | Public with possession check if implemented; never returns internal fields |
+| `GET /api/staff/reports` | Review queue | Staff role only |
+| `GET /api/staff/reports/{id}` | Full authorized staff detail | Staff role only |
+| `PATCH /api/staff/reports/{id}/status` | Transition + public update | Staff role only; validates transition, records actor/time |
+
+Recommended error shape: `{ "error": { "code": "VALIDATION_ERROR", "message": "Please check the highlighted fields.", "fields": { "location": "Required" } } }`. Avoid echoing sensitive form contents.
+
+## 6. Non-functional requirements
+
+- **NFR-01 Availability:** The UI MUST fail gracefully when the API is unavailable; emergency contact information should be available in the rendered page/content bundle when possible, with a clear freshness/verification date.
+- **NFR-02 Performance:** On a normal campus connection, initial pages SHOULD become usable quickly; avoid large images and unnecessary polling. No live tracking polling is required.
+- **NFR-03 Accessibility:** Target WCAG 2.2 AA as a design goal. All functionality must work with keyboard, have visible focus, semantic headings/labels, sufficient contrast, and non-color-only status cues.
+- **NFR-04 Privacy:** Collect the minimum information needed. Do not show reporter identity or internal notes to public lookups. Establish retention/deletion rules before production.
+- **NFR-05 Security:** Validate input on the server, separate authentication from authorization, apply least privilege, protect staff routes, use secure transport in deployment, and keep secrets outside source control.
+- **NFR-06 Uploads:** If enabled, use an allowlist and defense-in-depth validation; generated storage names; size limits; safe private storage; and controlled serving. Otherwise omit upload controls.
+- **NFR-07 Maintainability:** Keep safety, transport, and reporting logic in separate modules with explicit interfaces; use SOLID principles where they clarify responsibilities and change boundaries.
+- **NFR-08 Responsive behavior:** Core flows MUST work at 360 CSS px wide and desktop sizes without horizontal scrolling.
+- **NFR-09 Data integrity:** Status transition, public update, and audit record MUST be saved consistently; prevent stale writes from silently overwriting a newer status.
+- **NFR-10 Content integrity:** Contacts, schedules, and notices require a named maintainer/source and a last-verified date.
+
+## 7. Validation and acceptance checklist
+
+- [ ] Emergency action is visible without login and opens/copies the verified number.
+- [ ] Urgent-help warning appears before report submission.
+- [ ] Routes are marked scheduled and show source/freshness; no fake live data is rendered.
+- [ ] Invalid category, missing location/description, and oversized payload are rejected server-side.
+- [ ] Successful report returns a random reference and starts at `RECEIVED`.
+- [ ] Public lookup shows only allowed fields; internal notes and reporter data are inaccessible.
+- [ ] Unauthenticated/non-staff user cannot access or mutate staff reports.
+- [ ] Invalid status transition is rejected; valid transition records actor and time.
+- [ ] With uploads disabled, no misleading upload control appears. If enabled, upload checks and private serving are configured.
+- [ ] Keyboard and narrow-screen navigation works; loading, empty, and error states are legible.
+- [ ] Demo data is visibly labeled and no sample contact is presented as real.
+

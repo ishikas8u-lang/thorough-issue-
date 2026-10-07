@@ -1,0 +1,89 @@
+# Campus Assist — Phase Plan, Team Ownership, and Handover
+
+**Document status:** Phase 0 baseline  
+**Version:** 1.0  
+**Team:** Ishika, Tishya, Krisha, Vansh
+
+## 1. Working agreement
+
+Work in short phases with a reviewable result at each gate. One person owns a feature area, but the API/data contract and final integration are shared. Keep the initial implementation small and readable. Every change should preserve the safety, privacy, and content-truth rules in the PRD, SRS, architecture, and UX documents.
+
+## 2. Responsibility map
+
+| Person | Primary ownership | Concrete deliverables | Review/support responsibility |
+|---|---|---|---|
+| **Ishika** | Frontend shell and design system | Navigation, Home, shared layout/components, responsive styles, accessibility patterns, demo/freshness badges | Review all screens for consistency and keyboard/mobile use; pair on integration. |
+| **Tishya** | Transport feature | Route/stop/schedule data shape, Transport list/detail pages, schedule and notice states, truthful scheduled-only language | Verify schedule data source and labels; review API integration. |
+| **Krisha** | Reporting feature and staff workflow | Report form, confirmation/reference flow, status lookup UI, staff queue/detail UI, public update display | Review privacy boundaries and report states; verify status transition UX with backend. |
+| **Vansh** | Backend, data model, integration | Repository setup/conventions, API contracts, persistence, validation, report status policy, staff authorization, deployment configuration | Review all feature PRs/contracts; integrate and keep app runnable. |
+
+### Shared decisions
+
+- All four agree the page map, visual language, final category/status names, seeded content, and demo script.
+- Each owner supplies sample data through the agreed schema, not ad hoc page-local constants once integration starts.
+- Pair review changes that affect emergency content, authorization, report privacy, or uploaded files.
+- Ishika should not be the only person able to run the UI; Vansh should not be the only person who understands the API. Keep setup and API notes in the repository.
+
+## 3. Phases and exit criteria
+
+### Phase 0 — Product and technical direction (current)
+
+**Work:** agree product boundaries, user flows, requirements, domain/data concepts, architecture, UX, phase ownership, safety constraints, and unresolved decisions.  
+**Owner:** all; one team member consolidates each document and others review.  
+**Exit gate:** the five Markdown documents in this directory are accepted by the team; no real contacts/schedules are invented; stack selection remains explicit until repository inspection.
+
+### Phase 1 — Repository foundation and vertical skeleton
+
+**Ishika:** implement responsive shell, navigation, Home layout, shared buttons/cards/status badges.  
+**Tishya:** prepare sample route/stop/schedule records and Transport page using agreed data types.  
+**Krisha:** prepare report and staff screen wireframes/components with all required states.  
+**Vansh:** inspect existing repo, select/record stack if needed, establish app/API/database structure, shared error/validation format, environment example, and seed strategy.
+
+**Exit gate:** a teammate can run the project using written setup steps; every main page is navigable; sample information is visibly demo content; no feature claims live or verified data.
+
+### Phase 2 — Student-facing MVP flows
+
+**Ishika:** complete Home/Safety presentation and shared accessible form patterns.  
+**Tishya:** connect route list/detail, schedule, stop sequence, service notices, freshness, and unavailable states.  
+**Krisha:** connect report submission, confirmation/reference, and public status lookup; ensure privacy note and emergency warning are visible.  
+**Vansh:** implement safety/routes read APIs, report persistence and validation, public lookup projection, and safe error behavior.
+
+**Exit gate:** a student can reach safety information, inspect schedule data, and submit/look up a report end-to-end. The transport page says scheduled, and report success appears only after persistence succeeds.
+
+### Phase 3 — Staff workflow and protection
+
+**Ishika:** refine keyboard focus, mobile layout, loading/error/success feedback, and staff-screen visual consistency.  
+**Tishya:** reconcile route content with verified source metadata and edge cases.  
+**Krisha:** finish staff queue/detail/update UI; separate public updates from internal notes.  
+**Vansh:** enforce staff authentication/authorization on server routes, status transitions, audit records, rate/size limits as practical, and private attachment handling or disable uploads.
+
+**Exit gate:** staff mutations are protected server-side; status history and public updates are consistent; public lookup cannot expose staff-only or identifying fields; upload behavior is safe or absent.
+
+### Phase 4 — Review, demo, and handover
+
+**All four:** walk through acceptance checklist in `02-software-requirements.md`; verify emergency contact source and content freshness; check keyboard, narrow viewport, error and empty states; remove misleading demo content; prepare screenshots/demo script and known-limitations note.
+
+**Exit gate:** the class demo can be run from documented instructions; sample data is labeled; the team can explain what is and is not operational; unresolved production decisions are recorded rather than guessed.
+
+## 4. Suggested collaboration cadence
+
+- Start each phase with a 10-minute contract check: fields, endpoint shape, status labels, and expected screen states.
+- Integrate at least once per phase instead of waiting until the end.
+- Keep changes small enough for another teammate to review. Ask for review on safety/privacy/auth changes before merging into the shared branch.
+- Demo a working flow at each phase gate. Record blockers and decisions in the relevant document or repository issue.
+- Use a single source of truth for category/status constants and schedule timezone; avoid duplicating business rules in the frontend.
+
+## 5. Antigravity implementation brief
+
+Use these five documents as the product baseline. Before coding, inspect the repository and preserve existing conventions where sound. If there is no existing implementation, propose a simple stack and file structure, record it, then build the MVP in small vertical slices. Do not generate placeholder emergency numbers, fake live transit, public report feeds, or insecure upload shortcuts. Keep safety, transport, and reporting modules separate; validate on the server; protect every staff operation; return a narrow public report view; and follow SOLID where it creates clear responsibility and dependency boundaries. Surface unknown campus facts as explicit configuration/content-owner decisions instead of guessing. Keep the app runnable and update setup instructions as dependencies and configuration are introduced.
+
+## 6. Decisions still requiring team/institution input
+
+1. Official name/branding and campus timezone.
+2. Verified emergency number(s), safety locations, source, and content owner.
+3. Transport schedule source and update owner; whether data is sample or approved live publication.
+4. Whether students submit anonymously or use campus sign-in; privacy/retention policy.
+5. Which staff role owns triage and whether a real campus office authorizes the workflow.
+6. Whether image upload is required; recommended MVP default is off until secure private storage is available.
+7. Hosting, database, deployment region, and institutional approval for real student data.
+
