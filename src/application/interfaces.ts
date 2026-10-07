@@ -6,6 +6,8 @@ import type {
   Route,
   ServiceNotice,
   ReportStatus,
+  StudentProfile,
+  StudentSession,
 } from '../types';
 
 /**
@@ -42,3 +44,12 @@ export interface IReportRepository {
 export interface IPublicReportPresenter {
   present(report: Report): PublicReportView;
 }
+
+export interface IStudentAuthService {
+  getCurrentSession(): Promise<StudentSession | null>;
+  signIn(email: string, password: string): Promise<StudentSession>;
+  signUp(profile: Omit<StudentProfile, 'id' | 'updatedAt'>, password: string): Promise<StudentSession>;
+  updateProfile(profile: Partial<Omit<StudentProfile, 'id' | 'email'>>): Promise<StudentProfile>;
+  signOut(): Promise<void>;
+}
+

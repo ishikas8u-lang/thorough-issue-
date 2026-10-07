@@ -118,3 +118,20 @@ export const STATUS_LABELS: Record<ReportStatus, { label: string; tone: 'receive
   DUPLICATE: { label: 'Marked Duplicate', tone: 'duplicate' },
   REJECTED: { label: 'Unable to Action', tone: 'rejected' },
 };
+
+export interface StudentProfile {
+  id: string;
+  fullName: string;
+  email: string;
+  contactNumber: string;
+  course: string;
+  branch: string;
+  updatedAt: string;
+}
+
+export interface StudentSession {
+  token: string;
+  student: StudentProfile;
+  expiresAt: string;
+}
+

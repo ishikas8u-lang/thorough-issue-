@@ -32,6 +32,17 @@
   --color-border: #dfd3c3;                /* Refined warm tan border */
   --color-border-focus: #781827;          /* Dark wine focus ring */
 
+  /* Polished Pastel-Pink Accent Palette (WCAG 2.2 AA/AAA Compliant) */
+  --color-pink-50: #fef5f7;              /* Delicate blush canvas */
+  --color-pink-100: #fce7ec;             /* Soft pastel rose wash */
+  --color-pink-200: #f8cfd8;             /* Gentle blossom highlight */
+  --color-pink-300: #f0a8b7;             /* Pastel rose border */
+  --color-pink-400: #df6c85;             /* Vibrant rose accent */
+  --color-pink-600: #b82d4d;             /* Accessible deep rose for buttons / text */
+  --color-pink-800: #73132b;             /* High-contrast dark wine-rose */
+  --color-pink-border: #f0c2cb;          /* Soft pastel pink border */
+  --color-pink-dark-text: #3c0b17;       /* Readable dark text on pink (11.4:1 contrast) */
+
   /* Typography Tokens (Warm Espresso & Roasted Walnut) */
   --color-text-main: #241416;             /* Deep roasted coffee/wine-black */
   --color-text-muted: #5e4c48;            /* Warm taupe */
@@ -134,6 +145,117 @@ button {
   font-size: 0.75rem;
   letter-spacing: 0.05em;
   font-weight: 700;
+}
+
+/* Header Top Bar for SRM University Institutional Branding */
+.header-top-bar {
+  background: #fdf2f4;
+  border-bottom: 1px solid var(--color-pink-border);
+  padding: 0.35rem 0;
+  font-size: 0.75rem;
+}
+
+.header-top-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.srm-top-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.srm-brand-badge-pill {
+  background: var(--color-brand-primary);
+  color: #ffffff;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.srm-brand-dept {
+  color: var(--color-pink-dark-text);
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+}
+
+.header-top-right {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.student-header-session {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.75rem;
+  color: var(--color-pink-dark-text);
+}
+
+.student-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #16a34a;
+  display: inline-block;
+}
+
+.student-top-link {
+  background: var(--color-pink-100);
+  color: var(--color-pink-800);
+  border: 1px solid var(--color-pink-300);
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.student-top-link:hover {
+  background: var(--color-pink-200);
+}
+
+.student-top-signout {
+  color: #991b1b;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0 0.25rem;
+}
+
+.student-top-signin-btn {
+  background: var(--color-pink-100);
+  color: var(--color-pink-800);
+  border: 1px solid var(--color-pink-300);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.student-top-signin-btn:hover {
+  background: var(--color-pink-200);
+  color: var(--color-pink-dark-text);
 }
 
 /* Header & Navigation */
@@ -397,6 +519,77 @@ button {
   color: var(--color-brand-primary);
 }
 
+/* Pastel Pink Accent Button & Component Classes */
+.btn-pink {
+  background: var(--color-pink-100);
+  color: var(--color-pink-dark-text);
+  border: 1px solid var(--color-pink-300);
+  font-weight: 600;
+  padding: 0.6rem 1.15rem;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+
+.btn-pink:hover {
+  background: var(--color-pink-200);
+  color: var(--color-pink-800);
+  border-color: var(--color-pink-400);
+}
+
+.btn-pink-primary {
+  background: linear-gradient(135deg, var(--color-pink-600), #9e1f3d);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 0.75rem 1.35rem;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(184, 45, 77, 0.25);
+  transition: all 0.18s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+}
+
+.btn-pink-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(184, 45, 77, 0.35);
+  background: linear-gradient(135deg, #a62442, #851630);
+}
+
+.btn-pink-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.card-pastel-pink {
+  background: var(--color-pink-50);
+  border: 1px solid var(--color-pink-200);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.badge-pastel-pink {
+  background: var(--color-pink-100);
+  color: var(--color-pink-800);
+  border: 1px solid var(--color-pink-300);
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+
 /* Alert Boxes */
 .alert-notice {
   background: var(--color-warning-bg);
@@ -552,9 +745,29 @@ button {
 }
 
 /* Responsive adjustments */
-@media (max-width: 768px) {
+@media (max-width: 860px) {
+  .nav-container {
+    height: auto;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
   .nav-links {
-    display: none;
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    display: flex;
+    padding-bottom: 0.35rem;
+    gap: 0.35rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  .nav-btn {
+    white-space: nowrap;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.85rem;
+    flex-shrink: 0;
   }
   .urgent-hero-banner {
     flex-direction: column;
@@ -566,5 +779,25 @@ button {
   }
   .services-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 540px) {
+  .header-top-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+  .brand-wrap {
+    gap: 0.6rem;
+  }
+  .brand-title {
+    font-size: 1.15rem;
+  }
+  .emergency-pill-btn span {
+    display: none;
+  }
+  .emergency-pill-btn {
+    padding: 0.55rem 0.75rem;
   }
 }

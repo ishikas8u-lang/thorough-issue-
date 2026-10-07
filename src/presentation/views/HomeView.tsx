@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Phone, ShieldAlert, Bus, Wrench, ArrowRight, Search, CheckCircle2, Clock } from 'lucide-react';
+import { Phone, ShieldAlert, Bus, Wrench, ArrowRight, Search, CheckCircle2, Clock, User } from 'lucide-react';
 import { PRIMARY_EMERGENCY } from '../../infrastructure/seedData';
 import type { ActiveTab } from '../components/Navbar';
 
@@ -39,8 +39,9 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
 
       {/* Hero Intro */}
       <div style={{ textAlign: 'center', margin: '3rem auto 2rem', maxWidth: '760px' }}>
-        <div style={{ display: 'inline-block', fontSize: '0.8125rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--color-brand-accent)', marginBottom: '0.5rem' }}>
-          Official Student Operations Gateway
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.8125rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--color-pink-800)', background: 'var(--color-pink-100)', padding: '0.3rem 0.85rem', borderRadius: 'var(--radius-pill)', border: '1px solid var(--color-pink-200)', marginBottom: '0.75rem' }}>
+          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--color-pink-600)' }} />
+          SRM UNIVERSITY &bull; OFFICIAL OPERATIONS GATEWAY
         </div>
         <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.85rem', fontWeight: 700, color: 'var(--color-brand-primary)', marginBottom: '0.9rem', letterSpacing: '-0.02em', lineHeight: 1.18 }}>
           One Authoritative Hub for Campus Life & Operations
@@ -48,6 +49,35 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
         <p style={{ fontSize: '1.15rem', color: 'var(--color-text-muted)', lineHeight: 1.65 }}>
           Access verified emergency hotlines, inspect scheduled shuttle timetables, and submit trackable facilities defect reports without lost chat threads or outdated noticeboards.
         </p>
+
+        {/* Student Account Quick Action Card */}
+        <div
+          style={{
+            marginTop: '1.75rem',
+            background: 'var(--color-pink-50)',
+            border: '1px solid var(--color-pink-border)',
+            borderRadius: 'var(--radius-md)',
+            padding: '1rem 1.5rem',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '1rem',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            boxShadow: 'var(--shadow-sm)',
+          }}
+        >
+          <div style={{ fontSize: '0.9rem', color: 'var(--color-pink-dark-text)', fontWeight: 600 }}>
+            SRM Students: Sign in to manage your verified student profile and contact details.
+          </div>
+          <button
+            type="button"
+            className="btn-pink"
+            onClick={() => onNavigate('signin')}
+            style={{ padding: '0.45rem 0.95rem', fontSize: '0.875rem' }}
+          >
+            <User size={15} color="var(--color-pink-600)" /> Student Account <ArrowRight size={14} />
+          </button>
+        </div>
       </div>
 
       {/* Three Core Services Grid */}

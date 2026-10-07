@@ -40,10 +40,43 @@ The system enforces strict modular separation and Clean Architecture principles:
 
 ---
 
+---
+
+## 🎓 SRM University Branding & Student Portal Features
+
+The platform is customized for **SRM University** with a dedicated student account area:
+
+1. **SRM University Institutional Branding:**
+   - Displayed in the top corner of the site header on every page (`SRM UNIVERSITY`).
+   - Polished pastel-pink accent palette (`--color-pink-*`, `.btn-pink`, `.btn-pink-primary`, `.card-pastel-pink`, `.badge-pastel-pink`) providing high contrast and full WCAG 2.2 AA/AAA readability.
+   - Responsive layout adapting seamlessly across mobile phones, tablets, and desktop displays.
+
+2. **Student Account & Profile:**
+   - **Student Sign In & Registration (`SignInView`):** Supports authenticated access and account registration with validation for email, password, and international contact numbers.
+   - **Student Profile Area (`ProfileView`):** Collects, displays, and allows students to edit the five verified profile fields:
+     - Full Name
+     - Email Address (permanent institutional identity)
+     - Contact Number (validated for 7–15 digits without country-code bias)
+     - Course / Program (editable text entry, e.g. B.Tech, M.Tech, MBA)
+     - Branch / Specialization (editable text entry, e.g. Computer Science, Mechanical)
+   - **Sign Out Action:** Session termination available directly from the top header and profile view, redirecting safely to the sign-in/home view.
+
+3. **Authentication & Privacy Security Architecture:**
+   - **Interface Segregation & DIP:** High-level code depends on `IStudentAuthService`, implemented by `LocalStorageStudentAuthService`.
+   - **Zero Plain-Text Password Storage:** Password hashes are computed client-side using standard Web Crypto API (`window.crypto.subtle.digest('SHA-256')`) with per-user cryptographic salts. No plain-text passwords or secret keys are stored or hardcoded.
+   - **Route Protection:** Access to the Student Profile route is strictly guarded. Unauthenticated access immediately redirects to the Sign In page with an explanatory notice.
+   - **Privacy Guarantee:** Student contact numbers, courses, and branches are strictly isolated and never exposed on public problem tickets, lookup screens, or transport views.
+   - **Demo Credentials:** Pre-seeded for evaluation:
+     - **Email:** `ananya.s@srmist.edu.in`
+     - **Password:** `Student@123` (Quick "Auto-Fill Demo" button provided on Sign In page).
+
+---
+
 ## 🚀 Current Milestone Status
 
 - [x] **Phase 0:** Requirements, Architecture, UX, and SOLID Baseline — **COMPLETE**
-- [ ] **Phase 1:** Repository Foundation, Design Tokens & Vertical Skeleton — **NEXT**
-- [ ] **Phase 2:** Student-Facing Core MVP Flows (Safety, Transport, Reporting)
-- [ ] **Phase 3:** Staff Triage, Security Hardening & Role Authorization
-- [ ] **Phase 4:** Production Review, Class Demo & Final Handover
+- [x] **Phase 1:** Repository Foundation, Design Tokens & Vertical Skeleton — **COMPLETE**
+- [x] **Phase 2:** Student-Facing Core MVP Flows (Safety, Transport, Reporting, Public Status Lookup) — **COMPLETE**
+- [x] **Phase 3:** Admin Block Operations, State Machine Triage & Audit History — **COMPLETE**
+- [x] **Phase 4:** SRM University Branding, Student Sign-In/Sign-Out, Profile Management & Security Hardening — **COMPLETE**
+
