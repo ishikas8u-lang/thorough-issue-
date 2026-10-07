@@ -1,0 +1,447 @@
+openapi: 3.1.0
+info:
+  title: Campus Assist Backend API
+  version: 1.0.0
+  description: >
+    RESTful operations backend for Campus Assist (SRM University Operations Portal).
+    Provides emergency safety contacts, scheduled Delhi NCR ⇄ Sonipat transit timetables,
+    anonymous facilities defect reporting, public status lookup, and student authentication.
+servers:
+  - url: http://127.0.0.1:4000
+    description: Local development backend server
+
+components:
+  securitySchemes:
+    StudentBearerAuth:
+      type: http
+      scheme: bearer
+      description: Bearer token obtained from `/api/auth/signin` or `/api/auth/signup`.
+    StudentCookieAuth:
+      type: apiKey
+      in: cookie
+      name: session_token
+      description: Stateful HTTP-only session cookie.
+    StaffAuth:
+      type: apiKey
+      in: header
+      name: X-Staff-User
+      description: Administrative staff reviewer credential header (e.g., `staff_vansh`).
+
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: available
+        service:
+          type: string
+          example: campus-assist-backend
+        timestamp:
+          type: string
+          format: date-time
+        uptimeSeconds:
+          type: integer
+          example: 120
+        database:
+          type: string
+          example: connected
+
+    StudentProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          example: stu-demo-fictional-01
+        fullName:
+          type: string
+          example: Demo Student (Sample Evaluation Account)
+        email:
+          type: string
+          format: email
+          example: ananya.s@srmist.edu.in
+        contactNumber:
+          type: string
+          example: "+91 99999 00001"
+        course:
+          type: string
+          example: B.Tech (Sample Course)
+        branch:
+          type: string
+          example: Computer Science (Sample Branch)
+        updatedAt:
+          type: string
+          format: date-time
+
+    AuthSessionResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: tok_84d7a8f102c4b9e2819034
+        expiresAt:
+          type: string
+          format: date-time
+        student:
+          $ref: '#/components/schemas/StudentProfile'
+
+    SignUpRequest:
+      type: object
+      required:
+        - fullName
+        - email
+        - contactNumber
+        - course
+        - branch
+        - password
+      properties:
+        fullName:
+          type: string
+          minLength: 2
+          example: Demo Student
+        email:
+          type: string
+          format: email
+          example: ananya.s@srmist.edu.in
+        contactNumber:
+          type: string
+          description: Validated for 7–15 digits without country-code bias
+          example: "+91 98765 43210"
+        course:
+          type: string
+          example: B.Tech
+        branch:
+          type: string
+          example: Computer Science & Engineering
+        password:
+          type: string
+          minLength: 6
+          example: Student@123
+
+    SignInRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: ananya.s@srmist.edu.in
+        password:
+          type: string
+          example: Student@123
+
+    ReportSubmissionRequest:
+      type: object
+      required:
+        - category
+        - locationDescription
+        - issueDescription
+        - privacyAgreed
+      properties:
+        category:
+          type: string
+          enum:
+            - LIGHTING_ELECTRICAL
+            - BUILDING_FACILITY
+            - CLEANLINESS
+            - ACCESSIBILITY
+            - TRANSPORT_STOP
+            - OTHER
+          example: LIGHTING_ELECTRICAL
+        locationDescription:
+          type: string
+          minLength: 5
+          example: North Quad Pathway near Library
+        issueDescription:
+          type: string
+          minLength: 15
+          maxLength: 500
+          example: Overhead streetlight luminaire is flickering and dark after sunset.
+        privacyAgreed:
+          type: boolean
+          example: true
+
+    ReportSubmissionResponse:
+      type: object
+      properties:
+        referenceCode:
+          type: string
+          example: CA-4819-B3
+        status:
+          type: string
+          example: RECEIVED
+        createdAt:
+          type: string
+          format: date-time
+        message:
+          type: string
+          example: Report received and queued for review. Save your reference code.
+
+    PublicReportLookupResponse:
+      type: object
+      description: Safe public projection. Never includes internal notes, staff actor IDs, or student data.
+      properties:
+        referenceCode:
+          type: string
+          example: CA-4819-B3
+        category:
+          type: string
+          example: LIGHTING_ELECTRICAL
+        locationDescription:
+          type: string
+          example: North Quad Pathway near Library
+        status:
+          type: string
+          example: IN_PROGRESS
+        createdAt:
+          type: string
+          format: date-time
+        updates:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+                example: IN_PROGRESS
+              message:
+                type: string
+                example: Electrician team dispatched with replacement fixture.
+              timestamp:
+                type: string
+                format: date-time
+
+    StaffStatusUpdateRequest:
+      type: object
+      required:
+        - targetStatus
+      properties:
+        targetStatus:
+          type: string
+          enum:
+            - RECEIVED
+            - IN_REVIEW
+            - IN_PROGRESS
+            - RESOLVED
+            - DUPLICATE
+            - REJECTED
+          example: IN_PROGRESS
+        publicMessage:
+          type: string
+          example: Electrician team dispatched with replacement fixture.
+        internalNote:
+          type: string
+          description: Strictly confidential internal note recorded in immutable audit log.
+          example: Assigned to contractor Verma Electricals, work order #E-401.
+
+paths:
+  /api/health:
+    get:
+      summary: Health Check Endpoint
+      description: Reports service availability and database connectivity without leaking configuration or secrets.
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api/auth/signup:
+    post:
+      summary: Register Student Account
+      description: Creates student profile with salted SHA-256 password hash.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUpRequest'
+      responses:
+        '201':
+          description: Student created and session established
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSessionResponse'
+        '400':
+          description: Validation error
+        '409':
+          description: Email conflict
+        '429':
+          description: Rate limit exceeded (5 requests/min)
+
+  /api/auth/signin:
+    post:
+      summary: Student Sign In
+      description: Authenticates student against salted password hash and establishes session.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignInRequest'
+      responses:
+        '200':
+          description: Successfully authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSessionResponse'
+        '401':
+          description: Invalid credentials
+        '429':
+          description: Rate limit exceeded (5 requests/min)
+
+  /api/auth/profile:
+    get:
+      summary: Get Student Profile
+      security:
+        - StudentBearerAuth: []
+        - StudentCookieAuth: []
+      responses:
+        '200':
+          description: Active student session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSessionResponse'
+        '401':
+          description: Unauthorized
+    put:
+      summary: Update Student Profile
+      security:
+        - StudentBearerAuth: []
+        - StudentCookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fullName:
+                  type: string
+                contactNumber:
+                  type: string
+                course:
+                  type: string
+                branch:
+                  type: string
+      responses:
+        '200':
+          description: Profile updated
+        '401':
+          description: Unauthorized
+
+  /api/auth/signout:
+    post:
+      summary: Sign Out
+      security:
+        - StudentBearerAuth: []
+        - StudentCookieAuth: []
+      responses:
+        '200':
+          description: Session terminated
+
+  /api/reports:
+    post:
+      summary: Submit Facilities Defect Report
+      description: Submits report anonymously and generates trackable non-sequential reference code.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportSubmissionRequest'
+      responses:
+        '201':
+          description: Report queued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportSubmissionResponse'
+        '400':
+          description: Validation error
+        '429':
+          description: Rate limit exceeded (10 requests/min)
+
+  /api/reports/lookup/{referenceCode}:
+    get:
+      summary: Public Report Status Lookup
+      description: Privacy-preserving lookup returning public status projection only.
+      parameters:
+        - name: referenceCode
+          in: path
+          required: true
+          schema:
+            type: string
+            example: CA-4912-K7
+      responses:
+        '200':
+          description: Public report status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicReportLookupResponse'
+        '404':
+          description: Report not found
+        '429':
+          description: Rate limit exceeded (30 requests/min)
+
+  /api/staff/reports:
+    get:
+      summary: List Operations Triage Queue (Staff Only)
+      security:
+        - StaffAuth: []
+      responses:
+        '200':
+          description: Triage report records with full audit trail
+        '401':
+          description: Unauthorized
+
+  /api/staff/reports/{id}/status:
+    patch:
+      summary: Update Report Status (Staff Only)
+      description: Enforces state machine transition matrix and logs immutable audit entry.
+      security:
+        - StaffAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StaffStatusUpdateRequest'
+      responses:
+        '200':
+          description: Status transition executed
+        '401':
+          description: Unauthorized
+        '404':
+          description: Report not found
+        '422':
+          description: Illegal state transition rejected by ReportStatusPolicy
+
+  /api/safety:
+    get:
+      summary: Safety & Emergency Directory
+      description: Returns verified emergency contact and safe assembly locations.
+      responses:
+        '200':
+          description: Safety directory with demo flags
+
+  /api/routes:
+    get:
+      summary: Transit Timetables & Schedules
+      description: Returns scheduled departure timetables for Delhi NCR ⇄ Sonipat corridor.
+      responses:
+        '200':
+          description: Transit routes and schedules

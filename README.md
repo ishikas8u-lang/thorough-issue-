@@ -72,6 +72,52 @@ The platform is customized for **SRM University** with a dedicated student accou
 
 ---
 
+---
+
+## 🛠️ Backend Architecture & Local Operations Guide
+
+The backend is built with native Node.js (v24+) Clean Architecture, SQLite persistence, and Web Crypto security.
+
+### 1. Backend Scripts & Commands
+
+```bash
+# 1. Apply Database Schema Migrations (Idempotent)
+npm run backend:migrate
+
+# 2. Seed Fictional Demo Evaluation Data
+npm run backend:seed
+
+# 3. Start Backend HTTP Server (Default: http://127.0.0.1:4000)
+npm run backend:start
+
+# 4. Run Automated Backend Checks & Integration Test Suite
+npm test
+```
+
+### 2. Automated Test Suite Coverage
+
+The automated test suite (`backend/tests/*.test.mjs`) validates 23 mission-critical flows:
+- **Sign-In & Profile Authorization (`auth.test.mjs`):** Salted SHA-256 password hashing, zero plain-text storage, duplicate email prevention, contact number format checks, Bearer token profile authorization, and session invalidation on sign-out.
+- **Report Submission & Privacy Isolation (`reports.test.mjs`):** Anonymous submission generating non-sequential `CA-XXXX-XX` reference codes, privacy projection redacting internal UUIDs, staff actor IDs, and internal notes.
+- **State Machine Transitions (`transitions.test.mjs`):** Enforces legal state machine sequence (`RECEIVED` &rarr; `IN_REVIEW` &rarr; `IN_PROGRESS` &rarr; `RESOLVED`), rejecting illegal direct jumps (e.g. `RECEIVED` &rarr; `RESOLVED` directly returns `422 Unprocessable Entity`).
+- **Staff-Only Operations (`staff.test.mjs`):** Access control guarding triage queues and status transitions against unauthorized actors (401/403).
+- **Transport & Safety Responses (`transport_safety.test.mjs`):** Verified directory responses, fictional demo flagging (`isDemo: true`), and scheduled transit timetables for Delhi NCR ⇄ Sonipat (7:30 AM – 7:00 PM).
+- **Health-Check Sanitization (`health.test.mjs`):** Proves `/api/health` reports uptime and database status without exposing secrets or configuration.
+
+### 3. API Documentation & OpenAPI Specification
+
+- **OpenAPI 3.1 Spec:** [`docs/openapi.yaml`](file:///c:/Users/ishuv/ProjectWork/docs/openapi.yaml)
+- **Concise Endpoint Guide:** [`docs/API-DOCUMENTATION.md`](file:///c:/Users/ishuv/ProjectWork/docs/API-DOCUMENTATION.md)
+
+### 4. Configuration & Security Governance
+
+- **Environment Template:** Copy [`.env.example`](file:///c:/Users/ishuv/ProjectWork/.env.example) to `.env` for local configuration. Never commit real secrets.
+- **CORS Policies:** Configured via `ALLOWED_ORIGINS`. Reject unlisted cross-origin requests; never allow `*` in production mode.
+- **Rate Limiting:** Sliding-window buckets prevent brute-force attacks on sign-in (5 req/min), spam on report creation (10 req/min), and scraping on status lookups (30 req/min).
+- **Git Exclusions:** `.env*` files, database files (`*.sqlite`, `*.db`), database dumps (`*.dump`), and upload directories are strictly excluded via `.gitignore`.
+
+---
+
 ## 🚀 Current Milestone Status
 
 - [x] **Phase 0:** Requirements, Architecture, UX, and SOLID Baseline — **COMPLETE**
@@ -79,4 +125,6 @@ The platform is customized for **SRM University** with a dedicated student accou
 - [x] **Phase 2:** Student-Facing Core MVP Flows (Safety, Transport, Reporting, Public Status Lookup) — **COMPLETE**
 - [x] **Phase 3:** Admin Block Operations, State Machine Triage & Audit History — **COMPLETE**
 - [x] **Phase 4:** SRM University Branding, Student Sign-In/Sign-Out, Profile Management & Security Hardening — **COMPLETE**
+- [x] **Backend Completion:** Migrations, Fictional Seed Data, Health Check, CORS, Rate Limiting, OpenAPI Spec, and 23 Automated Checks — **COMPLETE**
+
 

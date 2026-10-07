@@ -23,14 +23,21 @@ dist-ssr
 *.sln
 *.sw?
 
-# Environment files
+# Environment files (always exclude secrets; allow only example template)
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
 
-# Database
+# Database files & dumps
 *.sqlite
 *.sqlite3
 *.db
+*.dump
+*.sql.gz
+backend/data/
+
+# Uploaded files & temporary assets
+uploads/
+backend/uploads/
+scratch/
+
