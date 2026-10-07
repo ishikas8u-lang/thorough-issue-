@@ -44,6 +44,14 @@ export const StaffView: React.FC<StaffViewProps> = ({
   };
 
   useEffect(() => {
+    const prevTitle = document.title;
+    document.title = 'Admin Block — Campus Assist';
+    return () => {
+      document.title = prevTitle;
+    };
+  }, []);
+
+  useEffect(() => {
     if (staffUser) {
       loadReports();
     }
@@ -113,8 +121,14 @@ export const StaffView: React.FC<StaffViewProps> = ({
             <Lock size={28} />
           </div>
 
+          <nav aria-label="Breadcrumb" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', fontSize: '0.8125rem', color: 'var(--color-text-subtle)', marginBottom: '0.75rem' }}>
+            <span>Campus Operations</span>
+            <span>&rsaquo;</span>
+            <span style={{ color: 'var(--color-brand-primary)', fontWeight: 600 }}>Admin Block</span>
+          </nav>
+
           <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-brand-primary)', marginBottom: '0.5rem' }}>
-            Staff Operations Triage Portal
+            Admin Block: Operations Triage Portal
           </h2>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: '1.75rem' }}>
             Authorized campus facility reviewers only. Enforces state machine policy and immutable audit tracking.
@@ -128,7 +142,7 @@ export const StaffView: React.FC<StaffViewProps> = ({
           >
             <div className="form-group" style={{ textAlign: 'left' }}>
               <label className="form-label" htmlFor="staff-user">
-                Staff Identity / Reviewer ID
+                Admin / Reviewer ID
               </label>
               <input
                 id="staff-user"
@@ -145,7 +159,7 @@ export const StaffView: React.FC<StaffViewProps> = ({
             </div>
 
             <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '0.5rem' }}>
-              Sign In to Triage Portal
+              Sign In to Admin Block
             </button>
           </form>
         </div>
@@ -161,8 +175,15 @@ export const StaffView: React.FC<StaffViewProps> = ({
       {/* Staff Header Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '1rem' }}>
         <div>
+          <nav aria-label="Breadcrumb" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8125rem', color: 'var(--color-text-subtle)', marginBottom: '0.4rem' }}>
+            <span>Campus Operations</span>
+            <span>&rsaquo;</span>
+            <span style={{ color: 'var(--color-brand-primary)', fontWeight: 600 }}>Admin Block</span>
+            <span>&rsaquo;</span>
+            <span>Review Queue &amp; Triage</span>
+          </nav>
           <h1 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-brand-primary)' }}>
-            Facilities Review Queue & Triage
+            Admin Block: Review Queue & Triage
           </h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
             <User size={15} /> Authenticated Reviewer: <strong>{staffUser}</strong>
@@ -368,7 +389,7 @@ export const StaffView: React.FC<StaffViewProps> = ({
 
                   <div className="form-group">
                     <label className="form-label" htmlFor="internal-note">
-                      Internal Staff Note (STRICTLY PRIVATE - Never Leaked to Public)
+                      Internal Admin Note (STRICTLY PRIVATE - Never Leaked to Public)
                     </label>
                     <input
                       id="internal-note"

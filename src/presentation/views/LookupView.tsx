@@ -198,7 +198,7 @@ export const LookupView: React.FC<LookupViewProps> = ({ reportRepository, initia
             </div>
           ) : (
             <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', background: 'var(--color-surface-subtle)', padding: '1rem', borderRadius: 'var(--radius-md)' }}>
-              No public maintenance notes posted yet. The report is awaiting staff inspection.
+              No public maintenance notes posted yet. The report is awaiting Admin Block inspection.
             </p>
           )}
         </div>

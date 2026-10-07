@@ -63,6 +63,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
           <button
             className={`nav-btn ${activeTab === 'staff' ? 'active' : ''}`}
+            aria-label={staffUser ? `Admin Block (${staffUser})` : 'Admin Block'}
+            title="Admin Block operations and review queue"
             onClick={() => {
               if (staffUser) {
                 setActiveTab('staff');
@@ -71,7 +73,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }
             }}
           >
-            <Lock size={17} /> {staffUser ? `Staff (${staffUser})` : 'Staff Login'}
+            <Lock size={17} /> {staffUser ? `Admin Block (${staffUser})` : 'Admin Block'}
           </button>
         </nav>
 

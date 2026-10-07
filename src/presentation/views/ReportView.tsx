@@ -147,7 +147,7 @@ export const ReportView: React.FC<ReportViewProps> = ({ reportRepository, onTrac
           </div>
 
           <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', lineHeight: 1.55, marginBottom: '2rem' }}>
-            Save this code to check progress or read official staff updates at any time without logging in.
+            Save this code to check progress or read official Admin Block updates at any time without logging in.
           </p>
 
           <div style={{ display: 'flex', gap: '0.85rem', justifyContent: 'center', flexWrap: 'wrap' }}>
