@@ -55,11 +55,11 @@ export const LookupView: React.FC<LookupViewProps> = ({ reportRepository, initia
   return (
     <div className="container" style={{ paddingBottom: '4rem', paddingTop: '1.5rem', maxWidth: '780px' }}>
       {/* Title */}
-      <div style={{ marginBottom: '1.75rem', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--color-brand-primary)' }}>
+      <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
+        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.5rem', fontWeight: 700, color: 'var(--color-brand-primary)' }}>
           Track Campus Report Progress
         </h1>
-        <p style={{ color: 'var(--color-text-muted)', fontSize: '1.05rem', marginTop: '0.25rem' }}>
+        <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem', marginTop: '0.35rem' }}>
           Query your reference code to view sanitized status updates and maintenance progress.
         </p>
       </div>
@@ -71,9 +71,9 @@ export const LookupView: React.FC<LookupViewProps> = ({ reportRepository, initia
           background: 'var(--color-surface)',
           border: '1px solid var(--color-border)',
           borderRadius: 'var(--radius-lg)',
-          padding: '1.5rem',
+          padding: '1.75rem',
           boxShadow: 'var(--shadow-sm)',
-          marginBottom: '2rem',
+          marginBottom: '2.25rem',
         }}
       >
         <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -85,10 +85,10 @@ export const LookupView: React.FC<LookupViewProps> = ({ reportRepository, initia
             onChange={(e) => setRefInput(e.target.value)}
             style={{
               fontFamily: 'var(--font-mono)',
-              fontSize: '1.1rem',
-              fontWeight: 700,
+              fontSize: '1.15rem',
+              fontWeight: 800,
               textTransform: 'uppercase',
-              letterSpacing: '0.05em',
+              letterSpacing: '0.06em',
             }}
           />
           <button type="submit" className="btn-primary" style={{ whiteSpace: 'nowrap' }} disabled={isLoading}>
@@ -99,7 +99,7 @@ export const LookupView: React.FC<LookupViewProps> = ({ reportRepository, initia
 
       {/* Results View */}
       {isLoading ? (
-        <div style={{ textAlign: 'center', padding: '3rem', background: 'var(--color-surface)', borderRadius: 'var(--radius-lg)' }}>
+        <div style={{ textAlign: 'center', padding: '3rem', background: 'var(--color-surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)' }}>
           <p style={{ color: 'var(--color-text-muted)' }}>Querying facilities ledger...</p>
         </div>
       ) : reportResult ? (
@@ -108,51 +108,51 @@ export const LookupView: React.FC<LookupViewProps> = ({ reportRepository, initia
             background: 'var(--color-surface)',
             border: '1px solid var(--color-border)',
             borderRadius: 'var(--radius-lg)',
-            padding: '2rem',
+            padding: '2.25rem',
             boxShadow: 'var(--shadow-md)',
           }}
         >
           {/* Header Row */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '1.25rem', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '1.35rem', marginBottom: '1.75rem' }}>
             <div>
-              <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-subtle)', fontWeight: 600, textTransform: 'uppercase' }}>
+              <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-subtle)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 Report Reference
               </div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.75rem', fontWeight: 800, color: 'var(--color-brand-primary)' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '2rem', fontWeight: 800, color: 'var(--color-brand-primary)' }}>
                 {reportResult.referenceCode}
               </div>
             </div>
 
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-subtle)', fontWeight: 600, textTransform: 'uppercase', marginBottom: '0.25rem' }}>
+              <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-subtle)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                 Current Status
               </div>
-              <span className={`badge badge-${STATUS_LABELS[reportResult.status].tone}`} style={{ fontSize: '0.9rem', padding: '0.35rem 0.75rem' }}>
+              <span className={`badge badge-${STATUS_LABELS[reportResult.status].tone}`} style={{ fontSize: '0.925rem', padding: '0.4rem 0.85rem' }}>
                 {STATUS_LABELS[reportResult.status].label}
               </span>
             </div>
           </div>
 
           {/* Details Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginBottom: '2.25rem' }}>
             <div>
-              <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-subtle)', fontWeight: 600 }}>Category</div>
-              <div style={{ fontWeight: 600, color: 'var(--color-text-main)' }}>
+              <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-subtle)', fontWeight: 700 }}>Category</div>
+              <div style={{ fontWeight: 700, color: 'var(--color-text-main)', marginTop: '0.2rem' }}>
                 {CATEGORY_LABELS[reportResult.category]}
               </div>
             </div>
 
             <div>
-              <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-subtle)', fontWeight: 600 }}>Landmark Location</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-text-main)' }}>
+              <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-subtle)', fontWeight: 700 }}>Landmark Location</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', color: 'var(--color-text-main)', fontWeight: 600, marginTop: '0.2rem' }}>
                 <MapPin size={16} color="var(--color-brand-accent)" />
                 {reportResult.locationDescription}
               </div>
             </div>
 
             <div>
-              <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-subtle)', fontWeight: 600 }}>Logged At</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
+              <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-subtle)', fontWeight: 700 }}>Logged At</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', color: 'var(--color-text-muted)', fontSize: '0.925rem', marginTop: '0.2rem' }}>
                 <Clock size={16} />
                 {new Date(reportResult.createdAt).toLocaleString()}
               </div>
@@ -160,15 +160,15 @@ export const LookupView: React.FC<LookupViewProps> = ({ reportRepository, initia
           </div>
 
           {/* Public Updates Timeline */}
-          <h3 style={{ fontSize: '1.2rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <CheckCircle2 size={18} color="var(--color-brand-accent)" /> Maintenance Progress & Public Updates
+          <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.35rem', color: 'var(--color-brand-primary)', marginBottom: '1.35rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <CheckCircle2 size={20} color="var(--color-brand-accent)" /> Maintenance Progress & Public Updates
           </h3>
 
           {reportResult.updates.length > 0 ? (
             <div style={{ position: 'relative', paddingLeft: '1.5rem', marginLeft: '0.5rem' }}>
-              <div style={{ position: 'absolute', top: '8px', bottom: '16px', left: '7px', width: '2px', background: '#cbd5e1' }} />
+              <div style={{ position: 'absolute', top: '8px', bottom: '16px', left: '7px', width: '2px', background: '#c8baa7' }} />
               {reportResult.updates.map((update, idx) => (
-                <div key={idx} style={{ position: 'relative', marginBottom: '1.5rem' }}>
+                <div key={idx} style={{ position: 'relative', marginBottom: '1.65rem' }}>
                   <div
                     style={{
                       position: 'absolute',
@@ -178,11 +178,11 @@ export const LookupView: React.FC<LookupViewProps> = ({ reportRepository, initia
                       height: '16px',
                       borderRadius: '50%',
                       background: 'var(--color-brand-accent)',
-                      border: '3px solid #ffffff',
-                      boxShadow: '0 0 0 1px #94a3b8',
+                      border: '3px solid #fdfbf7',
+                      boxShadow: '0 0 0 1px #b8a698',
                     }}
                   />
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', marginBottom: '0.3rem' }}>
                     <span className={`badge badge-${STATUS_LABELS[update.status].tone}`}>
                       {STATUS_LABELS[update.status].label}
                     </span>
@@ -190,14 +190,14 @@ export const LookupView: React.FC<LookupViewProps> = ({ reportRepository, initia
                       {new Date(update.timestamp).toLocaleString()}
                     </span>
                   </div>
-                  <p style={{ fontSize: '0.925rem', color: 'var(--color-text-main)', background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid #e2e8f0', marginTop: '0.35rem' }}>
+                  <p style={{ fontSize: '0.9375rem', color: 'var(--color-text-main)', background: 'var(--color-surface-subtle)', padding: '0.85rem 1.15rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', marginTop: '0.35rem', lineHeight: 1.55 }}>
                     {update.message}
                   </p>
                 </div>
               ))}
             </div>
           ) : (
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
+            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', background: 'var(--color-surface-subtle)', padding: '1rem', borderRadius: 'var(--radius-md)' }}>
               No public maintenance notes posted yet. The report is awaiting staff inspection.
             </p>
           )}
@@ -208,13 +208,13 @@ export const LookupView: React.FC<LookupViewProps> = ({ reportRepository, initia
             background: 'var(--color-surface)',
             border: '1px solid var(--color-border)',
             borderRadius: 'var(--radius-lg)',
-            padding: '2.5rem',
+            padding: '2.75rem',
             textAlign: 'center',
           }}
         >
-          <AlertCircle size={36} color="#94a3b8" style={{ margin: '0 auto 0.75rem' }} />
-          <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>No Report Found</h3>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', maxWidth: '440px', margin: '0 auto' }}>
+          <AlertCircle size={40} color="#948177" style={{ margin: '0 auto 0.85rem' }} />
+          <h3 style={{ fontSize: '1.35rem', marginBottom: '0.5rem', color: 'var(--color-brand-primary)' }}>No Report Found</h3>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem', maxWidth: '440px', margin: '0 auto', lineHeight: 1.55 }}>
             No report matching reference code <code>{searchedRef}</code> was found. Please ensure the code is spelled correctly (format: <code>CA-XXXX-XX</code>).
           </p>
         </div>

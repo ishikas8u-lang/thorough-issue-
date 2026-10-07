@@ -38,12 +38,15 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
       </section>
 
       {/* Hero Intro */}
-      <div style={{ textAlign: 'center', margin: '2.5rem auto 1.5rem', maxWidth: '720px' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-brand-primary)', marginBottom: '0.75rem' }}>
-          One Reliable Hub for Campus Essentials
+      <div style={{ textAlign: 'center', margin: '3rem auto 2rem', maxWidth: '760px' }}>
+        <div style={{ display: 'inline-block', fontSize: '0.8125rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--color-brand-accent)', marginBottom: '0.5rem' }}>
+          Official Student Operations Gateway
+        </div>
+        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.85rem', fontWeight: 700, color: 'var(--color-brand-primary)', marginBottom: '0.9rem', letterSpacing: '-0.02em', lineHeight: 1.18 }}>
+          One Authoritative Hub for Campus Life & Operations
         </h1>
-        <p style={{ fontSize: '1.125rem', color: 'var(--color-text-muted)' }}>
-          Access verified emergency helplines, scheduled shuttle timetables, and submit trackable facilities defect reports without rummaging through noticeboards or chat groups.
+        <p style={{ fontSize: '1.15rem', color: 'var(--color-text-muted)', lineHeight: 1.65 }}>
+          Access verified emergency hotlines, inspect scheduled shuttle timetables, and submit trackable facilities defect reports without lost chat threads or outdated noticeboards.
         </p>
       </div>
 
@@ -52,7 +55,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
         {/* Service 1: Safety */}
         <div className="service-card">
           <div>
-            <div className="service-card-icon" style={{ background: '#eff6ff', color: '#1d4ed8' }}>
+            <div className="service-card-icon" style={{ background: '#f6e4e7', color: '#6e121f' }}>
               <ShieldAlert size={28} />
             </div>
             <h3>Safety & Emergency</h3>
@@ -68,7 +71,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
         {/* Service 2: Transport */}
         <div className="service-card">
           <div>
-            <div className="service-card-icon" style={{ background: '#f0fdf4', color: '#15803d' }}>
+            <div className="service-card-icon" style={{ background: '#ecdec9', color: '#572f16' }}>
               <Bus size={28} />
             </div>
             <h3>Campus Transport</h3>
@@ -84,7 +87,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
         {/* Service 3: Report an Issue */}
         <div className="service-card">
           <div>
-            <div className="service-card-icon" style={{ background: '#fef3c7', color: '#b45309' }}>
+            <div className="service-card-icon" style={{ background: '#f5e8e3', color: '#7a2214' }}>
               <Wrench size={28} />
             </div>
             <h3>Facilities Issue Reporting</h3>
@@ -104,16 +107,16 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
           background: 'var(--color-surface)',
           border: '1px solid var(--color-border)',
           borderRadius: 'var(--radius-lg)',
-          padding: '2rem',
+          padding: '2.25rem',
           margin: '2.5rem 0',
           boxShadow: 'var(--shadow-sm)',
         }}
       >
         <div style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center' }}>
-          <h3 style={{ fontSize: '1.35rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-            <Search size={20} color="var(--color-brand-accent)" /> Track an Existing Report
+          <h3 style={{ fontSize: '1.45rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--color-brand-primary)' }}>
+            <Search size={22} color="var(--color-brand-accent)" /> Track an Existing Report
           </h3>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', marginBottom: '1.25rem' }}>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: 1.55 }}>
             Have a reference code (e.g. <code>CA-4912-K7</code>)? Check its real-time triage status and official public maintenance notes.
           </p>
           <form onSubmit={handleLookupSubmit} style={{ display: 'flex', gap: '0.75rem', maxWidth: '480px', margin: '0 auto' }}>
@@ -133,30 +136,30 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
       </div>
 
       {/* Core Architectural & Value Highlights */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem', marginTop: '2rem' }}>
-        <div style={{ background: '#f8fafc', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid #e2e8f0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#0369a1', fontWeight: 700, marginBottom: '0.35rem' }}>
-            <CheckCircle2 size={18} /> Truthful Scheduled Transit
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginTop: '2rem' }}>
+        <div style={{ background: 'var(--color-surface)', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#572f16', fontWeight: 700, marginBottom: '0.45rem' }}>
+            <CheckCircle2 size={18} color="var(--color-brand-accent)" /> Truthful Scheduled Transit
           </div>
-          <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
+          <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', lineHeight: 1.55 }}>
             Timetables clearly indicate scheduled times in IST without misleading live GPS claims.
           </p>
         </div>
 
-        <div style={{ background: '#f8fafc', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid #e2e8f0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#15803d', fontWeight: 700, marginBottom: '0.35rem' }}>
-            <CheckCircle2 size={18} /> Privacy-First Design
+        <div style={{ background: 'var(--color-surface)', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#21541c', fontWeight: 700, marginBottom: '0.45rem' }}>
+            <CheckCircle2 size={18} color="#21541c" /> Privacy-First Design
           </div>
-          <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
+          <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', lineHeight: 1.55 }}>
             No mandatory student roll numbers or GPS tracking. Public lookups show safe status projections only.
           </p>
         </div>
 
-        <div style={{ background: '#f8fafc', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid #e2e8f0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#6d28d9', fontWeight: 700, marginBottom: '0.35rem' }}>
-            <Clock size={18} /> SOLID Architecture
+        <div style={{ background: 'var(--color-surface)', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-brand-primary)', fontWeight: 700, marginBottom: '0.45rem' }}>
+            <Clock size={18} color="var(--color-brand-accent)" /> SOLID Architecture
           </div>
-          <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
+          <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', lineHeight: 1.55 }}>
             Built following SRP, OCP, LSP, ISP, and DIP for rock-solid testability and modular maintainability.
           </p>
         </div>

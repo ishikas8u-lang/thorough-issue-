@@ -97,63 +97,64 @@ export const ReportView: React.FC<ReportViewProps> = ({ reportRepository, onTrac
   // If submitted successfully, show Confirmation Screen
   if (submittedRefCode) {
     return (
-      <div className="container" style={{ paddingBottom: '4rem', paddingTop: '2rem', maxWidth: '680px' }}>
+      <div className="container" style={{ paddingBottom: '4rem', paddingTop: '2.5rem', maxWidth: '680px' }}>
         <div
           style={{
             background: 'var(--color-surface)',
             border: '1px solid var(--color-border)',
             borderRadius: 'var(--radius-lg)',
-            padding: '2.5rem',
+            padding: '2.75rem',
             textAlign: 'center',
             boxShadow: 'var(--shadow-md)',
           }}
         >
           <div
             style={{
-              width: '4rem',
-              height: '4rem',
+              width: '4.25rem',
+              height: '4.25rem',
               borderRadius: '50%',
-              background: '#ecfdf5',
-              color: '#059669',
+              background: '#f6e4e7',
+              color: 'var(--color-brand-primary)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              margin: '0 auto 1.25rem',
+              margin: '0 auto 1.35rem',
+              border: '2px solid rgba(82, 15, 27, 0.15)',
             }}
           >
-            <CheckCircle size={36} />
+            <CheckCircle size={40} />
           </div>
 
-          <h1 style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--color-brand-primary)' }}>
+          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.1rem', fontWeight: 700, color: 'var(--color-brand-primary)' }}>
             Report Successfully Logged!
           </h1>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem', margin: '0.5rem 0 1.5rem' }}>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: '1rem', margin: '0.6rem 0 1.6rem', lineHeight: 1.55 }}>
             Your facilities report has been received and queued for review by campus maintenance teams.
           </p>
 
           <div className="ref-code-box">
-            <div style={{ fontSize: '0.8125rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-subtle)' }}>
+            <div style={{ fontSize: '0.8125rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-subtle)' }}>
               Your Trackable Reference Code
             </div>
             <div className="ref-code-text">{submittedRefCode}</div>
             <button
               onClick={handleCopyCode}
               className="btn-secondary"
-              style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
+              style={{ padding: '0.55rem 1.15rem', fontSize: '0.875rem' }}
             >
-              {copied ? <><Check size={16} color="green" /> Copied to Clipboard!</> : <><Copy size={16} /> Copy Reference Code</>}
+              {copied ? <><Check size={16} color="var(--color-brand-accent)" /> Copied to Clipboard!</> : <><Copy size={16} /> Copy Reference Code</>}
             </button>
           </div>
 
-          <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.5, marginBottom: '2rem' }}>
+          <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', lineHeight: 1.55, marginBottom: '2rem' }}>
             Save this code to check progress or read official staff updates at any time without logging in.
           </p>
 
-          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '0.85rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button
               className="btn-primary"
               onClick={() => onTrackSubmitted(submittedRefCode)}
-              style={{ minWidth: '180px' }}
+              style={{ minWidth: '190px' }}
             >
               Track Report Status <ArrowRight size={16} />
             </button>
@@ -177,28 +178,28 @@ export const ReportView: React.FC<ReportViewProps> = ({ reportRepository, onTrac
   return (
     <div className="container" style={{ paddingBottom: '4rem', paddingTop: '1.5rem', maxWidth: '780px' }}>
       {/* Title */}
-      <div style={{ marginBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--color-brand-primary)' }}>
+      <div style={{ marginBottom: '1.75rem' }}>
+        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.5rem', fontWeight: 700, color: 'var(--color-brand-primary)' }}>
           Report a Campus Facilities Problem
         </h1>
-        <p style={{ color: 'var(--color-text-muted)', fontSize: '1.05rem', marginTop: '0.25rem' }}>
+        <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem', marginTop: '0.35rem' }}>
           Submit trackable reports for broken lighting, plumbing leaks, accessibility barriers, or sanitation.
         </p>
       </div>
 
       {/* Mandatory Emergency Intercept Warning */}
-      <div className="alert-notice" style={{ background: '#fef2f2', borderColor: '#fca5a5', borderLeftColor: '#dc2626', color: '#991b1b', marginBottom: '2rem' }}>
-        <div className="alert-notice-title" style={{ color: '#991b1b' }}>
-          <AlertTriangle size={20} /> DO NOT USE THIS FORM FOR EMERGENCIES
+      <div className="alert-notice" style={{ background: 'var(--color-urgent-soft)', borderColor: 'var(--color-urgent-border)', borderLeftColor: 'var(--color-urgent-bg)', color: '#540f1a', marginBottom: '2rem' }}>
+        <div className="alert-notice-title" style={{ color: '#540f1a' }}>
+          <AlertTriangle size={20} color="var(--color-urgent-bg)" /> DO NOT USE THIS FORM FOR EMERGENCIES
         </div>
-        <p style={{ fontSize: '0.9375rem', lineHeight: 1.5 }}>
+        <p style={{ fontSize: '0.9375rem', lineHeight: 1.55 }}>
           If you are reporting an active fire, gas leak, building collapse hazard, or medical danger, <strong>call Campus Security immediately</strong>. Web tickets are processed during standard facility operating hours.
         </p>
-        <div style={{ marginTop: '0.75rem' }}>
+        <div style={{ marginTop: '0.85rem' }}>
           <a
             href={`tel:${PRIMARY_EMERGENCY.phone}`}
             className="urgent-dial-btn"
-            style={{ padding: '0.45rem 0.85rem', fontSize: '0.85rem' }}
+            style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
           >
             <Phone size={14} /> Call Security Hotline: {PRIMARY_EMERGENCY.phone}
           </a>
@@ -212,12 +213,12 @@ export const ReportView: React.FC<ReportViewProps> = ({ reportRepository, onTrac
           background: 'var(--color-surface)',
           border: '1px solid var(--color-border)',
           borderRadius: 'var(--radius-lg)',
-          padding: '2rem',
+          padding: '2.25rem',
           boxShadow: 'var(--shadow-sm)',
         }}
       >
         {validationError && (
-          <div style={{ background: '#fee2e2', border: '1px solid #f87171', color: '#b91c1c', padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+          <div style={{ background: '#fae4e7', border: '1px solid #eab0ba', color: '#731221', padding: '0.85rem 1.15rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', fontSize: '0.925rem', fontWeight: 600 }}>
             {validationError}
           </div>
         )}
@@ -284,13 +285,13 @@ export const ReportView: React.FC<ReportViewProps> = ({ reportRepository, onTrac
         </div>
 
         {/* 4. Privacy Notice */}
-        <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid #e2e8f0', margin: '1.5rem 0' }}>
-          <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', cursor: 'pointer', fontSize: '0.875rem', color: '#334155' }}>
+        <div style={{ background: 'var(--color-surface-subtle)', padding: '1.15rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', margin: '1.75rem 0' }}>
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', cursor: 'pointer', fontSize: '0.875rem', color: 'var(--color-text-main)', lineHeight: 1.55 }}>
             <input
               type="checkbox"
               checked={privacyAgreed}
               onChange={(e) => setPrivacyAgreed(e.target.checked)}
-              style={{ marginTop: '0.2rem', cursor: 'pointer' }}
+              style={{ marginTop: '0.2rem', cursor: 'pointer', accentColor: 'var(--color-brand-accent)' }}
             />
             <span>
               <strong>Privacy & Processing Agreement:</strong> I understand this report will be routed to campus facilities operations. No student roll number or intrusive personal identification is recorded or shared publicly.
@@ -302,7 +303,7 @@ export const ReportView: React.FC<ReportViewProps> = ({ reportRepository, onTrac
         <button
           type="submit"
           className="btn-primary"
-          style={{ width: '100%', padding: '0.85rem', fontSize: '1rem' }}
+          style={{ width: '100%', padding: '0.9rem', fontSize: '1rem' }}
           disabled={isSubmitting}
         >
           <ShieldCheck size={18} />
