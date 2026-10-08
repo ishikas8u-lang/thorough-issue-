@@ -31,7 +31,7 @@ export const StaffView: React.FC<StaffViewProps> = ({
   const [updateSuccess, setUpdateSuccess] = useState<string | null>(null);
 
   // Login input state
-  const [loginInput, setLoginInput] = useState('staff_vansh');
+  const [loginInput, setLoginInput] = useState('admin');
 
   const statusPolicy = new ReportStatusPolicy();
 
@@ -74,7 +74,7 @@ export const StaffView: React.FC<StaffViewProps> = ({
         targetStatus,
         publicMessage,
         internalNote,
-        staffUser || 'staff_anonymous'
+        staffUser || 'admin'
       );
 
       setUpdateSuccess(`Status successfully transitioned to ${STATUS_LABELS[targetStatus].label}`);
@@ -151,11 +151,11 @@ export const StaffView: React.FC<StaffViewProps> = ({
                 className="form-input"
                 value={loginInput}
                 onChange={(e) => setLoginInput(e.target.value)}
-                placeholder="e.g. staff_vansh or staff_krisha"
+                placeholder="e.g. admin or officer"
                 required
               />
               <div className="form-hint">
-                Demo role: use <code>staff_vansh</code> or <code>staff_krisha</code>.
+                Demo role: use <code>admin</code> or authorized administrator credentials.
               </div>
             </div>
 
@@ -187,8 +187,8 @@ export const StaffView: React.FC<StaffViewProps> = ({
             Admin Block: Review Queue &amp; Triage
           </h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', flexWrap: 'wrap' }}>
-            <User size={14} /> Authenticated Reviewer: <strong>{staffUser}</strong>
-            <span className="badge badge-received">RBAC: Facilities Officer</span>
+            <User size={14} /> Authenticated Reviewer: <strong>{staffUser === 'admin' ? 'Admin Officer' : staffUser}</strong>
+            <span className="badge badge-received">RBAC: Admin Block Operations</span>
           </div>
         </div>
 

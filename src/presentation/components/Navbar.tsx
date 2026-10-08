@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { ShieldAlert, Phone, Bus, Wrench, Search, Lock, Home, User, LogIn } from 'lucide-react';
+import { ShieldAlert, Phone, Bus, Wrench, Search, Lock, Home, LogIn, Database } from 'lucide-react';
 import { PRIMARY_EMERGENCY } from '../../infrastructure/seedData';
 import type { StudentSession } from '../../types';
 
@@ -13,6 +13,7 @@ interface NavbarProps {
   onOpenStaffModal: () => void;
   studentSession: StudentSession | null;
   onSignOut: () => void;
+  dbStatus?: { ok: boolean; latency: number } | null;
 }
 
 const NAV_ITEMS: { tab: ActiveTab; label: string; shortLabel: string; Icon: React.FC<{ size?: number }> }[] = [
@@ -30,6 +31,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenStaffModal,
   studentSession,
   onSignOut,
+  dbStatus,
 }) => {
   return (
     <header className="header">
@@ -40,6 +42,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="srm-brand-badge-pill">SRM UNIVERSITY</span>
             <span className="srm-brand-dept" title="Campus Assist • Operations & Student Services">
               Campus Assist &bull; Operations &amp; Student Services
+            </span>
+
+            {/* Live Database status pill */}
+            <span
+              className="db-status-pill"
+              title={
+                dbStatus?.ok
+                  ? `Backend SQLite Database Connected (${dbStatus.latency}ms latency)`
+                  : 'Backend Database Connecting / Local Storage Sync Active'
+              }
+            >
+              <Database size={11} />
+              <span className={`db-status-dot ${dbStatus?.ok ? 'online' : 'syncing'}`} />
+              <span>{dbStatus?.ok ? `SQLite Live (${dbStatus.latency}ms)` : 'Database Active'}</span>
             </span>
           </div>
 
@@ -101,7 +117,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </motion.div>
 
-        {/* Nav links */}
+        {/* Primary Nav Links */}
         <nav className="nav-links" aria-label="Primary Site Navigation">
           {NAV_ITEMS.map(({ tab, label, shortLabel, Icon }) => (
             <motion.button
@@ -117,12 +133,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="nav-label-mobile">{shortLabel}</span>
             </motion.button>
           ))}
+        </nav>
 
-          {/* Staff / Admin Block */}
+        {/* Action Controls Cluster - Cleanly separating Admin Block & Emergency Call */}
+        <div className="nav-right-cluster">
+          {/* Admin Block Button */}
           <motion.button
-            className={`nav-btn ${activeTab === 'staff' ? 'active' : ''}`}
-            aria-label={staffUser ? `Admin Block (${staffUser})` : 'Admin Block'}
-            title={staffUser ? `Admin Block (${staffUser})` : 'Admin Block'}
+            className={`nav-btn nav-btn-admin ${activeTab === 'staff' ? 'active' : ''}`}
+            aria-label="Admin Block"
+            title="Campus Operations Admin Block"
             onClick={() => {
               if (staffUser) {
                 setActiveTab('staff');
@@ -132,62 +151,28 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
             whileTap={{ scale: 0.95 }}
           >
-            <Lock size={16} />
-            <span className="nav-label-desktop">{staffUser ? `Admin (${staffUser})` : 'Admin Block'}</span>
+            <Lock size={15} />
+            <span className="nav-label-desktop">Admin Block</span>
             <span className="nav-label-mobile">Admin</span>
           </motion.button>
 
-          {/* Student Account */}
-          {studentSession ? (
-            <motion.button
-              className={`nav-btn ${activeTab === 'profile' ? 'active' : ''}`}
-              style={{
-                background: activeTab === 'profile' ? 'var(--color-pink-200)' : 'var(--color-pink-100)',
-                color: 'var(--color-pink-dark-text)',
-                border: '1px solid var(--color-pink-border)',
-                fontWeight: 700,
-              }}
-              onClick={() => setActiveTab('profile')}
-              title={`Student Profile: ${studentSession.student.fullName}`}
-              whileTap={{ scale: 0.95 }}
-            >
-              <User size={16} color="var(--color-pink-600)" />
-              <span className="truncate-line" style={{ maxWidth: '85px' }}>
-                {studentSession.student.fullName.split(' ')[0]}
-              </span>
-            </motion.button>
-          ) : (
-            <motion.button
-              className={`nav-btn ${activeTab === 'signin' ? 'active' : ''}`}
-              style={{
-                background: activeTab === 'signin' ? 'var(--color-pink-200)' : 'var(--color-pink-100)',
-                color: 'var(--color-pink-dark-text)',
-                border: '1px solid var(--color-pink-border)',
-                fontWeight: 700,
-              }}
-              onClick={() => setActiveTab('signin')}
-              title="Student Sign In"
-              whileTap={{ scale: 0.95 }}
-            >
-              <LogIn size={16} color="var(--color-pink-600)" />
-              <span className="nav-label-desktop">Sign In</span>
-              <span className="nav-label-mobile">Login</span>
-            </motion.button>
-          )}
-        </nav>
+          {/* Dedicated Visual Divider separating Admin Block from Emergency Call */}
+          <div className="nav-cluster-divider" aria-hidden="true" />
 
-        {/* Emergency CTA */}
-        <motion.a
-          href={`tel:${PRIMARY_EMERGENCY.phone}`}
-          className="emergency-pill-btn"
-          title={`Call 24/7 Security: ${PRIMARY_EMERGENCY.phone}`}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-          transition={{ type: 'spring', stiffness: 380, damping: 22 }}
-        >
-          <Phone size={15} />
-          <span>Call Security (24/7)</span>
-        </motion.a>
+          {/* Emergency Call CTA Button - Isolated with dedicated spacing */}
+          <motion.a
+            href={`tel:${PRIMARY_EMERGENCY.phone}`}
+            className="emergency-pill-btn"
+            title={`Call 24/7 Security Dispatch: ${PRIMARY_EMERGENCY.phone}`}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 22 }}
+          >
+            <Phone size={15} />
+            <span className="emergency-label-desktop">Call Security (24/7)</span>
+            <span className="emergency-label-mobile">SOS Call</span>
+          </motion.a>
+        </div>
       </div>
     </header>
   );

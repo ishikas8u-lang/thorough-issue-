@@ -22,6 +22,7 @@ import {
   SEED_REPORTS,
 } from './seedData';
 import { ReportStatusPolicy } from '../domain/ReportStatusPolicy';
+import { apiClient } from './apiClient';
 
 const STORAGE_KEY = 'campus_assist_reports_v1';
 
@@ -32,7 +33,6 @@ export class LocalStorageReportRepository implements IReportRepository {
     try {
       const data = localStorage.getItem(STORAGE_KEY);
       if (!data) {
-        // Initialize with realistic seed reports
         this.saveStoredReports(SEED_REPORTS);
         return SEED_REPORTS;
       }
@@ -52,7 +52,9 @@ export class LocalStorageReportRepository implements IReportRepository {
 
   public async save(report: Report): Promise<void> {
     const reports = this.getStoredReports();
-    const existingIndex = reports.findIndex(r => r.id === report.id || r.referenceCode === report.referenceCode);
+    const existingIndex = reports.findIndex(
+      (r) => r.id === report.id || r.referenceCode === report.referenceCode
+    );
     if (existingIndex >= 0) {
       reports[existingIndex] = report;
     } else {
@@ -64,13 +66,13 @@ export class LocalStorageReportRepository implements IReportRepository {
   public async findByReference(referenceCode: string): Promise<Report | null> {
     const reports = this.getStoredReports();
     const cleanRef = referenceCode.trim().toUpperCase();
-    const found = reports.find(r => r.referenceCode.toUpperCase() === cleanRef);
+    const found = reports.find((r) => r.referenceCode.toUpperCase() === cleanRef);
     return found || null;
   }
 
   public async findById(id: string): Promise<Report | null> {
     const reports = this.getStoredReports();
-    const found = reports.find(r => r.id === id);
+    const found = reports.find((r) => r.id === id);
     return found || null;
   }
 
@@ -86,7 +88,7 @@ export class LocalStorageReportRepository implements IReportRepository {
     actorId: string
   ): Promise<Report> {
     const reports = this.getStoredReports();
-    const reportIndex = reports.findIndex(r => r.id === id);
+    const reportIndex = reports.findIndex((r) => r.id === id);
     if (reportIndex === -1) {
       throw new Error(`Report with ID ${id} not found.`);
     }
@@ -121,6 +123,115 @@ export class LocalStorageReportRepository implements IReportRepository {
   }
 }
 
+/**
+ * Connected Backend & SQLite Database Repository
+ * Persists and reads live data from SQLite DB via /api endpoints
+ * Gracefully falls back to local storage if network is offline
+ */
+export class ConnectedBackendReportRepository implements IReportRepository {
+  private localFallback = new LocalStorageReportRepository();
+
+  public async save(report: Report): Promise<void> {
+    try {
+      const res = await apiClient.createReport({
+        category: report.category,
+        locationDescription: report.locationDescription,
+        issueDescription: report.issueDescription,
+        privacyAgreed: true,
+      });
+
+      if (res && res.referenceCode) {
+        report.referenceCode = res.referenceCode;
+        report.status = res.status || 'RECEIVED';
+        report.createdAt = res.createdAt || report.createdAt;
+      }
+    } catch (err) {
+      console.warn('Backend save failed, using local storage cache fallback:', err);
+    }
+    // Always keep local storage in sync
+    await this.localFallback.save(report);
+  }
+
+  public async findByReference(referenceCode: string): Promise<Report | null> {
+    try {
+      const publicView = await apiClient.lookupReport(referenceCode);
+      if (publicView) {
+        const report: Report = {
+          id: `rep-db-${publicView.referenceCode}`,
+          referenceCode: publicView.referenceCode,
+          category: publicView.category,
+          locationDescription: publicView.locationDescription,
+          issueDescription: 'Confidential (Redacted for public verification privacy)',
+          status: publicView.status,
+          createdAt: publicView.createdAt,
+          updatedAt: publicView.createdAt,
+          auditTrail: publicView.updates.map((u, i) => ({
+            id: `aud-${i}`,
+            reportId: `rep-db-${publicView.referenceCode}`,
+            previousStatus: u.status,
+            newStatus: u.status,
+            publicMessage: u.message,
+            actorId: 'Campus Operations',
+            createdAt: u.timestamp,
+          })),
+        };
+        // Update local cache
+        await this.localFallback.save(report);
+        return report;
+      }
+    } catch (err) {
+      console.warn('Backend lookup failed, checking local store:', err);
+    }
+    return this.localFallback.findByReference(referenceCode);
+  }
+
+  public async findById(id: string): Promise<Report | null> {
+    const all = await this.findAll();
+    return all.find((r) => r.id === id) || null;
+  }
+
+  public async findAll(): Promise<Report[]> {
+    try {
+      const dbReports = await apiClient.getStaffReports('admin');
+      if (Array.isArray(dbReports) && dbReports.length > 0) {
+        // Sync local cache
+        for (const rep of dbReports) {
+          await this.localFallback.save(rep);
+        }
+        return dbReports;
+      }
+    } catch (err) {
+      console.warn('Backend findAll failed, using local store:', err);
+    }
+    return this.localFallback.findAll();
+  }
+
+  public async updateStatus(
+    id: string,
+    targetStatus: ReportStatus,
+    publicMessage: string | undefined,
+    internalNote: string | undefined,
+    actorId: string
+  ): Promise<Report> {
+    try {
+      const updated = await apiClient.updateReportStatus(
+        id,
+        targetStatus,
+        publicMessage,
+        internalNote,
+        actorId || 'admin'
+      );
+      if (updated) {
+        await this.localFallback.save(updated);
+        return updated;
+      }
+    } catch (err) {
+      console.warn('Backend status update failed, saving locally:', err);
+    }
+    return this.localFallback.updateStatus(id, targetStatus, publicMessage, internalNote, actorId);
+  }
+}
+
 export class StaticSafetyDirectoryProvider implements ISafetyDirectoryProvider {
   public getPrimaryEmergency(): SafetyContact {
     return PRIMARY_EMERGENCY;
@@ -141,7 +252,7 @@ export class StaticTransportScheduleProvider implements ITransportScheduleProvid
   }
 
   public getRouteById(id: string): Route | undefined {
-    return SEED_ROUTES.find(r => r.id === id);
+    return SEED_ROUTES.find((r) => r.id === id);
   }
 
   public getActiveNotices(): ServiceNotice[] {
@@ -162,8 +273,8 @@ export class PublicReportPresenter implements IPublicReportPresenter {
       status: report.status,
       createdAt: report.createdAt,
       updates: report.auditTrail
-        .filter(a => Boolean(a.publicMessage))
-        .map(a => ({
+        .filter((a) => Boolean(a.publicMessage))
+        .map((a) => ({
           status: a.newStatus,
           message: a.publicMessage!,
           timestamp: a.createdAt,

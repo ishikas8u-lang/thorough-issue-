@@ -93,8 +93,9 @@ export function deleteStudentSession(db, token) {
 
 export function verifyStaffAuth(req) {
   // Checks staff authorization header or reviewer token
-  const staffHeader = req.headers['x-staff-user'] || req.headers['x-staff-id'];
-  if (staffHeader && (staffHeader === 'staff_vansh' || staffHeader === 'staff_krisha')) {
+  const staffHeader = (req.headers['x-staff-user'] || req.headers['x-staff-id'] || '').toLowerCase();
+  const validStaffList = ['staff_vansh', 'staff_krisha', 'admin', 'admin_officer', 'admin_block', 'administrator'];
+  if (staffHeader && validStaffList.includes(staffHeader)) {
     return {
       authenticated: true,
       staffId: staffHeader,
@@ -104,10 +105,15 @@ export function verifyStaffAuth(req) {
 
   // Also check Bearer staff tokens
   const authHeader = req.headers['authorization'];
-  if (authHeader && (authHeader === 'Bearer staff_secret_token_vansh' || authHeader === 'Bearer staff_secret_token_krisha')) {
+  if (
+    authHeader &&
+    (authHeader === 'Bearer staff_secret_token_vansh' ||
+      authHeader === 'Bearer staff_secret_token_krisha' ||
+      authHeader === 'Bearer admin_token')
+  ) {
     return {
       authenticated: true,
-      staffId: authHeader.includes('vansh') ? 'staff_vansh' : 'staff_krisha',
+      staffId: authHeader.includes('vansh') ? 'staff_vansh' : 'admin_officer',
       role: 'FACILITIES_REVIEWER',
     };
   }

@@ -1,5 +1,6 @@
 import type { IStudentAuthService } from '../application/interfaces';
 import type { StudentProfile, StudentSession } from '../types';
+import { apiClient } from './apiClient';
 
 interface StoredAccount {
   id: string;
@@ -267,3 +268,94 @@ export class LocalStorageStudentAuthService implements IStudentAuthService {
     localStorage.removeItem(STORAGE_SESSION_KEY);
   }
 }
+
+/**
+ * Connected Student Auth Service
+ * Calls real backend API and SQLite database
+ * Falls back to LocalStorageStudentAuthService if network is unavailable
+ */
+export class ConnectedStudentAuthService implements IStudentAuthService {
+  private localFallback = new LocalStorageStudentAuthService();
+
+  public async getCurrentSession(): Promise<StudentSession | null> {
+    const localSession = await this.localFallback.getCurrentSession();
+    if (!localSession) return null;
+
+    try {
+      const refreshedStudent = await apiClient.getProfile(localSession.token);
+      if (refreshedStudent) {
+        localSession.student = refreshedStudent;
+        localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(localSession));
+      }
+    } catch {
+      // Use cached session if backend cannot be reached
+    }
+    return localSession;
+  }
+
+  public async signIn(email: string, password: string): Promise<StudentSession> {
+    try {
+      const session = await apiClient.signIn(email, password);
+      localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(session));
+      return session;
+    } catch (err: any) {
+      if (err?.status === 401 || err?.status === 400 || err?.status === 404) {
+        throw err;
+      }
+      console.warn('Backend signIn failed, attempting local fallback:', err);
+      return this.localFallback.signIn(email, password);
+    }
+  }
+
+  public async signUp(
+    profile: Omit<StudentProfile, 'id' | 'updatedAt'>,
+    password: string
+  ): Promise<StudentSession> {
+    try {
+      const session = await apiClient.signUp(profile, password);
+      localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(session));
+      return session;
+    } catch (err: any) {
+      if (err?.status === 409 || err?.status === 400) {
+        throw err;
+      }
+      console.warn('Backend signUp failed, attempting local fallback:', err);
+      return this.localFallback.signUp(profile, password);
+    }
+  }
+
+  public async updateProfile(
+    fields: Partial<Omit<StudentProfile, 'id' | 'email'>>
+  ): Promise<StudentProfile> {
+    const session = await this.getCurrentSession();
+    if (!session) {
+      throw new Error('No active session.');
+    }
+
+    try {
+      const updated = await apiClient.updateProfile(session.token, fields);
+      session.student = updated;
+      localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(session));
+      return updated;
+    } catch (err: any) {
+      if (err?.status === 400 || err?.status === 401) {
+        throw err;
+      }
+      console.warn('Backend updateProfile failed, falling back locally:', err);
+      return this.localFallback.updateProfile(fields);
+    }
+  }
+
+  public async signOut(): Promise<void> {
+    const session = await this.localFallback.getCurrentSession();
+    if (session?.token) {
+      try {
+        await apiClient.signOut(session.token);
+      } catch {
+        // Ignore
+      }
+    }
+    await this.localFallback.signOut();
+  }
+}
+

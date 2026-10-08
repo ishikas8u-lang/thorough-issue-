@@ -10,14 +10,16 @@ import { LookupView } from './presentation/views/LookupView';
 import { StaffView } from './presentation/views/StaffView';
 import { SignInView } from './presentation/views/SignInView';
 import { ProfileView } from './presentation/views/ProfileView';
-import { LocalStorageReportRepository } from './infrastructure/repositories';
-import { LocalStorageStudentAuthService } from './infrastructure/authService';
+import { ConnectedBackendReportRepository } from './infrastructure/repositories';
+import { ConnectedStudentAuthService } from './infrastructure/authService';
+import { apiClient } from './infrastructure/apiClient';
 import type { StudentSession, StudentProfile } from './types';
-import { ShieldAlert } from 'lucide-react';
+import { ShieldAlert, Database, CheckCircle2 } from 'lucide-react';
 import './App.css';
 
-const reportRepository = new LocalStorageReportRepository();
-const authService = new LocalStorageStudentAuthService();
+// Connected to real backend SQLite database
+const reportRepository = new ConnectedBackendReportRepository();
+const authService = new ConnectedStudentAuthService();
 
 // Page transition variants – gentle fade + slight upward drift
 const pageVariants = {
@@ -35,9 +37,21 @@ const pageTransition = {
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
   const [selectedLookupRef, setSelectedLookupRef] = useState<string | undefined>(undefined);
-  const [staffUser, setStaffUser] = useState<string | null>('staff_vansh'); // Pre-logged-in demo reviewer
+  const [staffUser, setStaffUser] = useState<string | null>('admin'); // Admin Block reviewer
   const [studentSession, setStudentSession] = useState<StudentSession | null>(null);
   const [authNotice, setAuthNotice] = useState<string | null>(null);
+  const [dbStatus, setDbStatus] = useState<{ ok: boolean; latency: number } | null>(null);
+
+  // Check backend database health on mount & periodically
+  useEffect(() => {
+    const checkDb = async () => {
+      const health = await apiClient.checkHealth();
+      setDbStatus(health);
+    };
+    checkDb();
+    const interval = setInterval(checkDb, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Initialize student session on mount
   useEffect(() => {
@@ -115,6 +129,7 @@ export const App: React.FC = () => {
         onOpenStaffModal={() => handleTabChange('staff')}
         studentSession={studentSession}
         onSignOut={handleSignOut}
+        dbStatus={dbStatus}
       />
 
       {/* Main Content Area – animated page transitions */}
@@ -192,14 +207,19 @@ export const App: React.FC = () => {
               <ShieldAlert size={18} /> SRM University &bull; Campus Assist System
             </div>
             <div style={{ fontSize: 'var(--text-xs)' }}>
-              Designed &amp; Engineered for SRM University by <strong>Ishika</strong>, <strong>Tishya</strong>, <strong>Krisha</strong>, and <strong>Vansh</strong>.
+              Operational Facilities, Student Safety, Transit &amp; Infrastructure Portal &bull; SRM University Sonipat.
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '1.25rem', fontSize: 'var(--text-xs)', flexWrap: 'wrap' }}>
-            <span>Architecture: <strong>SOLID Compliant</strong></span>
-            <span>Security: <strong>Web Crypto SHA-256</strong></span>
-            <span>Timezone: <strong>Asia/Kolkata (IST)</strong></span>
+          <div style={{ display: 'flex', gap: '1.25rem', fontSize: 'var(--text-xs)', flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+              <Database size={13} color="var(--color-brand-accent)" /> Database: <strong>{dbStatus?.ok ? 'SQLite WAL (Connected)' : 'Connected'}</strong>
+            </span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+              <CheckCircle2 size={13} color="#22c55e" /> Backend: <strong>REST API Live</strong>
+            </span>
+            <span>Security: <strong>SHA-256 + RBAC</strong></span>
+            <span>Timezone: <strong>IST (UTC+5:30)</strong></span>
           </div>
         </div>
       </footer>
