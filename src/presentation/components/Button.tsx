@@ -27,8 +27,8 @@ const variantClass: Record<ButtonVariant, string> = {
 };
 
 const dangerStyle: React.CSSProperties = {
-  background: 'linear-gradient(135deg, #6e121f, #991b1b)',
-  boxShadow: '0 4px 12px rgba(110, 18, 31, 0.28)',
+  background: 'linear-gradient(135deg, #e11d48, #f43f5e)',
+  boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)',
 };
 
 export const Button: React.FC<ButtonProps> = ({

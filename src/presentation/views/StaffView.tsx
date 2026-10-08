@@ -347,13 +347,13 @@ export const StaffView: React.FC<StaffViewProps> = ({
               ) : (
                 <form onSubmit={handleStatusUpdate}>
                   {updateError && (
-                    <div style={{ color: '#b91c1c', background: '#fee2e2', padding: '0.5rem', borderRadius: 'var(--radius-sm)', fontSize: 'var(--text-xs)', marginBottom: '0.75rem' }}>
+                    <div style={{ color: '#fca5a5', background: 'rgba(239, 68, 68, 0.14)', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-sm)', fontSize: 'var(--text-xs)', marginBottom: '0.75rem' }}>
                       {updateError}
                     </div>
                   )}
 
                   {updateSuccess && (
-                    <div style={{ color: '#15803d', background: '#dcfce7', padding: '0.5rem', borderRadius: 'var(--radius-sm)', fontSize: 'var(--text-xs)', marginBottom: '0.75rem' }}>
+                    <div style={{ color: '#86efac', background: 'rgba(34, 197, 94, 0.14)', border: '1px solid rgba(34, 197, 94, 0.3)', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-sm)', fontSize: 'var(--text-xs)', marginBottom: '0.75rem' }}>
                       {updateSuccess}
                     </div>
                   )}
@@ -448,7 +448,7 @@ export const StaffView: React.FC<StaffViewProps> = ({
                     </div>
                   )}
                   {entry.internalNote && (
-                    <div style={{ color: '#b45309', marginTop: '0.15rem', overflowWrap: 'anywhere' }}>
+                    <div style={{ color: '#fde047', marginTop: '0.15rem', overflowWrap: 'anywhere' }}>
                       <em>Internal:</em> &ldquo;{entry.internalNote}&rdquo;
                     </div>
                   )}

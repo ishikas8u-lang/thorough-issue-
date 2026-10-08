@@ -327,8 +327,8 @@ export const TransportView: React.FC = () => {
           >
             <defs>
               <linearGradient id="routeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#801b2a" />
-                <stop offset="50%" stopColor="#e04c62" />
+                <stop offset="0%" stopColor="#be123c" />
+                <stop offset="50%" stopColor="#fb7185" />
                 <stop offset="100%" stopColor="#22c55e" />
               </linearGradient>
             </defs>
@@ -337,7 +337,7 @@ export const TransportView: React.FC = () => {
             <path
               d="M 60,300 C 250,280 400,180 550,140 C 700,100 850,90 940,80"
               fill="none"
-              stroke="rgba(224, 76, 98, 0.2)"
+              stroke="rgba(251, 113, 133, 0.25)"
               strokeWidth="10"
               strokeLinecap="round"
             />
@@ -368,21 +368,21 @@ export const TransportView: React.FC = () => {
                   onMouseLeave={() => setHoveredStop(null)}
                 >
                   {isNext && (
-                    <circle cx={x} cy={y} r="18" fill="rgba(224, 76, 98, 0.25)" className="animate-pulse" />
+                    <circle cx={x} cy={y} r="18" fill="rgba(251, 113, 133, 0.3)" className="animate-pulse" />
                   )}
                   <circle
                     cx={x}
                     cy={y}
                     r={isNext ? '9' : '6'}
-                    fill={isPast ? '#22c55e' : isNext ? '#e04c62' : '#b8a698'}
-                    stroke="#1e1017"
+                    fill={isPast ? '#22c55e' : isNext ? '#fb7185' : '#64748b'}
+                    stroke="#121419"
                     strokeWidth="3"
                   />
                   <text
                     x={x}
                     y={y + 24}
                     textAnchor="middle"
-                    fill={isNext ? '#ffffff' : '#b0a094'}
+                    fill={isNext ? '#ffffff' : '#cbd5e1'}
                     fontSize="11"
                     fontFamily="Outfit, sans-serif"
                     fontWeight={isNext ? '700' : '500'}
@@ -400,12 +400,12 @@ export const TransportView: React.FC = () => {
               return (
                 <g transform={`translate(${x}, ${y})`}>
                   {/* Radar Ripple */}
-                  <circle r="22" fill="none" stroke="#e04c62" strokeWidth="1.5" opacity="0.6">
+                  <circle r="22" fill="none" stroke="#fb7185" strokeWidth="1.5" opacity="0.6">
                     <animate attributeName="r" values="8;30" dur="1.8s" repeatCount="indefinite" />
                     <animate attributeName="opacity" values="0.8;0" dur="1.8s" repeatCount="indefinite" />
                   </circle>
                   {/* Bus Icon Marker Pin */}
-                  <circle r="14" fill="#801b2a" stroke="#ffffff" strokeWidth="2" />
+                  <circle r="14" fill="#e11d48" stroke="#ffffff" strokeWidth="2" />
                   <path
                     d="M -5,-5 L 5,-5 L 5,5 L -5,5 Z"
                     fill="#ffffff"
@@ -795,7 +795,7 @@ export const TransportView: React.FC = () => {
                   bottom: '24px',
                   left: '6px',
                   width: '2px',
-                  background: '#c8baa7',
+                  background: 'var(--color-border)',
                 }}
               />
 
@@ -816,12 +816,12 @@ export const TransportView: React.FC = () => {
                         height: '16px',
                         borderRadius: '50%',
                         background: isApproaching
-                          ? '#e04c62'
+                          ? 'var(--color-brand-primary)'
                           : isFirst || isLast
                           ? 'var(--color-brand-primary)'
                           : 'var(--color-brand-accent)',
-                        border: '3px solid #fdfbf7',
-                        boxShadow: isApproaching ? '0 0 10px #e04c62' : '0 0 0 1px #b8a698',
+                        border: '3px solid var(--color-surface)',
+                        boxShadow: isApproaching ? '0 0 12px var(--color-brand-primary)' : '0 0 0 1px var(--color-border)',
                       }}
                     />
 

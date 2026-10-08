@@ -114,13 +114,13 @@ export const ReportView: React.FC<ReportViewProps> = ({ reportRepository, onTrac
               width: '4rem',
               height: '4rem',
               borderRadius: '50%',
-              background: '#f6e4e7',
+              background: 'rgba(244, 63, 94, 0.15)',
               color: 'var(--color-brand-primary)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 1.25rem',
-              border: '2px solid rgba(82, 15, 27, 0.15)',
+              border: '2px solid rgba(251, 113, 133, 0.35)',
             }}
           >
             <CheckCircle size={36} />
@@ -192,8 +192,8 @@ export const ReportView: React.FC<ReportViewProps> = ({ reportRepository, onTrac
       </div>
 
       {/* Mandatory Emergency Intercept Warning */}
-      <div className="alert-notice" style={{ background: 'var(--color-urgent-soft)', borderColor: 'var(--color-urgent-border)', borderLeftColor: 'var(--color-urgent-bg)', color: '#540f1a', marginBottom: '2rem' }}>
-        <div className="alert-notice-title" style={{ color: '#540f1a' }}>
+      <div className="alert-notice" style={{ background: 'var(--color-urgent-soft)', borderColor: 'var(--color-urgent-border)', borderLeftColor: 'var(--color-urgent-bg)', color: '#ffe4e6', marginBottom: '2rem' }}>
+        <div className="alert-notice-title" style={{ color: '#fecdd3' }}>
           <AlertTriangle size={20} color="var(--color-urgent-bg)" /> DO NOT USE THIS FORM FOR EMERGENCIES
         </div>
         <p style={{ fontSize: 'var(--text-sm)', lineHeight: 'var(--leading-relaxed)' }}>
@@ -224,7 +224,7 @@ export const ReportView: React.FC<ReportViewProps> = ({ reportRepository, onTrac
         }}
       >
         {validationError && (
-          <div style={{ background: '#fae4e7', border: '1px solid #eab0ba', color: '#731221', padding: '0.8rem 1.1rem', borderRadius: 'var(--radius-md)', marginBottom: '1.35rem', fontSize: 'var(--text-sm)', fontWeight: 600 }}>
+          <div style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.35)', color: '#fca5a5', padding: '0.8rem 1.1rem', borderRadius: 'var(--radius-md)', marginBottom: '1.35rem', fontSize: 'var(--text-sm)', fontWeight: 600 }}>
             {validationError}
           </div>
         )}

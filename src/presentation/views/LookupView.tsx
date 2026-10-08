@@ -183,7 +183,7 @@ export const LookupView: React.FC<LookupViewProps> = ({ reportRepository, initia
 
           {reportResult.updates.length > 0 ? (
             <div style={{ position: 'relative', paddingLeft: '1.5rem', marginLeft: '0.4rem', minWidth: 0 }}>
-              <div style={{ position: 'absolute', top: '8px', bottom: '16px', left: '6px', width: '2px', background: '#c8baa7' }} />
+              <div style={{ position: 'absolute', top: '8px', bottom: '16px', left: '6px', width: '2px', background: 'var(--color-border)' }} />
               {reportResult.updates.map((update, idx) => (
                 <div key={idx} style={{ position: 'relative', marginBottom: '1.5rem', minWidth: 0 }}>
                   <div
@@ -195,8 +195,8 @@ export const LookupView: React.FC<LookupViewProps> = ({ reportRepository, initia
                       height: '14px',
                       borderRadius: '50%',
                       background: 'var(--color-brand-accent)',
-                      border: '3px solid #fdfbf7',
-                      boxShadow: '0 0 0 1px #b8a698',
+                      border: '3px solid var(--color-surface)',
+                      boxShadow: '0 0 0 2px var(--color-brand-primary)',
                     }}
                   />
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.3rem', flexWrap: 'wrap' }}>
@@ -230,7 +230,7 @@ export const LookupView: React.FC<LookupViewProps> = ({ reportRepository, initia
             minWidth: 0,
           }}
         >
-          <AlertCircle size={38} color="#948177" style={{ margin: '0 auto 0.75rem' }} />
+          <AlertCircle size={38} color="var(--color-brand-primary)" style={{ margin: '0 auto 0.75rem' }} />
           <h3 className="title-card" style={{ marginBottom: '0.45rem' }}>No Report Found</h3>
           <p className="text-body-muted" style={{ maxWidth: '440px', margin: '0 auto', fontSize: 'var(--text-sm)' }}>
             No report matching reference code <code>{searchedRef}</code> was found. Please ensure the code is spelled correctly (format: <code>CA-XXXX-XX</code>).

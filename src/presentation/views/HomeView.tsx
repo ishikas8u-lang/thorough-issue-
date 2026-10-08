@@ -105,7 +105,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
         {/* Service 1: Safety */}
         <div className="service-card">
           <div>
-            <div className="service-card-icon" style={{ background: '#f6e4e7', color: '#6e121f' }}>
+            <div className="service-card-icon" style={{ background: 'rgba(244, 63, 94, 0.16)', color: 'var(--color-brand-primary)', border: '1px solid rgba(244, 63, 94, 0.3)' }}>
               <ShieldAlert size={26} />
             </div>
             <h3 className="title-card">Safety & Emergency</h3>
@@ -121,7 +121,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
         {/* Service 2: Transport */}
         <div className="service-card">
           <div>
-            <div className="service-card-icon" style={{ background: '#ecdec9', color: '#572f16' }}>
+            <div className="service-card-icon" style={{ background: 'rgba(59, 130, 246, 0.16)', color: '#93c5fd', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
               <Bus size={26} />
             </div>
             <h3 className="title-card">Campus Transport</h3>
@@ -137,7 +137,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
         {/* Service 3: Report an Issue */}
         <div className="service-card">
           <div>
-            <div className="service-card-icon" style={{ background: '#f5e8e3', color: '#7a2214' }}>
+            <div className="service-card-icon" style={{ background: 'rgba(245, 158, 11, 0.16)', color: '#fde047', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
               <Wrench size={26} />
             </div>
             <h3 className="title-card">Facilities Issue Reporting</h3>
@@ -240,7 +240,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
-              color: '#572f16',
+              color: 'var(--color-brand-primary)',
               fontWeight: 700,
               fontSize: 'var(--text-sm)',
               marginBottom: '0.45rem',
@@ -268,13 +268,13 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
-              color: '#21541c',
+              color: '#86efac',
               fontWeight: 700,
               fontSize: 'var(--text-sm)',
               marginBottom: '0.45rem',
             }}
           >
-            <CheckCircle2 size={18} color="#21541c" /> Privacy-First Design
+            <CheckCircle2 size={18} color="#86efac" /> Privacy-First Design
           </div>
           <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', lineHeight: 'var(--leading-relaxed)' }}>
             No mandatory student roll numbers or GPS tracking. Public lookups show safe status projections only.

@@ -151,7 +151,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               type="button"
               onClick={onSignOut}
               className="btn-secondary"
-              style={{ minHeight: '44px', color: '#881337', borderColor: '#f43f5e' }}
+              style={{ minHeight: '44px', color: '#fca5a5', borderColor: 'rgba(244, 63, 94, 0.4)' }}
               title="Sign out of student account"
             >
               <LogOut size={16} /> Sign Out
@@ -163,13 +163,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         {errorMessage && (
           <div
             style={{
-              background: '#fef2f2',
-              border: '1px solid #fecaca',
+              background: 'rgba(239, 68, 68, 0.12)',
+              border: '1px solid rgba(239, 68, 68, 0.35)',
               borderRadius: 'var(--radius-md)',
               padding: '0.75rem 1rem',
               marginBottom: '1.25rem',
               fontSize: 'var(--text-xs)',
-              color: '#991b1b',
+              color: '#fca5a5',
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
@@ -334,14 +334,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   width: '3.5rem',
                   height: '3.5rem',
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, var(--color-pink-600), #851630)',
+                  background: 'linear-gradient(135deg, var(--color-pink-600), #e11d48)',
                   color: '#ffffff',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: 'var(--text-xl)',
                   fontWeight: 800,
-                  boxShadow: '0 4px 10px rgba(184, 45, 77, 0.3)',
+                  boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)',
                   flexShrink: 0,
                 }}
               >

@@ -29,8 +29,8 @@ export const SafetyView: React.FC = () => {
       </div>
 
       {/* Mandatory Emergency Intercept Callout */}
-      <div className="alert-notice" style={{ background: 'var(--color-urgent-soft)', borderColor: 'var(--color-urgent-border)', borderLeftColor: 'var(--color-urgent-bg)', color: '#540f1a', marginBottom: '2rem' }}>
-        <div className="alert-notice-title" style={{ color: '#540f1a' }}>
+      <div className="alert-notice" style={{ background: 'var(--color-urgent-soft)', borderColor: 'var(--color-urgent-border)', borderLeftColor: 'var(--color-urgent-bg)', color: '#ffe4e6', marginBottom: '2rem' }}>
+        <div className="alert-notice-title" style={{ color: '#fecdd3' }}>
           <AlertTriangle size={20} color="var(--color-urgent-bg)" /> Critical Safety & Emergency Disclaimer
         </div>
         <p style={{ fontSize: 'var(--text-sm)', lineHeight: 'var(--leading-relaxed)' }}>
@@ -41,19 +41,19 @@ export const SafetyView: React.FC = () => {
       {/* Primary Emergency Card */}
       <div
         style={{
-          background: 'linear-gradient(135deg, #3d0710 0%, #580f1b 50%, #731625 100%)',
+          background: 'linear-gradient(135deg, #1e222b 0%, #16181f 100%)',
           borderRadius: 'var(--radius-lg)',
           color: '#ffffff',
           padding: '2rem 1.75rem',
           boxShadow: 'var(--shadow-lg)',
           marginBottom: '2.75rem',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
+          border: '1px solid rgba(251, 113, 133, 0.35)',
           minWidth: 0,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem', minWidth: 0 }}>
           <div style={{ minWidth: 0, flex: '1 1 300px' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', background: 'rgba(250, 219, 160, 0.2)', color: '#fadba0', border: '1px solid rgba(250, 219, 160, 0.35)', padding: '0.3rem 0.85rem', borderRadius: 'var(--radius-pill)', fontSize: 'var(--text-xs)', fontWeight: 800, marginBottom: '0.85rem', letterSpacing: 'var(--tracking-wide)', textTransform: 'uppercase' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', background: 'rgba(251, 113, 133, 0.16)', color: 'var(--color-brand-primary)', border: '1px solid rgba(251, 113, 133, 0.3)', padding: '0.3rem 0.85rem', borderRadius: 'var(--radius-pill)', fontSize: 'var(--text-xs)', fontWeight: 800, marginBottom: '0.85rem', letterSpacing: 'var(--tracking-wide)', textTransform: 'uppercase' }}>
               <ShieldAlert size={15} /> 24/7 PRIMARY CAMPUS SECURITY HOTLINE
             </div>
             <h2 style={{ fontFamily: 'var(--font-serif)', color: '#ffffff', fontSize: 'var(--text-2xl)', fontWeight: 700, marginBottom: '0.35rem', lineHeight: 'var(--leading-tight)' }}>
@@ -75,20 +75,20 @@ export const SafetyView: React.FC = () => {
             <a
               href={`tel:${primaryEmergency.phone}`}
               className="urgent-dial-btn"
-              style={{ background: '#ffffff', color: '#520f1b', justifyContent: 'center', fontWeight: 800, minHeight: '44px' }}
+              style={{ background: 'var(--color-brand-gradient-rich)', color: '#ffffff', justifyContent: 'center', fontWeight: 800, minHeight: '44px' }}
               title={`Call Hotline ${primaryEmergency.phone}`}
             >
               <Phone size={18} /> Tap to Call Now
             </a>
             <button
               className="btn-secondary"
-              style={{ background: 'rgba(255,255,255,0.12)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.25)', justifyContent: 'center', minHeight: '44px' }}
+              style={{ background: 'rgba(255,255,255,0.08)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.2)', justifyContent: 'center', minHeight: '44px' }}
               onClick={() => handleCopy(primaryEmergency.id, primaryEmergency.phone)}
               title="Copy Security Phone Number"
             >
               {copiedId === primaryEmergency.id ? (
                 <>
-                  <Check size={16} color="#fadba0" /> Copied!
+                  <Check size={16} color="var(--color-brand-primary)" /> Copied!
                 </>
               ) : (
                 <>
