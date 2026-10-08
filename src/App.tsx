@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { Navbar } from './presentation/components/Navbar';
 import type { ActiveTab } from './presentation/components/Navbar';
 import { HomeView } from './presentation/views/HomeView';
@@ -13,9 +14,23 @@ import { LocalStorageReportRepository } from './infrastructure/repositories';
 import { LocalStorageStudentAuthService } from './infrastructure/authService';
 import type { StudentSession, StudentProfile } from './types';
 import { ShieldAlert } from 'lucide-react';
+import './App.css';
 
 const reportRepository = new LocalStorageReportRepository();
 const authService = new LocalStorageStudentAuthService();
+
+// Page transition variants – gentle fade + slight upward drift
+const pageVariants = {
+  initial:  { opacity: 0, y: 12 },
+  animate:  { opacity: 1, y: 0 },
+  exit:     { opacity: 0, y: -8 },
+};
+
+const pageTransition = {
+  type: 'tween' as const,
+  ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
+  duration: 0.3,
+};
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
@@ -102,59 +117,71 @@ export const App: React.FC = () => {
         onSignOut={handleSignOut}
       />
 
-      {/* Main Content Area */}
-      <main style={{ flex: 1 }}>
-        {activeTab === 'home' && (
-          <HomeView
-            onNavigate={handleTabChange}
-            onQuickLookup={handleQuickLookup}
-          />
-        )}
+      {/* Main Content Area – animated page transitions */}
+      <main style={{ flex: 1, position: 'relative' }}>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            className="page-view"
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={pageTransition}
+          >
+            {activeTab === 'home' && (
+              <HomeView
+                onNavigate={handleTabChange}
+                onQuickLookup={handleQuickLookup}
+              />
+            )}
 
-        {activeTab === 'safety' && <SafetyView />}
+            {activeTab === 'safety' && <SafetyView />}
 
-        {activeTab === 'transport' && <TransportView />}
+            {activeTab === 'transport' && <TransportView />}
 
-        {activeTab === 'report' && (
-          <ReportView
-            reportRepository={reportRepository}
-            onTrackSubmitted={handleTrackSubmitted}
-          />
-        )}
+            {activeTab === 'report' && (
+              <ReportView
+                reportRepository={reportRepository}
+                onTrackSubmitted={handleTrackSubmitted}
+              />
+            )}
 
-        {activeTab === 'lookup' && (
-          <LookupView
-            reportRepository={reportRepository}
-            initialRefCode={selectedLookupRef}
-          />
-        )}
+            {activeTab === 'lookup' && (
+              <LookupView
+                reportRepository={reportRepository}
+                initialRefCode={selectedLookupRef}
+              />
+            )}
 
-        {activeTab === 'signin' && (
-          <SignInView
-            authService={authService}
-            onSuccess={handleSignInSuccess}
-            noticeMessage={authNotice}
-          />
-        )}
+            {activeTab === 'signin' && (
+              <SignInView
+                authService={authService}
+                onSuccess={handleSignInSuccess}
+                noticeMessage={authNotice}
+              />
+            )}
 
-        {/* Protected Profile View */}
-        {activeTab === 'profile' && studentSession && (
-          <ProfileView
-            authService={authService}
-            session={studentSession}
-            onProfileUpdated={handleProfileUpdated}
-            onSignOut={handleSignOut}
-          />
-        )}
+            {/* Protected Profile View */}
+            {activeTab === 'profile' && studentSession && (
+              <ProfileView
+                authService={authService}
+                session={studentSession}
+                onProfileUpdated={handleProfileUpdated}
+                onSignOut={handleSignOut}
+              />
+            )}
 
-        {activeTab === 'staff' && (
-          <StaffView
-            reportRepository={reportRepository}
-            staffUser={staffUser}
-            onLogin={(user) => setStaffUser(user)}
-            onLogout={() => setStaffUser(null)}
-          />
-        )}
+            {activeTab === 'staff' && (
+              <StaffView
+                reportRepository={reportRepository}
+                staffUser={staffUser}
+                onLogin={(user) => setStaffUser(user)}
+                onLogout={() => setStaffUser(null)}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       {/* Footer */}
@@ -164,12 +191,12 @@ export const App: React.FC = () => {
             <div style={{ fontWeight: 700, color: 'var(--color-brand-primary)', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem' }}>
               <ShieldAlert size={18} /> SRM University &bull; Campus Assist System
             </div>
-            <div style={{ fontSize: '0.8125rem' }}>
-              Designed & Engineered for SRM University by <strong>Ishika</strong>, <strong>Tishya</strong>, <strong>Krisha</strong>, and <strong>Vansh</strong>.
+            <div style={{ fontSize: 'var(--text-xs)' }}>
+              Designed &amp; Engineered for SRM University by <strong>Ishika</strong>, <strong>Tishya</strong>, <strong>Krisha</strong>, and <strong>Vansh</strong>.
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '1.25rem', fontSize: '0.8125rem' }}>
+          <div style={{ display: 'flex', gap: '1.25rem', fontSize: 'var(--text-xs)', flexWrap: 'wrap' }}>
             <span>Architecture: <strong>SOLID Compliant</strong></span>
             <span>Security: <strong>Web Crypto SHA-256</strong></span>
             <span>Timezone: <strong>Asia/Kolkata (IST)</strong></span>
@@ -181,4 +208,3 @@ export const App: React.FC = () => {
 };
 
 export default App;
-

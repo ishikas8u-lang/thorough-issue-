@@ -16,10 +16,10 @@ export const TransportView: React.FC = () => {
       <div style={{ marginBottom: '1.75rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.5rem', fontWeight: 700, color: 'var(--color-brand-primary)' }}>
-              Delhi & Haryana ⇄ Sonipat Campus Transport
+            <h1 className="title-section">
+              Delhi &amp; Haryana ⇄ Sonipat Campus Transport
             </h1>
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem', marginTop: '0.35rem' }}>
+            <p className="text-lead" style={{ marginTop: '0.45rem' }}>
               Scheduled intercity and NCR shuttle routes connecting Rohini, Burari, Manglapuri, Panipat, and Rohtak with Sonipat Campus.
             </p>
           </div>
@@ -27,16 +27,18 @@ export const TransportView: React.FC = () => {
           <div
             className="pastel-card-sand"
             style={{
-              padding: '0.65rem 1.25rem',
+              padding: '0.55rem 1.15rem',
               borderRadius: 'var(--radius-pill)',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.55rem',
-              fontSize: '0.8125rem',
+              gap: '0.5rem',
+              fontSize: 'var(--text-xs)',
               fontWeight: 700,
+              letterSpacing: 'var(--tracking-wide)',
+              textTransform: 'uppercase',
             }}
           >
-            <Info size={16} color="var(--color-brand-accent)" /> Scheduled Timetables — 07:30 AM to 07:00 PM
+            <Info size={15} color="var(--color-brand-accent)" /> 07:30 AM to 07:00 PM Timetable
           </div>
         </div>
       </div>
@@ -46,29 +48,30 @@ export const TransportView: React.FC = () => {
         className="pastel-card-blue"
         style={{
           borderRadius: 'var(--radius-lg)',
-          padding: '1.25rem 1.75rem',
+          padding: '1.15rem 1.5rem',
           marginBottom: '2rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           flexWrap: 'wrap',
           gap: '1rem',
+          minWidth: 0,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Navigation size={22} color="var(--color-brand-accent)" />
-          <div>
-            <strong style={{ display: 'block', fontSize: '0.95rem' }}>
-              Active Delhi NCR & Haryana Transit Corridors (Sonipat Campus Bound)
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: '1 1 300px' }}>
+          <Navigation size={22} color="var(--color-brand-accent)" style={{ flexShrink: 0 }} />
+          <div style={{ minWidth: 0 }}>
+            <strong style={{ display: 'block', fontSize: 'var(--text-sm)', lineHeight: 'var(--leading-snug)' }}>
+              Active Delhi NCR &amp; Haryana Transit Corridors (Sonipat Campus Bound)
             </strong>
-            <span style={{ fontSize: '0.85rem', opacity: 0.88 }}>
-              Primary commuter pickup hubs: <strong>Rohini</strong> • <strong>Burari</strong> • <strong>Manglapuri</strong> • <strong>Panipat</strong> • <strong>Rohtak (Rautak)</strong>
+            <span style={{ fontSize: 'var(--text-xs)', opacity: 0.9, lineHeight: 'var(--leading-normal)' }}>
+              Primary commuter pickup hubs: <strong>Rohini</strong> • <strong>Burari</strong> • <strong>Manglapuri</strong> • <strong>Panipat</strong> • <strong>Rohtak</strong>
             </span>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <span className="badge badge-received">Term Time Schedule</span>
+        <div style={{ display: 'flex', gap: '0.45rem', flexWrap: 'wrap' }}>
+          <span className="badge badge-received">Term Time</span>
           <span className="badge badge-progress">7:30 AM – 7:00 PM</span>
         </div>
       </div>
@@ -81,10 +84,10 @@ export const TransportView: React.FC = () => {
               <div className="alert-notice-title">
                 <AlertTriangle size={18} /> {notice.title}
               </div>
-              <p style={{ fontSize: '0.9375rem', lineHeight: 1.55, margin: '0.35rem 0' }}>
+              <p style={{ fontSize: 'var(--text-sm)', lineHeight: 'var(--leading-relaxed)', margin: '0.35rem 0' }}>
                 {notice.body}
               </p>
-              <div style={{ fontSize: '0.8125rem', opacity: 0.85, marginTop: '0.35rem' }}>
+              <div style={{ fontSize: 'var(--text-xs)', opacity: 0.85, marginTop: '0.35rem' }}>
                 Active Window: {new Date(notice.startsAt).toLocaleDateString()} to {new Date(notice.endsAt).toLocaleDateString()}
               </div>
             </div>
@@ -96,11 +99,12 @@ export const TransportView: React.FC = () => {
       <div
         style={{
           display: 'flex',
-          gap: '0.75rem',
+          gap: '0.65rem',
           overflowX: 'auto',
-          paddingBottom: '0.85rem',
+          paddingBottom: '0.75rem',
           marginBottom: '2rem',
           borderBottom: '1px solid var(--color-border)',
+          WebkitOverflowScrolling: 'touch',
         }}
       >
         {routes.map((route) => {
@@ -110,23 +114,26 @@ export const TransportView: React.FC = () => {
               key={route.id}
               onClick={() => setSelectedRouteId(route.id)}
               style={{
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.55rem',
-                padding: '0.8rem 1.35rem',
+                gap: '0.5rem',
+                padding: '0.65rem 1.25rem',
+                minHeight: '44px',
                 borderRadius: 'var(--radius-md)',
                 background: isSelected ? 'var(--color-brand-primary)' : 'var(--color-surface)',
                 color: isSelected ? '#ffffff' : 'var(--color-text-main)',
                 border: isSelected ? '1px solid var(--color-brand-primary)' : '1px solid var(--color-border)',
                 fontWeight: 700,
-                fontSize: '0.9375rem',
+                fontSize: 'var(--text-sm)',
                 whiteSpace: 'nowrap',
-                transition: 'all 0.18s ease',
+                transition: 'var(--transition-all)',
                 boxShadow: isSelected ? '0 4px 12px rgba(82, 15, 27, 0.25)' : 'var(--shadow-sm)',
+                flexShrink: 0,
               }}
+              title={`Switch to route: ${route.name}`}
             >
-              <Bus size={18} />
-              {route.name}
+              <Bus size={17} />
+              <span>{route.name}</span>
             </button>
           );
         })}
@@ -134,56 +141,60 @@ export const TransportView: React.FC = () => {
 
       {/* Selected Route Detail View */}
       {activeRoute ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '1.75rem' }}>
           {/* Left Column: Route Metadata & Timetable Departures */}
           <div
             style={{
               background: 'var(--color-surface)',
               border: '1px solid var(--color-border)',
               borderRadius: 'var(--radius-lg)',
-              padding: '2rem',
+              padding: '1.75rem',
               boxShadow: 'var(--shadow-sm)',
+              minWidth: 0,
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.4rem' }}>
               <span className="badge badge-progress">Active Shuttle Route</span>
               <span className="badge badge-received">Timezone: {activeRoute.timezone}</span>
             </div>
 
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.65rem', marginBottom: '0.6rem', color: 'var(--color-brand-primary)' }}>
+            <h2 className="title-card" style={{ marginBottom: '0.5rem' }}>
               {activeRoute.name}
             </h2>
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: 1.6 }}>
+            <p className="text-body-muted" style={{ fontSize: 'var(--text-sm)', marginBottom: '1.35rem' }}>
               {activeRoute.description}
             </p>
 
-            <div className="pastel-card-sand" style={{ padding: '1.15rem', borderRadius: 'var(--radius-md)', marginBottom: '1.75rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', color: 'var(--color-text-main)', marginBottom: '0.4rem' }}>
-                <Calendar size={16} color="var(--color-brand-accent)" /> <strong>Operating Schedule:</strong> {activeRoute.operatingDays}
+            <div className="pastel-card-sand" style={{ padding: '1rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--text-sm)', color: 'var(--color-text-main)', marginBottom: '0.35rem' }}>
+                <Calendar size={16} color="var(--color-brand-accent)" style={{ flexShrink: 0 }} />
+                <span><strong>Operating Schedule:</strong> {activeRoute.operatingDays}</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-                <Clock size={16} /> Daily Service Window: <strong>07:30 AM to 07:00 PM (IST)</strong>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>
+                <Clock size={15} style={{ flexShrink: 0 }} />
+                <span>Daily Service Window: <strong>07:30 AM to 07:00 PM (IST)</strong></span>
               </div>
             </div>
 
-            <h3 style={{ fontSize: '1.2rem', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.45rem', color: 'var(--color-brand-primary)' }}>
-              <Clock size={18} color="var(--color-brand-accent)" /> Scheduled Departures ({activeRoute.timezone})
+            <h3 className="title-card-sm" style={{ marginBottom: '0.65rem', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+              <Clock size={17} color="var(--color-brand-accent)" /> Scheduled Departures ({activeRoute.timezone})
             </h3>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-subtle)', marginBottom: '1.1rem' }}>
+            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-subtle)', marginBottom: '1rem' }}>
               Timetable departure times from terminus stop #{activeRoute.stops[0]?.sequence || 1}.
             </p>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.55rem', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', marginBottom: '1.5rem' }}>
               {activeRoute.scheduledDepartures.map((time, idx) => (
                 <span
                   key={idx}
                   className="pastel-card-sand"
                   style={{
                     borderRadius: 'var(--radius-sm)',
-                    padding: '0.4rem 0.75rem',
+                    padding: '0.35rem 0.7rem',
                     fontFamily: 'var(--font-mono)',
-                    fontSize: '0.875rem',
+                    fontSize: 'var(--text-xs)',
                     fontWeight: 700,
+                    letterSpacing: '0.02em',
                   }}
                 >
                   {time}
@@ -191,7 +202,7 @@ export const TransportView: React.FC = () => {
               ))}
             </div>
 
-            <div className="pastel-card-sage" style={{ padding: '0.85rem 1rem', borderRadius: 'var(--radius-md)', fontSize: '0.85rem' }}>
+            <div className="pastel-card-sage" style={{ padding: '0.75rem 0.95rem', borderRadius: 'var(--radius-md)', fontSize: 'var(--text-xs)' }}>
               <strong>Notice:</strong> Please arrive at your pickup shelter 5 minutes prior to listed departure times.
             </div>
           </div>
@@ -202,22 +213,23 @@ export const TransportView: React.FC = () => {
               background: 'var(--color-surface)',
               border: '1px solid var(--color-border)',
               borderRadius: 'var(--radius-lg)',
-              padding: '2rem',
+              padding: '1.75rem',
               boxShadow: 'var(--shadow-sm)',
+              minWidth: 0,
             }}
           >
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.45rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-brand-primary)' }}>
-              <MapPin size={22} color="var(--color-brand-accent)" /> Stoppage Sequence ({activeRoute.stops.length} Stops)
+            <h3 className="title-card" style={{ marginBottom: '1.35rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <MapPin size={20} color="var(--color-brand-accent)" /> Stoppage Sequence ({activeRoute.stops.length} Stops)
             </h3>
 
-            <div style={{ position: 'relative', paddingLeft: '1.5rem', marginLeft: '0.5rem' }}>
+            <div style={{ position: 'relative', paddingLeft: '1.6rem', marginLeft: '0.4rem', minWidth: 0 }}>
               {/* Vertical connecting line */}
               <div
                 style={{
                   position: 'absolute',
                   top: '12px',
                   bottom: '24px',
-                  left: '7px',
+                  left: '6px',
                   width: '2px',
                   background: '#c8baa7',
                 }}
@@ -227,15 +239,15 @@ export const TransportView: React.FC = () => {
                 const isFirst = index === 0;
                 const isLast = index === activeRoute.stops.length - 1;
                 return (
-                  <div key={stop.id} style={{ position: 'relative', marginBottom: '1.85rem' }}>
+                  <div key={stop.id} style={{ position: 'relative', marginBottom: '1.65rem', minWidth: 0 }}>
                     {/* Circle Node */}
                     <div
                       style={{
                         position: 'absolute',
-                        left: '-1.85rem',
-                        top: '2px',
-                        width: '18px',
-                        height: '18px',
+                        left: '-1.7rem',
+                        top: '3px',
+                        width: '16px',
+                        height: '16px',
                         borderRadius: '50%',
                         background: isFirst || isLast ? 'var(--color-brand-primary)' : 'var(--color-brand-accent)',
                         border: '3px solid #fdfbf7',
@@ -243,10 +255,10 @@ export const TransportView: React.FC = () => {
                       }}
                     />
 
-                    <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--color-text-main)' }}>
+                    <div style={{ fontWeight: 700, fontSize: 'var(--text-sm)', color: 'var(--color-text-main)', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
                       Stop #{stop.sequence}: {stop.name}
                     </div>
-                    <div style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
+                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginTop: '0.2rem', overflowWrap: 'anywhere' }}>
                       {stop.campusLocation}
                     </div>
                   </div>
@@ -254,14 +266,15 @@ export const TransportView: React.FC = () => {
               })}
             </div>
 
-            <div className="pastel-card-sage" style={{ padding: '0.95rem', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
-              <CheckCircle size={18} /> Shuttle runs regular scheduled intervals across all listed stops between 07:30 AM and 07:00 PM.
+            <div className="pastel-card-sage" style={{ padding: '0.85rem 1rem', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--text-xs)', minWidth: 0 }}>
+              <CheckCircle size={16} style={{ flexShrink: 0 }} />
+              <span>Shuttle runs regular scheduled intervals across all listed stops between 07:30 AM and 07:00 PM.</span>
             </div>
           </div>
         </div>
       ) : (
         <div style={{ textAlign: 'center', padding: '3rem', background: 'var(--color-surface)', borderRadius: 'var(--radius-lg)' }}>
-          <p>No route selected.</p>
+          <p className="text-body-muted">No route selected.</p>
         </div>
       )}
     </div>

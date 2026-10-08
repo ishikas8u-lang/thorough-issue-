@@ -72,7 +72,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   return (
     <div className="container" style={{ paddingBottom: '4rem', paddingTop: '1.5rem', maxWidth: '780px' }}>
       {/* Breadcrumb Navigation */}
-      <nav aria-label="Breadcrumb" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8125rem', color: 'var(--color-text-subtle)', marginBottom: '1.25rem' }}>
+      <nav aria-label="Breadcrumb" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: 'var(--text-xs)', color: 'var(--color-text-subtle)', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
         <span>Campus Operations</span>
         <span>&rsaquo;</span>
         <span>SRM University</span>
@@ -86,8 +86,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           background: 'var(--color-surface)',
           border: '1px solid var(--color-pink-border)',
           borderRadius: 'var(--radius-lg)',
-          padding: '2.5rem',
+          padding: '2.25rem 1.6rem',
           boxShadow: 'var(--shadow-md)',
+          minWidth: 0,
         }}
       >
         {/* Header with SRM University Badge and Actions */}
@@ -100,7 +101,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             gap: '1rem',
             borderBottom: '1px solid var(--color-border)',
             paddingBottom: '1.5rem',
-            marginBottom: '2rem',
+            marginBottom: '1.75rem',
+            minWidth: 0,
           }}
         >
           <div>
@@ -113,9 +115,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 color: 'var(--color-pink-800)',
                 padding: '0.3rem 0.8rem',
                 borderRadius: 'var(--radius-pill)',
-                fontSize: '0.75rem',
+                fontSize: 'var(--text-xs)',
                 fontWeight: 700,
-                letterSpacing: '0.06em',
+                letterSpacing: 'var(--tracking-wide)',
                 textTransform: 'uppercase',
                 marginBottom: '0.5rem',
                 border: '1px solid var(--color-pink-200)',
@@ -125,29 +127,22 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               SRM UNIVERSITY
             </div>
 
-            <h1
-              style={{
-                fontFamily: 'var(--font-serif)',
-                fontSize: '2.1rem',
-                fontWeight: 700,
-                color: 'var(--color-brand-primary)',
-                marginBottom: '0.35rem',
-              }}
-            >
-              Student Profile & Account
+            <h1 className="title-section-clean" style={{ marginBottom: '0.35rem' }}>
+              Student Profile &amp; Account
             </h1>
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem' }}>
+            <p className="text-body-muted" style={{ fontSize: 'var(--text-sm)' }}>
               Verified student account on the Campus Assist operations portal.
             </p>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
             {!isEditing && (
               <button
                 type="button"
                 onClick={handleStartEdit}
                 className="btn-pink"
-                style={{ fontSize: '0.875rem' }}
+                style={{ minHeight: '44px' }}
+                title="Edit student profile details"
               >
                 <Edit3 size={16} /> Edit Profile
               </button>
@@ -156,7 +151,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               type="button"
               onClick={onSignOut}
               className="btn-secondary"
-              style={{ fontSize: '0.875rem', color: '#881337', borderColor: '#f43f5e' }}
+              style={{ minHeight: '44px', color: '#881337', borderColor: '#f43f5e' }}
+              title="Sign out of student account"
             >
               <LogOut size={16} /> Sign Out
             </button>
@@ -170,16 +166,17 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               background: '#fef2f2',
               border: '1px solid #fecaca',
               borderRadius: 'var(--radius-md)',
-              padding: '0.85rem 1rem',
-              marginBottom: '1.5rem',
-              fontSize: '0.875rem',
+              padding: '0.75rem 1rem',
+              marginBottom: '1.25rem',
+              fontSize: 'var(--text-xs)',
               color: '#991b1b',
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
+              minWidth: 0,
             }}
           >
-            <AlertCircle size={18} />
+            <AlertCircle size={16} style={{ flexShrink: 0 }} />
             <span>{errorMessage}</span>
           </div>
         )}
@@ -190,16 +187,17 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               background: 'var(--color-success-bg)',
               border: '1px solid var(--color-success-border)',
               borderRadius: 'var(--radius-md)',
-              padding: '0.85rem 1rem',
-              marginBottom: '1.5rem',
-              fontSize: '0.875rem',
+              padding: '0.75rem 1rem',
+              marginBottom: '1.25rem',
+              fontSize: 'var(--text-xs)',
               color: 'var(--color-success-text)',
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
+              minWidth: 0,
             }}
           >
-            <Check size={18} />
+            <Check size={16} style={{ flexShrink: 0 }} />
             <span>{successMessage}</span>
           </div>
         )}
@@ -207,10 +205,12 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         {/* Profile Card View / Edit Form */}
         {isEditing ? (
           <form onSubmit={handleSaveProfile}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '1.25rem' }}>
               <div className="form-group">
                 <label className="form-label" htmlFor="edit-name">
-                  <User size={15} /> Full Name *
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <User size={15} /> Full Name *
+                  </span>
                 </label>
                 <input
                   id="edit-name"
@@ -224,7 +224,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
               <div className="form-group">
                 <label className="form-label" htmlFor="edit-email">
-                  <Mail size={15} /> University Email (Permanent Identity)
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <Mail size={15} /> University Email (Permanent Identity)
+                  </span>
                 </label>
                 <input
                   id="edit-email"
@@ -239,7 +241,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
               <div className="form-group">
                 <label className="form-label" htmlFor="edit-contact">
-                  <Phone size={15} /> Contact Number *
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <Phone size={15} /> Contact Number *
+                  </span>
                 </label>
                 <input
                   id="edit-contact"
@@ -255,7 +259,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
               <div className="form-group">
                 <label className="form-label" htmlFor="edit-course">
-                  <GraduationCap size={15} /> Course / Program *
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <GraduationCap size={15} /> Course / Program *
+                  </span>
                 </label>
                 <input
                   id="edit-course"
@@ -270,7 +276,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <label className="form-label" htmlFor="edit-branch">
-                  <BookOpen size={15} /> Branch / Specialization *
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <BookOpen size={15} /> Branch / Specialization *
+                  </span>
                 </label>
                 <input
                   id="edit-branch"
@@ -278,18 +286,19 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   className="form-input"
                   value={branch}
                   onChange={(e) => setBranch(e.target.value)}
-                  placeholder="e.g. Computer Science & Engineering"
+                  placeholder="e.g. Computer Science &amp; Engineering"
                   required
                 />
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.85rem', marginTop: '1.5rem', justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
               <button
                 type="button"
                 onClick={handleCancelEdit}
                 className="btn-secondary"
                 disabled={isSaving}
+                style={{ minHeight: '44px' }}
               >
                 <X size={16} /> Cancel
               </button>
@@ -297,6 +306,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 type="submit"
                 className="btn-pink-primary"
                 disabled={isSaving}
+                style={{ minHeight: '44px' }}
               >
                 <Check size={16} /> {isSaving ? 'Saving Changes...' : 'Save Profile Changes'}
               </button>
@@ -314,32 +324,35 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '1.25rem',
-                marginBottom: '2rem',
+                marginBottom: '1.75rem',
+                flexWrap: 'wrap',
+                minWidth: 0,
               }}
             >
               <div
                 style={{
-                  width: '3.75rem',
-                  height: '3.75rem',
+                  width: '3.5rem',
+                  height: '3.5rem',
                   borderRadius: '50%',
                   background: 'linear-gradient(135deg, var(--color-pink-600), #851630)',
                   color: '#ffffff',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '1.5rem',
+                  fontSize: 'var(--text-xl)',
                   fontWeight: 800,
                   boxShadow: '0 4px 10px rgba(184, 45, 77, 0.3)',
+                  flexShrink: 0,
                 }}
               >
                 {session.student.fullName.charAt(0).toUpperCase()}
               </div>
-              <div>
-                <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--color-brand-primary)' }}>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <h2 className="title-card" style={{ marginBottom: '0.2rem', overflowWrap: 'anywhere' }}>
                   {session.student.fullName}
                 </h2>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--color-text-muted)', fontSize: '0.875rem', marginTop: '0.2rem' }}>
-                  <span>{session.student.email}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--color-text-muted)', fontSize: 'var(--text-xs)', flexWrap: 'wrap' }}>
+                  <span className="truncate-line" style={{ maxWidth: '240px' }} title={session.student.email}>{session.student.email}</span>
                   <span>&bull;</span>
                   <span className="badge-pastel-pink">
                     <ShieldCheck size={13} /> Active Student Session
@@ -352,52 +365,52 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
                 gap: '1.25rem',
-                marginBottom: '2rem',
+                marginBottom: '1.75rem',
               }}
             >
-              <div style={{ background: '#ffffff', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-text-subtle)', textTransform: 'uppercase', marginBottom: '0.4rem' }}>
-                  <User size={15} color="var(--color-pink-600)" /> Full Name
+              <div style={{ background: 'var(--color-surface-2)', padding: '1.15rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text-subtle)', textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)', marginBottom: '0.35rem' }}>
+                  <User size={14} color="var(--color-pink-600)" /> Full Name
                 </div>
-                <div style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-text-main)' }}>
+                <div style={{ fontSize: 'var(--text-base)', fontWeight: 700, color: 'var(--color-text-main)', overflowWrap: 'anywhere' }}>
                   {session.student.fullName}
                 </div>
               </div>
 
-              <div style={{ background: '#ffffff', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-text-subtle)', textTransform: 'uppercase', marginBottom: '0.4rem' }}>
-                  <Mail size={15} color="var(--color-pink-600)" /> Email Address
+              <div style={{ background: 'var(--color-surface-2)', padding: '1.15rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text-subtle)', textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)', marginBottom: '0.35rem' }}>
+                  <Mail size={14} color="var(--color-pink-600)" /> Email Address
                 </div>
-                <div style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-text-main)' }}>
+                <div style={{ fontSize: 'var(--text-base)', fontWeight: 700, color: 'var(--color-text-main)', overflowWrap: 'anywhere' }}>
                   {session.student.email}
                 </div>
               </div>
 
-              <div style={{ background: '#ffffff', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-text-subtle)', textTransform: 'uppercase', marginBottom: '0.4rem' }}>
-                  <Phone size={15} color="var(--color-pink-600)" /> Contact Number
+              <div style={{ background: 'var(--color-surface-2)', padding: '1.15rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text-subtle)', textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)', marginBottom: '0.35rem' }}>
+                  <Phone size={14} color="var(--color-pink-600)" /> Contact Number
                 </div>
-                <div style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-text-main)' }}>
+                <div style={{ fontSize: 'var(--text-base)', fontWeight: 700, color: 'var(--color-text-main)', overflowWrap: 'anywhere' }}>
                   {session.student.contactNumber}
                 </div>
               </div>
 
-              <div style={{ background: '#ffffff', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-text-subtle)', textTransform: 'uppercase', marginBottom: '0.4rem' }}>
-                  <GraduationCap size={15} color="var(--color-pink-600)" /> Course / Program
+              <div style={{ background: 'var(--color-surface-2)', padding: '1.15rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text-subtle)', textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)', marginBottom: '0.35rem' }}>
+                  <GraduationCap size={14} color="var(--color-pink-600)" /> Course / Program
                 </div>
-                <div style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-text-main)' }}>
+                <div style={{ fontSize: 'var(--text-base)', fontWeight: 700, color: 'var(--color-text-main)', overflowWrap: 'anywhere' }}>
                   {session.student.course}
                 </div>
               </div>
 
-              <div style={{ background: '#ffffff', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', gridColumn: '1 / -1' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-text-subtle)', textTransform: 'uppercase', marginBottom: '0.4rem' }}>
-                  <BookOpen size={15} color="var(--color-pink-600)" /> Branch / Specialization
+              <div style={{ background: 'var(--color-surface-2)', padding: '1.15rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', gridColumn: '1 / -1', minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text-subtle)', textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)', marginBottom: '0.35rem' }}>
+                  <BookOpen size={14} color="var(--color-pink-600)" /> Branch / Specialization
                 </div>
-                <div style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-text-main)' }}>
+                <div style={{ fontSize: 'var(--text-base)', fontWeight: 700, color: 'var(--color-text-main)', overflowWrap: 'anywhere' }}>
                   {session.student.branch}
                 </div>
               </div>
@@ -411,7 +424,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 justifyContent: 'space-between',
                 flexWrap: 'wrap',
                 gap: '0.5rem',
-                fontSize: '0.8125rem',
+                fontSize: 'var(--text-xs)',
                 color: 'var(--color-text-subtle)',
                 paddingTop: '1rem',
                 borderTop: '1px solid var(--color-border)',
@@ -437,9 +450,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             display: 'flex',
             alignItems: 'center',
             gap: '0.75rem',
-            fontSize: '0.8125rem',
+            fontSize: 'var(--text-xs)',
             color: 'var(--color-text-muted)',
-            lineHeight: 1.5,
+            lineHeight: 'var(--leading-relaxed)',
+            minWidth: 0,
           }}
         >
           <ShieldCheck size={20} color="var(--color-pink-600)" style={{ flexShrink: 0 }} />

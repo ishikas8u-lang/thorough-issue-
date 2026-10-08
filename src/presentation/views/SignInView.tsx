@@ -91,7 +91,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
   return (
     <div className="container" style={{ paddingBottom: '4rem', paddingTop: '1.5rem', maxWidth: '580px' }}>
       {/* Breadcrumb Navigation */}
-      <nav aria-label="Breadcrumb" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8125rem', color: 'var(--color-text-subtle)', marginBottom: '1.25rem' }}>
+      <nav aria-label="Breadcrumb" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: 'var(--text-xs)', color: 'var(--color-text-subtle)', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
         <span>Campus Operations</span>
         <span>&rsaquo;</span>
         <span>SRM University</span>
@@ -105,12 +105,13 @@ export const SignInView: React.FC<SignInViewProps> = ({
           background: 'var(--color-surface)',
           border: '1px solid var(--color-pink-border)',
           borderRadius: 'var(--radius-lg)',
-          padding: '2.5rem 2rem',
+          padding: '2.25rem 1.6rem',
           boxShadow: 'var(--shadow-md)',
+          minWidth: 0,
         }}
       >
         {/* SRM University Institutional Header */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.75rem', minWidth: 0 }}>
           <div
             style={{
               display: 'inline-flex',
@@ -118,55 +119,53 @@ export const SignInView: React.FC<SignInViewProps> = ({
               gap: '0.45rem',
               background: 'var(--color-pink-100)',
               color: 'var(--color-pink-800)',
-              padding: '0.35rem 0.85rem',
+              padding: '0.3rem 0.8rem',
               borderRadius: 'var(--radius-pill)',
-              fontSize: '0.8125rem',
+              fontSize: 'var(--text-xs)',
               fontWeight: 700,
-              letterSpacing: '0.06em',
+              letterSpacing: 'var(--tracking-wide)',
               textTransform: 'uppercase',
-              marginBottom: '0.85rem',
+              marginBottom: '0.75rem',
               border: '1px solid var(--color-pink-200)',
             }}
           >
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-pink-600)' }} />
+            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--color-pink-600)' }} />
             SRM UNIVERSITY
           </div>
 
           <h1
+            className="title-section-clean"
             style={{
-              fontFamily: 'var(--font-serif)',
-              fontSize: '2rem',
-              fontWeight: 700,
-              color: 'var(--color-brand-primary)',
-              marginBottom: '0.45rem',
+              marginBottom: '0.4rem',
             }}
           >
             {mode === 'signin' ? 'Student Sign In' : 'Create Student Account'}
           </h1>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', lineHeight: 1.5 }}>
+          <p className="text-body-muted" style={{ fontSize: 'var(--text-sm)', maxWidth: '440px', margin: '0 auto' }}>
             {mode === 'signin'
               ? 'Access your student profile, saved preferences, and campus service history.'
               : 'Register your student profile for personalized campus operations access.'}
           </p>
         </div>
 
-        {/* Informational Notice Banner (e.g. redirected from protected profile) */}
+        {/* Informational Notice Banner */}
         {noticeMessage && (
           <div
             style={{
               background: 'var(--color-warning-bg)',
               border: '1px solid var(--color-warning-border)',
               borderRadius: 'var(--radius-md)',
-              padding: '0.85rem 1rem',
+              padding: '0.75rem 1rem',
               marginBottom: '1.25rem',
-              fontSize: '0.875rem',
+              fontSize: 'var(--text-xs)',
               color: 'var(--color-warning-text)',
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
+              minWidth: 0,
             }}
           >
-            <AlertCircle size={18} />
+            <AlertCircle size={16} style={{ flexShrink: 0 }} />
             <span>{noticeMessage}</span>
           </div>
         )}
@@ -178,16 +177,17 @@ export const SignInView: React.FC<SignInViewProps> = ({
               background: '#fef2f2',
               border: '1px solid #fecaca',
               borderRadius: 'var(--radius-md)',
-              padding: '0.85rem 1rem',
+              padding: '0.75rem 1rem',
               marginBottom: '1.25rem',
-              fontSize: '0.875rem',
+              fontSize: 'var(--text-xs)',
               color: '#991b1b',
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
+              minWidth: 0,
             }}
           >
-            <AlertCircle size={18} />
+            <AlertCircle size={16} style={{ flexShrink: 0 }} />
             <span>{errorMessage}</span>
           </div>
         )}
@@ -199,16 +199,17 @@ export const SignInView: React.FC<SignInViewProps> = ({
               background: 'var(--color-success-bg)',
               border: '1px solid var(--color-success-border)',
               borderRadius: 'var(--radius-md)',
-              padding: '0.85rem 1rem',
+              padding: '0.75rem 1rem',
               marginBottom: '1.25rem',
-              fontSize: '0.875rem',
+              fontSize: 'var(--text-xs)',
               color: 'var(--color-success-text)',
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
+              minWidth: 0,
             }}
           >
-            <Sparkles size={18} />
+            <Sparkles size={16} style={{ flexShrink: 0 }} />
             <span>{successMessage}</span>
           </div>
         )}
@@ -222,6 +223,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
             borderRadius: 'var(--radius-md)',
             border: '1px solid var(--color-pink-200)',
             marginBottom: '1.75rem',
+            gap: '0.35rem',
           }}
         >
           <button
@@ -232,14 +234,15 @@ export const SignInView: React.FC<SignInViewProps> = ({
             }}
             style={{
               flex: 1,
-              padding: '0.6rem 0.5rem',
+              padding: '0.65rem 0.5rem',
+              minHeight: '44px',
               borderRadius: 'var(--radius-sm)',
               fontWeight: mode === 'signin' ? 700 : 500,
-              fontSize: '0.9rem',
+              fontSize: 'var(--text-sm)',
               color: mode === 'signin' ? 'var(--color-pink-dark-text)' : 'var(--color-text-muted)',
               background: mode === 'signin' ? '#ffffff' : 'transparent',
               boxShadow: mode === 'signin' ? 'var(--shadow-sm)' : 'none',
-              transition: 'all 0.15s ease',
+              transition: 'var(--transition-all)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -256,14 +259,15 @@ export const SignInView: React.FC<SignInViewProps> = ({
             }}
             style={{
               flex: 1,
-              padding: '0.6rem 0.5rem',
+              padding: '0.65rem 0.5rem',
+              minHeight: '44px',
               borderRadius: 'var(--radius-sm)',
               fontWeight: mode === 'signup' ? 700 : 500,
-              fontSize: '0.9rem',
+              fontSize: 'var(--text-sm)',
               color: mode === 'signup' ? 'var(--color-pink-dark-text)' : 'var(--color-text-muted)',
               background: mode === 'signup' ? '#ffffff' : 'transparent',
               boxShadow: mode === 'signup' ? 'var(--shadow-sm)' : 'none',
-              transition: 'all 0.15s ease',
+              transition: 'var(--transition-all)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -279,7 +283,9 @@ export const SignInView: React.FC<SignInViewProps> = ({
           <form onSubmit={handleSignInSubmit}>
             <div className="form-group">
               <label className="form-label" htmlFor="signin-email">
-                <Mail size={15} /> Student Email Address *
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <Mail size={15} /> Student Email Address *
+                </span>
               </label>
               <input
                 id="signin-email"
@@ -295,7 +301,9 @@ export const SignInView: React.FC<SignInViewProps> = ({
 
             <div className="form-group">
               <label className="form-label" htmlFor="signin-password">
-                <Lock size={15} /> Password *
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <Lock size={15} /> Password *
+                </span>
               </label>
               <input
                 id="signin-password"
@@ -315,23 +323,25 @@ export const SignInView: React.FC<SignInViewProps> = ({
                 background: 'var(--color-pink-50)',
                 border: '1px dashed var(--color-pink-300)',
                 borderRadius: 'var(--radius-md)',
-                padding: '0.85rem 1rem',
+                padding: '0.8rem 1rem',
                 margin: '1.25rem 0',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 flexWrap: 'wrap',
                 gap: '0.5rem',
+                minWidth: 0,
               }}
             >
-              <div style={{ fontSize: '0.8125rem', color: 'var(--color-pink-dark-text)' }}>
+              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-pink-dark-text)', overflowWrap: 'anywhere' }}>
                 <strong>Demo Student:</strong> <code>ananya.s@srmist.edu.in</code>
               </div>
               <button
                 type="button"
                 onClick={handleFillDemo}
                 className="btn-pink"
-                style={{ padding: '0.35rem 0.75rem', fontSize: '0.8125rem' }}
+                style={{ padding: '0.35rem 0.75rem', minHeight: '38px', fontSize: 'var(--text-xs)' }}
+                title="Fill credentials for test student"
               >
                 Auto-Fill Demo
               </button>
@@ -341,7 +351,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
               type="submit"
               className="btn-pink-primary"
               disabled={isLoading}
-              style={{ width: '100%', marginTop: '0.5rem' }}
+              style={{ width: '100%', minHeight: '44px', marginTop: '0.5rem' }}
             >
               {isLoading ? 'Signing In...' : 'Sign In to Student Account'}
             </button>
@@ -353,7 +363,9 @@ export const SignInView: React.FC<SignInViewProps> = ({
           <form onSubmit={handleSignUpSubmit}>
             <div className="form-group">
               <label className="form-label" htmlFor="signup-name">
-                <User size={15} /> Full Name *
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <User size={15} /> Full Name *
+                </span>
               </label>
               <input
                 id="signup-name"
@@ -368,7 +380,9 @@ export const SignInView: React.FC<SignInViewProps> = ({
 
             <div className="form-group">
               <label className="form-label" htmlFor="signup-email">
-                <Mail size={15} /> University Email Address *
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <Mail size={15} /> University Email Address *
+                </span>
               </label>
               <input
                 id="signup-email"
@@ -384,7 +398,9 @@ export const SignInView: React.FC<SignInViewProps> = ({
 
             <div className="form-group">
               <label className="form-label" htmlFor="signup-contact">
-                <Phone size={15} /> Contact Number *
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <Phone size={15} /> Contact Number *
+                </span>
               </label>
               <input
                 id="signup-contact"
@@ -400,7 +416,9 @@ export const SignInView: React.FC<SignInViewProps> = ({
 
             <div className="form-group">
               <label className="form-label" htmlFor="signup-course">
-                <GraduationCap size={15} /> Course / Program *
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <GraduationCap size={15} /> Course / Program *
+                </span>
               </label>
               <input
                 id="signup-course"
@@ -415,13 +433,15 @@ export const SignInView: React.FC<SignInViewProps> = ({
 
             <div className="form-group">
               <label className="form-label" htmlFor="signup-branch">
-                <BookOpen size={15} /> Branch / Specialization *
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <BookOpen size={15} /> Branch / Specialization *
+                </span>
               </label>
               <input
                 id="signup-branch"
                 type="text"
                 className="form-input"
-                placeholder="e.g. Computer Science & Engineering, Mechanical, Biotech"
+                placeholder="e.g. Computer Science & Engineering, Mechanical"
                 value={signUpBranch}
                 onChange={(e) => setSignUpBranch(e.target.value)}
                 required
@@ -430,7 +450,9 @@ export const SignInView: React.FC<SignInViewProps> = ({
 
             <div className="form-group">
               <label className="form-label" htmlFor="signup-password">
-                <Lock size={15} /> Password (Minimum 6 Characters) *
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <Lock size={15} /> Password (Minimum 6 Characters) *
+                </span>
               </label>
               <input
                 id="signup-password"
@@ -449,7 +471,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
               type="submit"
               className="btn-pink-primary"
               disabled={isLoading}
-              style={{ width: '100%', marginTop: '0.75rem' }}
+              style={{ width: '100%', minHeight: '44px', marginTop: '0.75rem' }}
             >
               {isLoading ? 'Creating Account...' : 'Complete Registration'}
             </button>
@@ -462,9 +484,9 @@ export const SignInView: React.FC<SignInViewProps> = ({
             marginTop: '2rem',
             paddingTop: '1.25rem',
             borderTop: '1px solid var(--color-border)',
-            fontSize: '0.8125rem',
+            fontSize: 'var(--text-xs)',
             color: 'var(--color-text-subtle)',
-            lineHeight: 1.5,
+            lineHeight: 'var(--leading-relaxed)',
             textAlign: 'center',
           }}
         >

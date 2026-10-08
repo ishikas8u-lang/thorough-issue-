@@ -19,7 +19,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
   };
 
   return (
-    <div className="container" style={{ paddingBottom: '3rem' }}>
+    <div className="container" style={{ paddingBottom: '3.5rem' }}>
       {/* Urgent Emergency Callout Hero Banner */}
       <section className="urgent-hero-banner" role="region" aria-label="Urgent Safety Assistance">
         <div className="urgent-hero-content">
@@ -32,21 +32,39 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
             <strong>Campus Assist is an informational directory, not an emergency dispatch or monitoring service.</strong>
           </p>
         </div>
-        <a href={`tel:${PRIMARY_EMERGENCY.phone}`} className="urgent-dial-btn">
+        <a href={`tel:${PRIMARY_EMERGENCY.phone}`} className="urgent-dial-btn" title={`Call Security Control Room: ${PRIMARY_EMERGENCY.phone}`}>
           <Phone size={18} /> Call Security: {PRIMARY_EMERGENCY.phone}
         </a>
       </section>
 
       {/* Hero Intro */}
-      <div style={{ textAlign: 'center', margin: '3rem auto 2rem', maxWidth: '760px' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.8125rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--color-pink-800)', background: 'var(--color-pink-100)', padding: '0.3rem 0.85rem', borderRadius: 'var(--radius-pill)', border: '1px solid var(--color-pink-200)', marginBottom: '0.75rem' }}>
+      <div style={{ textAlign: 'center', margin: '2.5rem auto 2rem', maxWidth: '760px', minWidth: 0 }}>
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.45rem',
+            fontSize: 'var(--text-xs)',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: 'var(--tracking-wider)',
+            color: 'var(--color-pink-800)',
+            background: 'var(--color-pink-100)',
+            padding: '0.3rem 0.85rem',
+            borderRadius: 'var(--radius-pill)',
+            border: '1px solid var(--color-pink-200)',
+            marginBottom: '0.85rem',
+          }}
+        >
           <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--color-pink-600)' }} />
-          SRM UNIVERSITY &bull; OFFICIAL OPERATIONS GATEWAY
+          SRM UNIVERSITY &bull; OPERATIONS GATEWAY
         </div>
-        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.85rem', fontWeight: 700, color: 'var(--color-brand-primary)', marginBottom: '0.9rem', letterSpacing: '-0.02em', lineHeight: 1.18 }}>
+
+        <h1 className="title-hero" style={{ marginBottom: '0.9rem' }}>
           One Authoritative Hub for Campus Life & Operations
         </h1>
-        <p style={{ fontSize: '1.15rem', color: 'var(--color-text-muted)', lineHeight: 1.65 }}>
+
+        <p className="text-lead" style={{ maxWidth: '680px', margin: '0 auto' }}>
           Access verified emergency hotlines, inspect scheduled shuttle timetables, and submit trackable facilities defect reports without lost chat threads or outdated noticeboards.
         </p>
 
@@ -57,23 +75,25 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
             background: 'var(--color-pink-50)',
             border: '1px solid var(--color-pink-border)',
             borderRadius: 'var(--radius-md)',
-            padding: '1rem 1.5rem',
+            padding: '0.9rem 1.4rem',
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '1rem',
+            gap: '0.9rem',
             flexWrap: 'wrap',
             justifyContent: 'center',
             boxShadow: 'var(--shadow-sm)',
+            maxWidth: '100%',
           }}
         >
-          <div style={{ fontSize: '0.9rem', color: 'var(--color-pink-dark-text)', fontWeight: 600 }}>
+          <div style={{ fontSize: 'var(--text-sm)', color: 'var(--color-pink-dark-text)', fontWeight: 600 }}>
             SRM Students: Sign in to manage your verified student profile and contact details.
           </div>
           <button
             type="button"
             className="btn-pink"
             onClick={() => onNavigate('signin')}
-            style={{ padding: '0.45rem 0.95rem', fontSize: '0.875rem' }}
+            style={{ padding: '0.45rem 0.95rem', minHeight: '44px' }}
+            title="Go to Student Account"
           >
             <User size={15} color="var(--color-pink-600)" /> Student Account <ArrowRight size={14} />
           </button>
@@ -86,14 +106,14 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
         <div className="service-card">
           <div>
             <div className="service-card-icon" style={{ background: '#f6e4e7', color: '#6e121f' }}>
-              <ShieldAlert size={28} />
+              <ShieldAlert size={26} />
             </div>
-            <h3>Safety & Emergency</h3>
+            <h3 className="title-card">Safety & Emergency</h3>
             <p>
               Verified 24/7 security control room hotlines, medical clinic ambulance dispatch, safe assembly points, and late-night safe zones.
             </p>
           </div>
-          <button className="btn-primary" onClick={() => onNavigate('safety')}>
+          <button className="btn-primary" onClick={() => onNavigate('safety')} title="View Safety Directory">
             View Safety Directory <ArrowRight size={16} />
           </button>
         </div>
@@ -102,14 +122,14 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
         <div className="service-card">
           <div>
             <div className="service-card-icon" style={{ background: '#ecdec9', color: '#572f16' }}>
-              <Bus size={28} />
+              <Bus size={26} />
             </div>
-            <h3>Campus Transport</h3>
+            <h3 className="title-card">Campus Transport</h3>
             <p>
               Published shuttle routes, ordered stoppage sequences, and departure timetables in campus time. Clearly labeled scheduled info.
             </p>
           </div>
-          <button className="btn-primary" onClick={() => onNavigate('transport')}>
+          <button className="btn-primary" onClick={() => onNavigate('transport')} title="View Shuttle Schedules">
             View Shuttle Schedules <ArrowRight size={16} />
           </button>
         </div>
@@ -118,14 +138,14 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
         <div className="service-card">
           <div>
             <div className="service-card-icon" style={{ background: '#f5e8e3', color: '#7a2214' }}>
-              <Wrench size={28} />
+              <Wrench size={26} />
             </div>
-            <h3>Facilities Issue Reporting</h3>
+            <h3 className="title-card">Facilities Issue Reporting</h3>
             <p>
               Report broken streetlights, plumbing leaks, sanitation issues, or broken accessibility ramps. Receive a trackable reference code.
             </p>
           </div>
-          <button className="btn-primary" onClick={() => onNavigate('report')}>
+          <button className="btn-primary" onClick={() => onNavigate('report')} title="Report a Problem">
             Report a Problem <ArrowRight size={16} />
           </button>
         </div>
@@ -137,28 +157,59 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
           background: 'var(--color-surface)',
           border: '1px solid var(--color-border)',
           borderRadius: 'var(--radius-lg)',
-          padding: '2.25rem',
+          padding: '2rem 1.5rem',
           margin: '2.5rem 0',
           boxShadow: 'var(--shadow-sm)',
+          minWidth: 0,
         }}
       >
-        <div style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center' }}>
-          <h3 style={{ fontSize: '1.45rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--color-brand-primary)' }}>
+        <div style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center', minWidth: 0 }}>
+          <h3
+            className="title-card"
+            style={{
+              marginBottom: '0.45rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              flexWrap: 'wrap',
+            }}
+          >
             <Search size={22} color="var(--color-brand-accent)" /> Track an Existing Report
           </h3>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: 1.55 }}>
+          <p className="text-body-muted" style={{ fontSize: 'var(--text-sm)', marginBottom: '1.35rem' }}>
             Have a reference code (e.g. <code>CA-4912-K7</code>)? Check its real-time triage status and official public maintenance notes.
           </p>
-          <form onSubmit={handleLookupSubmit} style={{ display: 'flex', gap: '0.75rem', maxWidth: '480px', margin: '0 auto' }}>
+          <form
+            onSubmit={handleLookupSubmit}
+            style={{
+              display: 'flex',
+              gap: '0.65rem',
+              maxWidth: '480px',
+              margin: '0 auto',
+              flexWrap: 'wrap',
+            }}
+          >
             <input
               type="text"
               placeholder="e.g. CA-4912-K7"
               value={quickRef}
               onChange={(e) => setQuickRef(e.target.value)}
               className="form-input"
-              style={{ fontWeight: 600, fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}
+              style={{
+                flex: '1 1 200px',
+                fontWeight: 600,
+                fontFamily: 'var(--font-mono)',
+                textTransform: 'uppercase',
+              }}
+              aria-label="Report Reference Code"
             />
-            <button type="submit" className="btn-primary" style={{ whiteSpace: 'nowrap' }}>
+            <button
+              type="submit"
+              className="btn-primary"
+              style={{ flex: '0 0 auto' }}
+              title="Query Report Status"
+            >
               Check Status
             </button>
           </form>
@@ -166,30 +217,94 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
       </div>
 
       {/* Core Architectural & Value Highlights */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginTop: '2rem' }}>
-        <div style={{ background: 'var(--color-surface)', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#572f16', fontWeight: 700, marginBottom: '0.45rem' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
+          gap: '1.25rem',
+          marginTop: '2rem',
+        }}
+      >
+        <div
+          style={{
+            background: 'var(--color-surface)',
+            padding: '1.35rem',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--color-border)',
+            boxShadow: 'var(--shadow-sm)',
+            minWidth: 0,
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              color: '#572f16',
+              fontWeight: 700,
+              fontSize: 'var(--text-sm)',
+              marginBottom: '0.45rem',
+            }}
+          >
             <CheckCircle2 size={18} color="var(--color-brand-accent)" /> Truthful Scheduled Transit
           </div>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', lineHeight: 1.55 }}>
+          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', lineHeight: 'var(--leading-relaxed)' }}>
             Timetables clearly indicate scheduled times in IST without misleading live GPS claims.
           </p>
         </div>
 
-        <div style={{ background: 'var(--color-surface)', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#21541c', fontWeight: 700, marginBottom: '0.45rem' }}>
+        <div
+          style={{
+            background: 'var(--color-surface)',
+            padding: '1.35rem',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--color-border)',
+            boxShadow: 'var(--shadow-sm)',
+            minWidth: 0,
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              color: '#21541c',
+              fontWeight: 700,
+              fontSize: 'var(--text-sm)',
+              marginBottom: '0.45rem',
+            }}
+          >
             <CheckCircle2 size={18} color="#21541c" /> Privacy-First Design
           </div>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', lineHeight: 1.55 }}>
+          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', lineHeight: 'var(--leading-relaxed)' }}>
             No mandatory student roll numbers or GPS tracking. Public lookups show safe status projections only.
           </p>
         </div>
 
-        <div style={{ background: 'var(--color-surface)', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-brand-primary)', fontWeight: 700, marginBottom: '0.45rem' }}>
+        <div
+          style={{
+            background: 'var(--color-surface)',
+            padding: '1.35rem',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--color-border)',
+            boxShadow: 'var(--shadow-sm)',
+            minWidth: 0,
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              color: 'var(--color-brand-primary)',
+              fontWeight: 700,
+              fontSize: 'var(--text-sm)',
+              marginBottom: '0.45rem',
+            }}
+          >
             <Clock size={18} color="var(--color-brand-accent)" /> SOLID Architecture
           </div>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', lineHeight: 1.55 }}>
+          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', lineHeight: 'var(--leading-relaxed)' }}>
             Built following SRP, OCP, LSP, ISP, and DIP for rock-solid testability and modular maintainability.
           </p>
         </div>

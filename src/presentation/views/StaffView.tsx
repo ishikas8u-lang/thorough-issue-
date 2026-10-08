@@ -100,9 +100,10 @@ export const StaffView: React.FC<StaffViewProps> = ({
             background: 'var(--color-surface)',
             border: '1px solid var(--color-border)',
             borderRadius: 'var(--radius-lg)',
-            padding: '2.5rem',
+            padding: '2.25rem 1.75rem',
             textAlign: 'center',
             boxShadow: 'var(--shadow-md)',
+            minWidth: 0,
           }}
         >
           <div
@@ -110,7 +111,7 @@ export const StaffView: React.FC<StaffViewProps> = ({
               width: '3.5rem',
               height: '3.5rem',
               borderRadius: '50%',
-              background: '#f1f5f9',
+              background: 'var(--color-surface-subtle)',
               color: 'var(--color-brand-primary)',
               display: 'flex',
               alignItems: 'center',
@@ -118,19 +119,19 @@ export const StaffView: React.FC<StaffViewProps> = ({
               margin: '0 auto 1.25rem',
             }}
           >
-            <Lock size={28} />
+            <Lock size={26} />
           </div>
 
-          <nav aria-label="Breadcrumb" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', fontSize: '0.8125rem', color: 'var(--color-text-subtle)', marginBottom: '0.75rem' }}>
+          <nav aria-label="Breadcrumb" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', fontSize: 'var(--text-xs)', color: 'var(--color-text-subtle)', marginBottom: '0.75rem' }}>
             <span>Campus Operations</span>
             <span>&rsaquo;</span>
             <span style={{ color: 'var(--color-brand-primary)', fontWeight: 600 }}>Admin Block</span>
           </nav>
 
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-brand-primary)', marginBottom: '0.5rem' }}>
+          <h2 className="title-card" style={{ marginBottom: '0.45rem' }}>
             Admin Block: Operations Triage Portal
           </h2>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: '1.75rem' }}>
+          <p className="text-body-muted" style={{ fontSize: 'var(--text-sm)', marginBottom: '1.5rem' }}>
             Authorized campus facility reviewers only. Enforces state machine policy and immutable audit tracking.
           </p>
 
@@ -158,7 +159,7 @@ export const StaffView: React.FC<StaffViewProps> = ({
               </div>
             </div>
 
-            <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '0.5rem' }}>
+            <button type="submit" className="btn-primary" style={{ width: '100%', minHeight: '44px', marginTop: '0.5rem' }}>
               Sign In to Admin Block
             </button>
           </form>
@@ -173,31 +174,31 @@ export const StaffView: React.FC<StaffViewProps> = ({
   return (
     <div className="container" style={{ paddingBottom: '4rem', paddingTop: '1.5rem' }}>
       {/* Staff Header Bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.75rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '1rem', minWidth: 0 }}>
         <div>
-          <nav aria-label="Breadcrumb" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8125rem', color: 'var(--color-text-subtle)', marginBottom: '0.4rem' }}>
+          <nav aria-label="Breadcrumb" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: 'var(--text-xs)', color: 'var(--color-text-subtle)', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
             <span>Campus Operations</span>
             <span>&rsaquo;</span>
             <span style={{ color: 'var(--color-brand-primary)', fontWeight: 600 }}>Admin Block</span>
             <span>&rsaquo;</span>
             <span>Review Queue &amp; Triage</span>
           </nav>
-          <h1 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-brand-primary)' }}>
-            Admin Block: Review Queue & Triage
+          <h1 className="title-section-clean" style={{ marginBottom: '0.35rem' }}>
+            Admin Block: Review Queue &amp; Triage
           </h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
-            <User size={15} /> Authenticated Reviewer: <strong>{staffUser}</strong>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', flexWrap: 'wrap' }}>
+            <User size={14} /> Authenticated Reviewer: <strong>{staffUser}</strong>
             <span className="badge badge-received">RBAC: Facilities Officer</span>
           </div>
         </div>
 
-        <button className="btn-secondary" onClick={onLogout} style={{ fontSize: '0.875rem' }}>
+        <button className="btn-secondary" onClick={onLogout} style={{ minHeight: '44px' }} title="Sign out of Admin Block">
           <LogOut size={16} /> Sign Out
         </button>
       </div>
 
       {/* Filter Tabs */}
-      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '1.5rem', minWidth: 0 }}>
         {['ALL', 'RECEIVED', 'IN_REVIEW', 'IN_PROGRESS', 'RESOLVED', 'DUPLICATE', 'REJECTED'].map((st) => (
           <button
             key={st}
@@ -205,11 +206,13 @@ export const StaffView: React.FC<StaffViewProps> = ({
             className="badge"
             style={{
               cursor: 'pointer',
-              background: statusFilter === st ? 'var(--color-brand-primary)' : '#f1f5f9',
+              background: statusFilter === st ? 'var(--color-brand-primary)' : 'var(--color-surface-hover)',
               color: statusFilter === st ? '#ffffff' : 'var(--color-text-main)',
               border: 'none',
-              padding: '0.4rem 0.85rem',
+              padding: '0.4rem 0.75rem',
+              minHeight: '34px',
             }}
+            title={`Filter by ${st}`}
           >
             {st} {st !== 'ALL' ? `(${reports.filter((r) => r.status === st).length})` : `(${reports.length})`}
           </button>
@@ -217,7 +220,7 @@ export const StaffView: React.FC<StaffViewProps> = ({
       </div>
 
       {/* Main Workspace Grid: Queue List (Left) + Detail & Triage Inspector (Right) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.75rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '1.75rem', minWidth: 0 }}>
         {/* Left: Queue List */}
         <div
           style={{
@@ -228,14 +231,15 @@ export const StaffView: React.FC<StaffViewProps> = ({
             maxHeight: '750px',
             overflowY: 'auto',
             boxShadow: 'var(--shadow-sm)',
+            minWidth: 0,
           }}
         >
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>
+          <h3 className="title-card-sm" style={{ marginBottom: '1rem' }}>
             Queue Items ({filteredReports.length})
           </h3>
 
           {filteredReports.length === 0 ? (
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', textAlign: 'center', padding: '2rem 0' }}>
+            <p className="text-body-muted" style={{ textAlign: 'center', padding: '2rem 0', fontSize: 'var(--text-sm)' }}>
               No reports matching the selected status filter.
             </p>
           ) : (
@@ -251,17 +255,18 @@ export const StaffView: React.FC<StaffViewProps> = ({
                     setUpdateSuccess(null);
                   }}
                   style={{
-                    padding: '1rem',
+                    padding: '0.9rem',
                     borderRadius: 'var(--radius-md)',
                     border: isSelected ? '2px solid var(--color-brand-accent)' : '1px solid var(--color-border)',
-                    background: isSelected ? '#f0fdfa' : '#ffffff',
+                    background: isSelected ? 'var(--color-brand-accent-light)' : 'var(--color-surface)',
                     cursor: 'pointer',
-                    marginBottom: '0.75rem',
-                    transition: 'all 0.15s ease',
+                    marginBottom: '0.65rem',
+                    transition: 'var(--transition-all)',
+                    minWidth: 0,
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, color: 'var(--color-brand-primary)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', flexWrap: 'wrap', gap: '0.35rem' }}>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, color: 'var(--color-brand-primary)', fontSize: 'var(--text-sm)' }}>
                       {rep.referenceCode}
                     </span>
                     <span className={`badge badge-${STATUS_LABELS[rep.status].tone}`}>
@@ -269,12 +274,12 @@ export const StaffView: React.FC<StaffViewProps> = ({
                     </span>
                   </div>
 
-                  <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-main)', marginBottom: '0.25rem' }}>
+                  <div style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--color-text-main)', marginBottom: '0.2rem' }}>
                     {CATEGORY_LABELS[rep.category]}
                   </div>
 
-                  <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <MapPin size={14} /> {rep.locationDescription}
+                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.3rem', overflowWrap: 'anywhere' }}>
+                    <MapPin size={13} style={{ flexShrink: 0 }} /> <span>{rep.locationDescription}</span>
                   </div>
                 </div>
               );
@@ -291,70 +296,71 @@ export const StaffView: React.FC<StaffViewProps> = ({
               borderRadius: 'var(--radius-lg)',
               padding: '1.75rem',
               boxShadow: 'var(--shadow-sm)',
+              minWidth: 0,
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--color-border)', paddingBottom: '1rem', marginBottom: '1.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--color-border)', paddingBottom: '1rem', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem', minWidth: 0 }}>
               <div>
-                <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-subtle)', fontWeight: 600 }}>
+                <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-subtle)', fontWeight: 600, letterSpacing: 'var(--tracking-wide)', textTransform: 'uppercase' }}>
                   ACTIVE TICKET
                 </span>
-                <h2 style={{ fontFamily: 'var(--font-mono)', fontSize: '1.6rem', color: 'var(--color-brand-primary)' }}>
+                <h2 style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xl)', color: 'var(--color-brand-primary)', overflowWrap: 'anywhere' }}>
                   {selectedReport.referenceCode}
                 </h2>
-                <div style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
+                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>
                   Internal ID: <code>{selectedReport.id}</code>
                 </div>
               </div>
 
-              <span className={`badge badge-${STATUS_LABELS[selectedReport.status].tone}`} style={{ fontSize: '0.9rem', padding: '0.4rem 0.85rem' }}>
+              <span className={`badge badge-${STATUS_LABELS[selectedReport.status].tone}`} style={{ fontSize: 'var(--text-xs)', padding: '0.35rem 0.75rem' }}>
                 {STATUS_LABELS[selectedReport.status].label}
               </span>
             </div>
 
             {/* Ticket Info Details */}
-            <div style={{ marginBottom: '1.5rem', background: '#f8fafc', padding: '1rem', borderRadius: 'var(--radius-md)' }}>
-              <div style={{ fontSize: '0.875rem', marginBottom: '0.4rem' }}>
+            <div style={{ marginBottom: '1.35rem', background: 'var(--color-surface-subtle)', padding: '1rem', borderRadius: 'var(--radius-md)', minWidth: 0 }}>
+              <div style={{ fontSize: 'var(--text-xs)', marginBottom: '0.35rem' }}>
                 <strong>Category:</strong> {CATEGORY_LABELS[selectedReport.category]}
               </div>
-              <div style={{ fontSize: '0.875rem', marginBottom: '0.4rem' }}>
+              <div style={{ fontSize: 'var(--text-xs)', marginBottom: '0.35rem', overflowWrap: 'anywhere' }}>
                 <strong>Landmark Location:</strong> {selectedReport.locationDescription}
               </div>
-              <div style={{ fontSize: '0.875rem', marginBottom: '0.4rem' }}>
+              <div style={{ fontSize: 'var(--text-xs)', marginBottom: '0.35rem' }}>
                 <strong>Reported At:</strong> {new Date(selectedReport.createdAt).toLocaleString()}
               </div>
-              <div style={{ fontSize: '0.875rem', marginTop: '0.75rem', borderTop: '1px solid #e2e8f0', paddingTop: '0.5rem' }}>
+              <div style={{ fontSize: 'var(--text-xs)', marginTop: '0.65rem', borderTop: '1px solid var(--color-border)', paddingTop: '0.45rem' }}>
                 <strong>Defect Description:</strong>
-                <p style={{ color: '#334155', marginTop: '0.2rem', lineHeight: 1.5 }}>{selectedReport.issueDescription}</p>
+                <p style={{ color: 'var(--color-text-main)', marginTop: '0.2rem', lineHeight: 'var(--leading-relaxed)', overflowWrap: 'anywhere' }}>{selectedReport.issueDescription}</p>
               </div>
             </div>
 
             {/* State Transition Triage Form */}
-            <div style={{ border: '1px solid #cbd5e1', borderRadius: 'var(--radius-md)', padding: '1.25rem', marginBottom: '1.5rem', background: '#ffffff' }}>
-              <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: 'var(--color-brand-primary)' }}>
+            <div style={{ border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '1.25rem', marginBottom: '1.5rem', background: 'var(--color-surface)', minWidth: 0 }}>
+              <h3 className="title-card-sm" style={{ marginBottom: '0.75rem' }}>
                 State Machine Transition Controls
               </h3>
 
               {allowedTransitions.length === 0 ? (
-                <div style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>
+                <div style={{ color: 'var(--color-text-muted)', fontSize: 'var(--text-xs)' }}>
                   No further transitions allowed from current terminal state.
                 </div>
               ) : (
                 <form onSubmit={handleStatusUpdate}>
                   {updateError && (
-                    <div style={{ color: '#b91c1c', background: '#fee2e2', padding: '0.5rem', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
+                    <div style={{ color: '#b91c1c', background: '#fee2e2', padding: '0.5rem', borderRadius: 'var(--radius-sm)', fontSize: 'var(--text-xs)', marginBottom: '0.75rem' }}>
                       {updateError}
                     </div>
                   )}
 
                   {updateSuccess && (
-                    <div style={{ color: '#15803d', background: '#dcfce7', padding: '0.5rem', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
+                    <div style={{ color: '#15803d', background: '#dcfce7', padding: '0.5rem', borderRadius: 'var(--radius-sm)', fontSize: 'var(--text-xs)', marginBottom: '0.75rem' }}>
                       {updateSuccess}
                     </div>
                   )}
 
                   <div className="form-group">
                     <label className="form-label" htmlFor="target-status">
-                      Next Allowed State (Enforced by ReportStatusPolicy) *
+                      Next Allowed State (Enforced by Policy) *
                     </label>
                     <select
                       id="target-status"
@@ -406,7 +412,7 @@ export const StaffView: React.FC<StaffViewProps> = ({
                     type="submit"
                     className="btn-primary"
                     disabled={!targetStatus || isUpdating}
-                    style={{ width: '100%' }}
+                    style={{ width: '100%', minHeight: '44px' }}
                   >
                     {isUpdating ? 'Saving Transition...' : 'Execute Status Transition'}
                   </button>
@@ -415,11 +421,11 @@ export const StaffView: React.FC<StaffViewProps> = ({
             </div>
 
             {/* Audit Trail Log View */}
-            <h4 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '0.75rem', textTransform: 'uppercase', color: 'var(--color-text-subtle)' }}>
+            <h4 style={{ fontSize: 'var(--text-xs)', fontWeight: 700, marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)', color: 'var(--color-text-subtle)' }}>
               Immutable Audit History ({selectedReport.auditTrail.length} Events)
             </h4>
 
-            <div style={{ maxHeight: '200px', overflowY: 'auto', fontSize: '0.8125rem' }}>
+            <div style={{ maxHeight: '200px', overflowY: 'auto', fontSize: 'var(--text-xs)', minWidth: 0 }}>
               {selectedReport.auditTrail.map((entry) => (
                 <div
                   key={entry.id}
@@ -427,21 +433,22 @@ export const StaffView: React.FC<StaffViewProps> = ({
                     borderLeft: '3px solid var(--color-brand-accent)',
                     paddingLeft: '0.75rem',
                     marginBottom: '0.75rem',
+                    minWidth: 0,
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--color-text-subtle)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--color-text-subtle)', flexWrap: 'wrap', gap: '0.35rem' }}>
                     <span>
                       Actor: <strong>{entry.actorId}</strong> &rarr; {entry.newStatus}
                     </span>
                     <span>{new Date(entry.createdAt).toLocaleTimeString()}</span>
                   </div>
                   {entry.publicMessage && (
-                    <div style={{ color: 'var(--color-text-main)', marginTop: '0.15rem' }}>
+                    <div style={{ color: 'var(--color-text-main)', marginTop: '0.15rem', overflowWrap: 'anywhere' }}>
                       <em>Public:</em> &ldquo;{entry.publicMessage}&rdquo;
                     </div>
                   )}
                   {entry.internalNote && (
-                    <div style={{ color: '#b45309', marginTop: '0.15rem' }}>
+                    <div style={{ color: '#b45309', marginTop: '0.15rem', overflowWrap: 'anywhere' }}>
                       <em>Internal:</em> &ldquo;{entry.internalNote}&rdquo;
                     </div>
                   )}
