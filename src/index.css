@@ -1603,3 +1603,52 @@ img, svg { display: block; }
   gap: 0.85rem;
 }
 
+/* ─────────────────────────────────────────────
+   LEAFLET REAL MAP THEME STYLING
+   ───────────────────────────────────────────── */
+.leaflet-container {
+  font-family: var(--font-body);
+  background-color: #121419 !important;
+  outline: none;
+}
+
+.leaflet-popup-content-wrapper {
+  background: rgba(26, 29, 36, 0.96) !important;
+  color: #f8fafc !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
+  padding: 2px !important;
+}
+
+.leaflet-popup-tip {
+  background: rgba(26, 29, 36, 0.96) !important;
+  border: 1px solid var(--color-border);
+}
+
+.leaflet-popup-content {
+  margin: 10px 14px !important;
+  line-height: 1.45 !important;
+}
+
+.leaflet-popup-content h4,
+.leaflet-popup-content strong {
+  color: #f8fafc !important;
+}
+
+.leaflet-popup-content p {
+  color: #cbd5e1 !important;
+}
+
+@keyframes map-pulse {
+  0% { transform: scale(0.85); opacity: 0.9; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.osm-dark-tiles .leaflet-tile,
+.osm-dark-tiles img {
+  filter: invert(100%) hue-rotate(180deg) brightness(88%) contrast(105%) !important;
+}
+
+
+
