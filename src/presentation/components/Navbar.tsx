@@ -1,36 +1,62 @@
 import React from 'react';
-import { motion } from 'motion/react';
-import { ShieldAlert, Phone, Bus, Wrench, Search, Lock, Home, LogIn, Database } from 'lucide-react';
+import {
+  ShieldAlert,
+  Phone,
+  Home,
+  User,
+  LayoutDashboard,
+  FileText,
+  Building2,
+  Database,
+  Bus,
+  Wrench,
+  Search,
+} from 'lucide-react';
 import { PRIMARY_EMERGENCY } from '../../infrastructure/seedData';
 import type { StudentSession } from '../../types';
 
-export type ActiveTab = 'home' | 'safety' | 'transport' | 'report' | 'lookup' | 'staff' | 'signin' | 'profile';
+export type StudentNavTab = 'home' | 'report' | 'track' | 'safety' | 'transport' | 'profile';
+export type AdminNavTab = 'dashboard' | 'reports' | 'sos' | 'transport' | 'profile';
+export type ActiveTab = StudentNavTab;
 
 interface NavbarProps {
-  activeTab: ActiveTab;
-  setActiveTab: (tab: ActiveTab) => void;
-  staffUser: string | null;
-  onOpenStaffModal: () => void;
+  role: 'student' | 'admin' | null;
+  studentTab?: StudentNavTab;
+  onSelectStudentTab?: (tab: StudentNavTab) => void;
+  adminTab?: AdminNavTab;
+  onSelectAdminTab?: (tab: AdminNavTab) => void;
   studentSession: StudentSession | null;
   onSignOut: () => void;
+  onGoHome: () => void;
   dbStatus?: { ok: boolean; latency: number } | null;
 }
 
-const NAV_ITEMS: { tab: ActiveTab; label: string; shortLabel: string; Icon: React.FC<{ size?: number }> }[] = [
-  { tab: 'home',      label: 'Home',         shortLabel: 'Home',    Icon: Home        },
-  { tab: 'safety',    label: 'Safety',       shortLabel: 'Safety',  Icon: ShieldAlert },
-  { tab: 'transport', label: 'Transport',    shortLabel: 'Transit', Icon: Bus         },
-  { tab: 'report',    label: 'Report Issue', shortLabel: 'Report',  Icon: Wrench      },
-  { tab: 'lookup',    label: 'Track Status', shortLabel: 'Track',   Icon: Search      },
+const STUDENT_NAV_ITEMS: { tab: StudentNavTab; label: string; Icon: React.FC<{ size?: number }> }[] = [
+  { tab: 'home',      label: 'Home',                  Icon: Home        },
+  { tab: 'report',    label: 'Report Issue',          Icon: Wrench      },
+  { tab: 'track',     label: 'My Reports & Track',    Icon: Search      },
+  { tab: 'safety',    label: 'Safety & SOS',          Icon: ShieldAlert },
+  { tab: 'transport', label: 'Transport',             Icon: Bus         },
+  { tab: 'profile',   label: 'Profile',               Icon: User        },
+];
+
+const ADMIN_NAV_ITEMS: { tab: AdminNavTab; label: string; Icon: React.FC<{ size?: number }> }[] = [
+  { tab: 'dashboard', label: 'Dashboard',             Icon: LayoutDashboard },
+  { tab: 'reports',   label: 'Reports Queue',         Icon: FileText        },
+  { tab: 'sos',       label: 'SOS Inbox',             Icon: ShieldAlert     },
+  { tab: 'transport', label: 'Transport Management',  Icon: Bus             },
+  { tab: 'profile',   label: 'Profile',               Icon: User            },
 ];
 
 export const Navbar: React.FC<NavbarProps> = ({
-  activeTab,
-  setActiveTab,
-  staffUser,
-  onOpenStaffModal,
+  role,
+  studentTab = 'home',
+  onSelectStudentTab,
+  adminTab = 'dashboard',
+  onSelectAdminTab,
   studentSession,
   onSignOut,
+  onGoHome,
   dbStatus,
 }) => {
   return (
@@ -40,8 +66,12 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="container header-top-container">
           <div className="srm-top-brand" aria-label="SRM University Institution">
             <span className="srm-brand-badge-pill">SRM UNIVERSITY</span>
-            <span className="srm-brand-dept" title="Campus Assist • Operations & Student Services">
-              Campus Assist &bull; Operations &amp; Student Services
+            <span className="srm-brand-dept">
+              {role === 'admin'
+                ? 'Campus Operations • Admin Block'
+                : role === 'student'
+                ? 'Student Safety & Facilities Portal'
+                : 'Campus Assist • Operations & Student Services'}
             </span>
 
             {/* Live Database status pill */}
@@ -50,7 +80,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               title={
                 dbStatus?.ok
                   ? `Backend SQLite Database Connected (${dbStatus.latency}ms latency)`
-                  : 'Backend Database Connecting / Local Storage Sync Active'
+                  : 'Backend Database Active / Local Storage Sync'
               }
             >
               <Database size={11} />
@@ -60,19 +90,20 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           <div className="header-top-right">
-            {studentSession ? (
+            {role === 'student' && studentSession ? (
               <div className="student-header-session">
                 <span className="student-status-dot" title="Authenticated session active" />
-                <span className="truncate-line" style={{ maxWidth: '180px' }} title={studentSession.student.fullName}>
-                  Student: <strong>{studentSession.student.fullName}</strong>
+                <span className="truncate-line" style={{ maxWidth: '140px' }} title={studentSession.student.fullName}>
+                  {studentSession.student.fullName}
                 </span>
                 <button
                   type="button"
                   className="student-top-link"
-                  onClick={() => setActiveTab('profile')}
+                  onClick={() => onSelectStudentTab && onSelectStudentTab('profile')}
                   title="View Student Profile"
                 >
-                  Profile
+                  <User size={12} />
+                  <span>Profile</span>
                 </button>
                 <button
                   type="button"
@@ -83,95 +114,128 @@ export const Navbar: React.FC<NavbarProps> = ({
                   Sign Out
                 </button>
               </div>
+            ) : role === 'admin' && studentSession ? (
+              <div className="student-header-session">
+                <span className="student-status-dot" style={{ background: '#38bdf8' }} title="Admin session active" />
+                <span className="truncate-line" style={{ maxWidth: '140px' }} title={studentSession.student.fullName}>
+                  {studentSession.student.fullName || 'Admin Reviewer'}
+                </span>
+                <button
+                  type="button"
+                  className="student-top-signout"
+                  onClick={onSignOut}
+                  title="Sign out of Admin Block"
+                >
+                  Sign Out
+                </button>
+              </div>
             ) : (
-              <button
-                type="button"
-                className="student-top-signin-btn"
-                onClick={() => setActiveTab('signin')}
-                title="Student Portal Sign In"
-              >
-                <LogIn size={13} />
-                <span>Student Sign In</span>
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>
+                  SRM University Sonipat
+                </span>
+              </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Main nav */}
+      {/* Main Navigation Bar */}
       <div className="container nav-container">
-        {/* Brand */}
-        <motion.div
+        {/* Brand Home / Logo */}
+        <button
+          type="button"
           className="brand-wrap"
-          style={{ cursor: 'pointer' }}
-          onClick={() => setActiveTab('home')}
-          whileTap={{ scale: 0.97 }}
-          title="Campus Assist Home"
+          onClick={onGoHome}
+          title="Campus Assist"
+          aria-label="Campus Assist"
         >
           <div className="brand-icon">
             <ShieldAlert size={22} />
           </div>
-          <div>
+          <div className="brand-text-block">
             <div className="brand-title">Campus Assist</div>
-            <div className="brand-subtitle">SRM Operations Portal</div>
+            <div className="brand-subtitle">
+              {role === 'admin'
+                ? 'Admin Block Portal'
+                : role === 'student'
+                ? 'Student Portal'
+                : 'SRM Operations Portal'}
+            </div>
           </div>
-        </motion.div>
+        </button>
 
-        {/* Primary Nav Links */}
-        <nav className="nav-links" aria-label="Primary Site Navigation">
-          {NAV_ITEMS.map(({ tab, label, shortLabel, Icon }) => (
-            <motion.button
-              key={tab}
-              className={`nav-btn ${activeTab === tab ? 'active' : ''}`}
-              onClick={() => setActiveTab(tab)}
-              whileTap={{ scale: 0.95 }}
-              transition={{ type: 'spring', stiffness: 380, damping: 22 }}
-              title={label}
-            >
-              <Icon size={16} />
-              <span className="nav-label-desktop">{label}</span>
-              <span className="nav-label-mobile">{shortLabel}</span>
-            </motion.button>
-          ))}
-        </nav>
+        {/* STUDENT PORTAL NAV LINKS */}
+        {role === 'student' && onSelectStudentTab && (
+          <nav className="nav-links desktop-only" aria-label="Student Portal Navigation">
+            {STUDENT_NAV_ITEMS.map(({ tab, label, Icon }) => (
+              <button
+                key={tab}
+                type="button"
+                className={`nav-btn ${studentTab === tab ? 'active' : ''}`}
+                onClick={() => onSelectStudentTab(tab)}
+                title={label}
+              >
+                <Icon size={16} />
+                <span>{label}</span>
+              </button>
+            ))}
+          </nav>
+        )}
 
-        {/* Action Controls Cluster - Cleanly separating Admin Block & Emergency Call */}
+        {/* ADMIN PORTAL NAV LINKS */}
+        {role === 'admin' && onSelectAdminTab && (
+          <nav className="nav-links desktop-only" aria-label="Admin Block Navigation">
+            {ADMIN_NAV_ITEMS.map(({ tab, label, Icon }) => (
+              <button
+                key={tab}
+                type="button"
+                className={`nav-btn ${adminTab === tab ? 'active' : ''}`}
+                onClick={() => onSelectAdminTab(tab)}
+                title={label}
+              >
+                <Icon size={16} />
+                <span>{label}</span>
+              </button>
+            ))}
+          </nav>
+        )}
+
+        {/* Action Controls Cluster */}
         <div className="nav-right-cluster">
-          {/* Admin Block Button */}
-          <motion.button
-            className={`nav-btn nav-btn-admin ${activeTab === 'staff' ? 'active' : ''}`}
-            aria-label="Admin Block"
-            title="Campus Operations Admin Block"
-            onClick={() => {
-              if (staffUser) {
-                setActiveTab('staff');
-              } else {
-                onOpenStaffModal();
-              }
-            }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Lock size={15} />
-            <span className="nav-label-desktop">Admin Block</span>
-            <span className="nav-label-mobile">Admin</span>
-          </motion.button>
+          {/* Emergency Call Button (Visible on Student Portal and Public views) */}
+          {role !== 'admin' && (
+            <a
+              href={`tel:${PRIMARY_EMERGENCY.phone}`}
+              className="btn btn-emergency-cta"
+              title={`Call Security immediately: ${PRIMARY_EMERGENCY.phone}`}
+              aria-label={`Call Campus Security: ${PRIMARY_EMERGENCY.phone}`}
+            >
+              <Phone size={14} className="emergency-phone-icon" />
+              <span>Call Security</span>
+            </a>
+          )}
 
-          {/* Dedicated Visual Divider separating Admin Block from Emergency Call */}
-          <div className="nav-cluster-divider" aria-hidden="true" />
-
-          {/* Emergency Call CTA Button - Isolated with dedicated spacing */}
-          <motion.a
-            href={`tel:${PRIMARY_EMERGENCY.phone}`}
-            className="emergency-pill-btn"
-            title={`Call 24/7 Security Dispatch: ${PRIMARY_EMERGENCY.phone}`}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            transition={{ type: 'spring', stiffness: 380, damping: 22 }}
-          >
-            <Phone size={15} />
-            <span className="emergency-label-desktop">Call Security (24/7)</span>
-            <span className="emergency-label-mobile">SOS Call</span>
-          </motion.a>
+          {/* Admin Block Header Indicator if role === 'admin' */}
+          {role === 'admin' && (
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                background: 'rgba(244, 63, 94, 0.15)',
+                border: '1px solid rgba(244, 63, 94, 0.35)',
+                color: 'var(--color-brand-primary)',
+                padding: '0.35rem 0.75rem',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+              }}
+            >
+              <Building2 size={15} />
+              <span>Admin Block Active</span>
+            </div>
+          )}
         </div>
       </div>
     </header>

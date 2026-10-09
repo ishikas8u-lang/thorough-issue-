@@ -19,16 +19,33 @@ import {
   Activity,
   Layers,
   Sparkles,
+  Copy,
+  Check,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { StaticTransportScheduleProvider } from '../../infrastructure/repositories';
 import { apiClient } from '../../infrastructure/apiClient';
 import type { Route, Stop } from '../../types';
-import {
-  LiveTransitMap,
-  type MapWaypoint,
-  type ShuttleInfo,
-  REGIONAL_REFERENCE_HUBS,
+import type {
+  MapWaypoint,
+  ShuttleInfo,
 } from '../components/LiveTransitMap';
+
+const LiveTransitMap = React.lazy(() =>
+  import('../components/LiveTransitMap').then((m) => ({ default: m.LiveTransitMap }))
+);
+
+export const REGIONAL_REFERENCE_HUBS = [
+  { name: 'Kashmere Gate ISBT', region: 'North Delhi', lat: 28.6675, lng: 77.2285 },
+  { name: 'Connaught Place', region: 'Central Delhi', lat: 28.6315, lng: 77.2167 },
+  { name: 'Singhu Border', region: 'Delhi-Haryana Border', lat: 28.8520, lng: 77.1290 },
+  { name: 'Kundli KMP Hub', region: 'Sonipat, Haryana', lat: 28.8791, lng: 77.1215 },
+  { name: 'Murthal GT Road', region: 'Sonipat, Haryana', lat: 29.0275, lng: 77.0721 },
+  { name: 'Panipat Skylark Hub', region: 'Panipat, Haryana', lat: 29.3909, lng: 76.9635 },
+  { name: 'Rohtak New Stand', region: 'Rohtak, Haryana', lat: 28.8955, lng: 76.6066 },
+  { name: 'Gurugram IFFCO Chowk', region: 'Gurugram, Haryana', lat: 28.4720, lng: 77.0725 },
+];
 
 // Realistic Waypoints mapped along Delhi & Haryana highway corridors
 const ROUTE_MAP_WAYPOINTS: Record<string, MapWaypoint[]> = {
@@ -127,7 +144,7 @@ const SHUTTLES: ShuttleInfo[] = [
   },
 ];
 
-// Sample student location presets across Delhi and Haryana for instant testing
+// Regional student location presets across Delhi and Haryana
 const REGION_STUDENT_PRESETS = [
   { label: 'Rohini Sector 18 (Delhi)', lat: 28.7186, lng: 77.1264 },
   { label: 'Kashmere Gate ISBT (Delhi)', lat: 28.6675, lng: 77.2285 },
@@ -154,6 +171,171 @@ function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: num
   return Math.round(R * c * 10) / 10;
 }
 
+export function getIstCurrentTime(): { hours: number; minutes: number; totalMinutes: number } {
+  try {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Kolkata',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: false,
+    });
+    const parts = formatter.formatToParts(new Date());
+    let hours = 0;
+    let minutes = 0;
+    for (const part of parts) {
+      if (part.type === 'hour') hours = parseInt(part.value, 10) % 24;
+      if (part.type === 'minute') minutes = parseInt(part.value, 10);
+    }
+    return { hours, minutes, totalMinutes: hours * 60 + minutes };
+  } catch {
+    const now = new Date();
+    const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const istDate = new Date(utcMs + (5.5 * 3600000));
+    const hours = istDate.getHours();
+    const minutes = istDate.getMinutes();
+    return { hours, minutes, totalMinutes: hours * 60 + minutes };
+  }
+}
+
+function parseTimeToMinutes(timeStr: string): number {
+  const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+  if (!match) return 0;
+  let hours = parseInt(match[1], 10);
+  const mins = parseInt(match[2], 10);
+  const ampm = match[3].toUpperCase();
+  if (ampm === 'PM' && hours < 12) hours += 12;
+  if (ampm === 'AM' && hours === 12) hours = 0;
+  return hours * 60 + mins;
+}
+
+function formatMinutesTo12Hr(totalMinutes: number): string {
+  const hours24 = Math.floor(totalMinutes / 60) % 24;
+  const mins = totalMinutes % 60;
+  const ampm = hours24 >= 12 ? 'PM' : 'AM';
+  let hours12 = hours24 % 12;
+  if (hours12 === 0) hours12 = 12;
+  return `${String(hours12).padStart(2, '0')}:${String(mins).padStart(2, '0')} ${ampm}`;
+}
+
+export interface DepartureScheduleInfo {
+  status: 'before_morning' | 'morning_active' | 'before_evening' | 'evening_active' | 'after_evening';
+  badgeText: string;
+  isRunActive: boolean;
+  nextRunText: string;
+}
+
+export function getRouteDepartureInfo(route?: Route): DepartureScheduleInfo {
+  const ist = getIstCurrentTime();
+  const currentMin = ist.totalMinutes;
+
+  const morningDepStr = route?.scheduledDepartures?.[0] || '07:30 AM';
+  const eveningDepStr = route?.scheduledDepartures?.[1] || '04:30 PM';
+
+  const morningDepMin = parseTimeToMinutes(morningDepStr);
+  const campusArrivalMin = 9 * 60; // 9:00 AM = 540 min
+  const eveningDepMin = 16 * 60 + 30; // 4:30 PM = 990 min
+  const eveningEndMin = 19 * 60; // 7:00 PM = 1140 min
+
+  if (currentMin < morningDepMin) {
+    const diff = morningDepMin - currentMin;
+    const hours = Math.floor(diff / 60);
+    const mins = diff % 60;
+    const inTime = hours > 0 ? `${hours}h ${mins}m` : `${mins} min`;
+    return {
+      status: 'before_morning',
+      badgeText: `Next departure at ${morningDepStr} IST (in ${inTime})`,
+      isRunActive: false,
+      nextRunText: `Next run: Morning to campus at ${morningDepStr} IST`,
+    };
+  }
+
+  if (currentMin >= morningDepMin && currentMin <= campusArrivalMin) {
+    return {
+      status: 'morning_active',
+      badgeText: `Morning run active • Arriving at campus by 09:00 AM IST`,
+      isRunActive: true,
+      nextRunText: `Morning Run Active (Arrives 09:00 AM IST)`,
+    };
+  }
+
+  if (currentMin > campusArrivalMin && currentMin < eveningDepMin) {
+    const diff = eveningDepMin - currentMin;
+    const hours = Math.floor(diff / 60);
+    const mins = diff % 60;
+    const inTime = hours > 0 ? `${hours}h ${mins}m` : `${mins} min`;
+    return {
+      status: 'before_evening',
+      badgeText: `Next departure at ${eveningDepStr} IST (in ${inTime})`,
+      isRunActive: false,
+      nextRunText: `Next run: Evening from campus at ${eveningDepStr} IST`,
+    };
+  }
+
+  if (currentMin >= eveningDepMin && currentMin <= eveningEndMin) {
+    return {
+      status: 'evening_active',
+      badgeText: `Evening run active • Departed campus at 04:30 PM IST`,
+      isRunActive: true,
+      nextRunText: `Evening Run Active (Departed 04:30 PM IST)`,
+    };
+  }
+
+  // After 7:00 PM IST
+  return {
+    status: 'after_evening',
+    badgeText: `Next bus tomorrow at ${morningDepStr} IST`,
+    isRunActive: false,
+    nextRunText: `Next bus tomorrow at ${morningDepStr} IST`,
+  };
+}
+
+export function getRouteTimelineStops(route: Route): {
+  morning: { stopName: string; time: string; location?: string; originalIndex: number }[];
+  evening: { stopName: string; time: string; location?: string; originalIndex: number }[];
+} {
+  const stops = route.stops || [];
+  const count = Math.max(1, stops.length);
+
+  if (route.morningSchedule && route.eveningSchedule) {
+    return {
+      morning: route.morningSchedule.map((s, idx) => ({ ...s, originalIndex: idx })),
+      evening: route.eveningSchedule.map((s, idx) => ({ ...s, originalIndex: count - 1 - idx })),
+    };
+  }
+
+  const morningDep = route.scheduledDepartures?.[0] || '07:30 AM';
+  const morningStartMin = parseTimeToMinutes(morningDep);
+  const morningEndMin = 9 * 60; // 9:00 AM
+  const totalMornSpan = morningEndMin - morningStartMin;
+
+  const morning = stops.map((s, idx) => {
+    const mins = Math.round(morningStartMin + (idx / Math.max(1, count - 1)) * totalMornSpan);
+    return {
+      stopName: s.name,
+      time: s.morningTime || formatMinutesTo12Hr(mins),
+      location: s.campusLocation,
+      originalIndex: idx,
+    };
+  });
+
+  const eveningStartMin = 16 * 60 + 30; // 4:30 PM
+  const eveningEndMin = 18 * 60 + 45; // ~6:45 PM
+  const totalEveSpan = eveningEndMin - eveningStartMin;
+
+  const reversed = [...stops].reverse();
+  const evening = reversed.map((s, idx) => {
+    const mins = Math.round(eveningStartMin + (idx / Math.max(1, count - 1)) * totalEveSpan);
+    return {
+      stopName: s.name,
+      time: s.eveningTime || formatMinutesTo12Hr(mins),
+      location: s.campusLocation,
+      originalIndex: count - 1 - idx,
+    };
+  });
+
+  return { morning, evening };
+}
+
 export const TransportView: React.FC = () => {
   const provider = new StaticTransportScheduleProvider();
   const [routes, setRoutes] = useState<Route[]>(provider.getRoutes());
@@ -164,6 +346,7 @@ export const TransportView: React.FC = () => {
   const [isSimulating, setIsSimulating] = useState(true);
   const [simSpeed, setSimSpeed] = useState<number>(1);
   const [mapViewMode, setMapViewMode] = useState<'real-map' | 'radar-hud'>('real-map');
+  const [copiedPhone, setCopiedPhone] = useState(false);
 
   // Live GPS telemetry state
   const [progress, setProgress] = useState(0.28); // 0.0 to 1.0 along the route
@@ -176,9 +359,13 @@ export const TransportView: React.FC = () => {
   const [geoError, setGeoError] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [userLocationLabel, setUserLocationLabel] = useState<string | null>(null);
+  const [previewSimulation, setPreviewSimulation] = useState(false);
 
   const activeRoute = routes.find((r) => r.id === selectedRouteId) || routes[0];
   const waypoints = ROUTE_MAP_WAYPOINTS[selectedRouteId] || ROUTE_MAP_WAYPOINTS['route-rohini-burari-sonipat'];
+  const departureInfo = getRouteDepartureInfo(activeRoute);
+  const isBusActive = departureInfo.isRunActive || previewSimulation;
+  const { morning: morningTimeline, evening: eveningTimeline } = getRouteTimelineStops(activeRoute);
 
   // Fetch routes from backend API on mount
   useEffect(() => {
@@ -204,7 +391,7 @@ export const TransportView: React.FC = () => {
 
   // Simulation tick loop for vehicle motion
   useEffect(() => {
-    if (!isSimulating) return;
+    if (!isSimulating || !isBusActive) return;
 
     const interval = setInterval(() => {
       setProgress((prev) => {
@@ -314,21 +501,21 @@ export const TransportView: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', background: 'rgba(251, 113, 133, 0.14)', color: 'var(--color-brand-primary)', border: '1px solid rgba(251, 113, 133, 0.28)', padding: '0.3rem 0.85rem', borderRadius: 'var(--radius-pill)', fontSize: 'var(--text-xs)', fontWeight: 800, marginBottom: '0.65rem', textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)' }}>
-              <Sparkles size={14} /> Real Satellite &amp; Highway Telemetry
+              <Sparkles size={14} /> Scheduled Shuttle Service
             </div>
             <h1 className="title-section">
-              Campus Transit &amp; Real Delhi-Haryana GPS Map
+              Campus Transit &amp; Bus Route Map
             </h1>
             <p className="text-lead" style={{ marginTop: '0.45rem' }}>
-              Real live maps referenced across whole <strong>Delhi NCT</strong> and <strong>Haryana</strong> corridors (Sonipat, Panipat, Rohtak, Gurugram, Kundli, Murthal).
+              Estimated bus positions referenced across <strong>Delhi NCT</strong> and <strong>Haryana</strong> corridors (Sonipat, Panipat, Rohtak, Gurugram, Kundli, Murthal).
             </p>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             <span className="badge badge-progress" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-              <span className="gps-pulse-live" /> GPS Telemetry Live
+              <span className="gps-pulse-live" /> Shuttle Service
             </span>
-            <span className="badge badge-received">07:30 AM – 07:00 PM Timetable</span>
+            <span className="badge badge-received">Morning (09:00 AM) &amp; Evening (04:30 PM) Timetable</span>
           </div>
         </div>
       </div>
@@ -362,8 +549,8 @@ export const TransportView: React.FC = () => {
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', background: 'rgba(255,255,255,0.08)', padding: '0.15rem 0.5rem', borderRadius: '4px', color: 'var(--color-brand-accent)', fontWeight: 700 }}>
                   {activeShuttle.reg}
                 </span>
-                <span className="badge badge-progress" style={{ fontSize: '10px' }}>
-                  {activeRoute.name.split(':')[0]}
+                <span className="badge badge-duplicate" style={{ background: 'rgba(251, 113, 133, 0.15)', color: '#fb7185', border: '1px solid rgba(251, 113, 133, 0.3)', fontWeight: 700 }}>
+                  Estimated bus positions based on the timetable
                 </span>
               </div>
               <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
@@ -440,20 +627,72 @@ export const TransportView: React.FC = () => {
           </div>
         </div>
 
+        {/* Off-Schedule Notice */}
+        {!isBusActive && (
+          <div
+            style={{
+              background: 'rgba(18, 19, 22, 0.95)',
+              borderBottom: '1px solid var(--color-border)',
+              padding: '0.85rem 1.25rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '0.75rem',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#f8fafc', fontSize: 'var(--text-sm)', fontWeight: 600 }}>
+              <Clock size={16} color="var(--color-brand-primary)" />
+              <span>
+                {departureInfo.status === 'after_evening'
+                  ? `No buses running right now. Next run at ${activeRoute.scheduledDepartures[0]} IST`
+                  : `No buses running right now. Next run at ${departureInfo.status === 'before_morning' ? activeRoute.scheduledDepartures[0] : activeRoute.scheduledDepartures[1]} IST`}
+              </span>
+            </div>
+            <button
+              type="button"
+              className="btn-secondary"
+              style={{ minHeight: '32px', padding: '0.3rem 0.75rem', fontSize: 'var(--text-xs)' }}
+              onClick={() => setPreviewSimulation((prev) => !prev)}
+            >
+              {previewSimulation ? 'Hide Route Motion' : 'Preview Route Motion'}
+            </button>
+          </div>
+        )}
+
         {/* ── Viewport: Real Leaflet Map vs. Radar HUD ── */}
         {mapViewMode === 'real-map' ? (
-          <LiveTransitMap
-            activeRoute={activeRoute}
-            activeShuttle={activeShuttle}
-            waypoints={waypoints}
-            stops={activeRoute.stops}
-            progress={progress}
-            currentSpeed={currentSpeed}
-            etaSeconds={etaSeconds}
-            userCoords={userCoords}
-            onSelectStop={handleStopSelect}
-            selectedStopIndex={selectedStopIndex}
-          />
+          <React.Suspense
+            fallback={
+              <div
+                style={{
+                  height: '420px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: '#121419',
+                  color: 'var(--color-text-muted)',
+                  borderRadius: 'var(--radius-lg)',
+                }}
+              >
+                Loading interactive transit map...
+              </div>
+            }
+          >
+            <LiveTransitMap
+              activeRoute={activeRoute}
+              activeShuttle={activeShuttle}
+              waypoints={waypoints}
+              stops={activeRoute.stops}
+              progress={progress}
+              currentSpeed={currentSpeed}
+              etaSeconds={etaSeconds}
+              userCoords={userCoords}
+              onSelectStop={handleStopSelect}
+              selectedStopIndex={selectedStopIndex}
+              isBusActive={isBusActive}
+            />
+          </React.Suspense>
         ) : (
           <div className="gps-radar-viewport">
             <div className="gps-radar-grid" />
@@ -528,7 +767,7 @@ export const TransportView: React.FC = () => {
               })}
 
               {/* Vehicle Position Node on SVG Curve */}
-              {(() => {
+              {isBusActive && (() => {
                 const x = 60 + progress * 880;
                 const y = 300 - progress * 220 + Math.sin(progress * Math.PI) * 40;
                 return (
@@ -551,7 +790,7 @@ export const TransportView: React.FC = () => {
           {/* Coordinates */}
           <div className="gps-telemetry-item">
             <span className="gps-telemetry-label">
-              <Compass size={13} color="var(--color-brand-accent)" /> Live Highway Coordinates
+              <Compass size={13} color="var(--color-brand-accent)" /> Estimated Coordinates
             </span>
             <span className="gps-telemetry-val">
               {currentLat}&deg; N, {currentLng}&deg; E
@@ -561,7 +800,7 @@ export const TransportView: React.FC = () => {
           {/* Speed & Heading */}
           <div className="gps-telemetry-item">
             <span className="gps-telemetry-label">
-              <Gauge size={13} color="var(--color-brand-accent)" /> Velocity &bull; Heading
+              <Gauge size={13} color="var(--color-brand-accent)" /> Estimated Speed &bull; Heading
             </span>
             <span className="gps-telemetry-val">
               {currentSpeed} km/h &bull; 348&deg; NNW (Sonipat)
@@ -588,13 +827,13 @@ export const TransportView: React.FC = () => {
             </span>
           </div>
 
-          {/* Satellite Telemetry */}
+          {/* Transit Network */}
           <div className="gps-telemetry-item">
             <span className="gps-telemetry-label">
-              <Wifi size={13} color="var(--color-brand-accent)" /> Satellite Constellation
+              <Wifi size={13} color="var(--color-brand-accent)" /> Corridor Transit Network
             </span>
             <span className="gps-telemetry-val" style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-main)' }}>
-              16 Sats (NavIC + GPS RTK &bull; &plusmn;1.1m)
+              Timetable Reference &bull; NCR Corridor
             </span>
           </div>
         </div>
@@ -607,10 +846,10 @@ export const TransportView: React.FC = () => {
               className="btn-secondary"
               style={{ minHeight: '38px', padding: '0.45rem 0.85rem', fontSize: 'var(--text-xs)' }}
               onClick={() => setIsSimulating(!isSimulating)}
-              title={isSimulating ? 'Pause live tracking simulation' : 'Resume live tracking simulation'}
+              title={isSimulating ? 'Pause route animation' : 'Resume route animation'}
             >
               {isSimulating ? <Pause size={14} /> : <Play size={14} />}
-              <span>{isSimulating ? 'Pause Telemetry' : 'Resume Telemetry'}</span>
+              <span>{isSimulating ? 'Pause Route Motion' : 'Resume Route Motion'}</span>
             </button>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>
@@ -702,7 +941,7 @@ export const TransportView: React.FC = () => {
                 transition: 'var(--transition-all)',
               }}
               className="hover-lift"
-              title={`Simulate student location at ${hub.name} (${hub.region})`}
+              title={`Select reference location at ${hub.name} (${hub.region})`}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
                 <strong style={{ fontSize: 'var(--text-xs)', color: '#f8fafc' }}>{hub.name}</strong>
@@ -932,8 +1171,10 @@ export const TransportView: React.FC = () => {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.4rem' }}>
-              <span className="badge badge-progress">Active Shuttle Route</span>
-              <span className="badge badge-received">Timezone: {activeRoute.timezone}</span>
+              <span className="badge badge-progress" style={{ background: '#22c55e', color: '#ffffff', fontWeight: 800 }}>
+                {departureInfo.badgeText}
+              </span>
+              <span className="badge badge-received">Timezone: IST</span>
             </div>
 
             <h2 className="title-card" style={{ marginBottom: '0.5rem' }}>
@@ -943,6 +1184,56 @@ export const TransportView: React.FC = () => {
               {activeRoute.description}
             </p>
 
+            {/* Driver & Dispatch Card */}
+            <div
+              style={{
+                background: 'var(--color-surface-subtle)',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-md)',
+                padding: '1.15rem',
+                marginBottom: '1.5rem',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.65rem' }}>
+                <div>
+                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-subtle)', fontWeight: 700, textTransform: 'uppercase' }}>
+                    Assigned Shuttle &amp; Driver
+                  </div>
+                  <strong style={{ fontSize: 'var(--text-base)', color: '#ffffff' }}>
+                    {activeRoute.driverName || 'Rajesh Kumar'}
+                  </strong>
+                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-brand-accent)', fontFamily: 'var(--font-mono)', marginTop: '0.15rem' }}>
+                    Bus: {activeRoute.busNumber || 'DL 1P B-4029'} &bull; Phone: {activeRoute.driverPhone || '+91 98765 43210'}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', marginTop: '0.75rem' }}>
+                <a
+                  href={`tel:${activeRoute.driverPhone || '+919876543210'}`}
+                  className="btn-primary"
+                  style={{ minHeight: '44px', flex: '1 1 140px', padding: '0.5rem 0.85rem' }}
+                  title="Call shuttle driver"
+                >
+                  <Phone size={15} /> Call Driver
+                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const phone = activeRoute.driverPhone || '+91 98765 43210';
+                    navigator.clipboard.writeText(phone);
+                    setCopiedPhone(true);
+                    setTimeout(() => setCopiedPhone(false), 2000);
+                  }}
+                  className="btn-secondary"
+                  style={{ minHeight: '44px', flex: '1 1 140px', padding: '0.5rem 0.85rem' }}
+                  title="Copy driver contact number"
+                >
+                  {copiedPhone ? <><Check size={15} color="#22c55e" /> Copied!</> : <><Copy size={15} /> Copy Number</>}
+                </button>
+              </div>
+            </div>
+
             <div className="pastel-card-sand" style={{ padding: '1rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--text-sm)', color: 'var(--color-text-main)', marginBottom: '0.35rem' }}>
                 <Calendar size={16} color="var(--color-brand-accent)" style={{ flexShrink: 0 }} />
@@ -950,34 +1241,67 @@ export const TransportView: React.FC = () => {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>
                 <Clock size={15} style={{ flexShrink: 0 }} />
-                <span>Daily Service Window: <strong>07:30 AM to 07:00 PM (IST)</strong></span>
+                <span>Daily Schedule: <strong>Morning (09:00 AM Arrival) &amp; Evening (04:30 PM Departure) IST</strong></span>
               </div>
             </div>
 
             <h3 className="title-card-sm" style={{ marginBottom: '0.65rem', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-              <Clock size={17} color="var(--color-brand-accent)" /> Scheduled Departures ({activeRoute.timezone})
+              <Clock size={17} color="var(--color-brand-accent)" /> Scheduled Departures (IST)
             </h3>
             <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-subtle)', marginBottom: '1rem' }}>
-              Timetable departure times from terminus stop #{activeRoute.stops[0]?.sequence || 1}.
+              Twice-daily university timetable: morning run to campus and evening departure from campus.
             </p>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', marginBottom: '1.5rem' }}>
-              {activeRoute.scheduledDepartures.map((time, idx) => (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              <div
+                className="pastel-card-sand"
+                style={{
+                  borderRadius: 'var(--radius-sm)',
+                  padding: '0.5rem 0.85rem',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <span style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--color-text-main)' }}>
+                  Morning Run (to campus):
+                </span>
                 <span
-                  key={idx}
-                  className="pastel-card-sand"
                   style={{
-                    borderRadius: 'var(--radius-sm)',
-                    padding: '0.35rem 0.7rem',
                     fontFamily: 'var(--font-mono)',
                     fontSize: 'var(--text-xs)',
-                    fontWeight: 700,
-                    letterSpacing: '0.02em',
+                    fontWeight: 800,
+                    color: '#fb7185',
                   }}
                 >
-                  {time}
+                  {activeRoute.scheduledDepartures[0] || '07:30 AM'} IST
                 </span>
-              ))}
+              </div>
+
+              <div
+                className="pastel-card-sand"
+                style={{
+                  borderRadius: 'var(--radius-sm)',
+                  padding: '0.5rem 0.85rem',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <span style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--color-text-main)' }}>
+                  Evening Run (from campus):
+                </span>
+                <span
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: 'var(--text-xs)',
+                    fontWeight: 800,
+                    color: '#38bdf8',
+                  }}
+                >
+                  {activeRoute.scheduledDepartures[1] || '04:30 PM'} IST
+                </span>
+              </div>
             </div>
 
             <div className="pastel-card-sage" style={{ padding: '0.75rem 0.95rem', borderRadius: 'var(--radius-md)', fontSize: 'var(--text-xs)' }}>
@@ -985,102 +1309,221 @@ export const TransportView: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: Ordered Stop Timeline */}
-          <div
-            style={{
-              background: 'var(--color-surface)',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-lg)',
-              padding: '1.75rem',
-              boxShadow: 'var(--shadow-sm)',
-              minWidth: 0,
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.35rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <h3 className="title-card" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <MapPin size={20} color="var(--color-brand-accent)" /> Stoppage Sequence ({activeRoute.stops.length} Stops)
-              </h3>
-              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-subtle)' }}>
-                Click stop to highlight on map
-              </span>
-            </div>
+          {/* Right Column: Two Clear Sections - Morning (to campus) and Evening (from campus) */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem', minWidth: 0 }}>
+            {/* Section 1: Morning (to campus) */}
+            <div
+              style={{
+                background: 'var(--color-surface)',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-lg)',
+                padding: '1.5rem',
+                boxShadow: 'var(--shadow-sm)',
+                minWidth: 0,
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <div>
+                  <h3 className="title-card" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--text-base)' }}>
+                    <Sun size={18} color="#fbbf24" /> Morning (to campus)
+                  </h3>
+                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
+                    Starts at {morningTimeline[0]?.time || '07:00 AM'} &bull; Arrives at campus by 09:00 AM IST
+                  </div>
+                </div>
+                <span className="badge badge-progress" style={{ fontSize: '0.7rem' }}>
+                  Arrives 09:00 AM IST
+                </span>
+              </div>
 
-            <div style={{ position: 'relative', paddingLeft: '1.6rem', marginLeft: '0.4rem', minWidth: 0 }}>
-              {/* Vertical connecting line */}
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '12px',
-                  bottom: '24px',
-                  left: '6px',
-                  width: '2px',
-                  background: 'var(--color-border)',
-                }}
-              />
+              <div style={{ position: 'relative', paddingLeft: '1.6rem', marginLeft: '0.4rem', minWidth: 0 }}>
+                {/* Vertical connecting line */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '12px',
+                    bottom: '24px',
+                    left: '6px',
+                    width: '2px',
+                    background: 'var(--color-border)',
+                  }}
+                />
 
-              {activeRoute.stops.map((stop, index) => {
-                const isFirst = index === 0;
-                const isLast = index === activeRoute.stops.length - 1;
-                const isApproaching = stop.id === nextStop?.id;
-                const isSelected = selectedStopIndex === index;
+                {morningTimeline.map((item, index) => {
+                  const isFirst = index === 0;
+                  const isLast = index === morningTimeline.length - 1;
+                  const isSelected = selectedStopIndex === item.originalIndex;
 
-                return (
-                  <div
-                    key={stop.id}
-                    onClick={() => handleStopSelect(stop, index)}
-                    style={{
-                      position: 'relative',
-                      marginBottom: '1.65rem',
-                      minWidth: 0,
-                      cursor: 'pointer',
-                      padding: '0.35rem 0.5rem',
-                      borderRadius: 'var(--radius-sm)',
-                      background: isSelected ? 'rgba(251, 113, 133, 0.12)' : 'transparent',
-                      transition: 'background 0.2s ease',
-                    }}
-                  >
-                    {/* Circle Node */}
+                  return (
                     <div
+                      key={`morn-${index}`}
+                      onClick={() => handleStopSelect(activeRoute.stops[item.originalIndex] || activeRoute.stops[0], item.originalIndex)}
                       style={{
-                        position: 'absolute',
-                        left: '-1.7rem',
-                        top: '8px',
-                        width: '16px',
-                        height: '16px',
-                        borderRadius: '50%',
-                        background: isSelected
-                          ? '#ffffff'
-                          : isApproaching
-                          ? 'var(--color-brand-primary)'
-                          : isFirst || isLast
-                          ? 'var(--color-brand-primary)'
-                          : 'var(--color-brand-accent)',
-                        border: isSelected ? '3px solid var(--color-brand-primary)' : '3px solid var(--color-surface)',
-                        boxShadow: isApproaching || isSelected ? '0 0 12px var(--color-brand-primary)' : '0 0 0 1px var(--color-border)',
+                        position: 'relative',
+                        marginBottom: '1.25rem',
+                        minWidth: 0,
+                        cursor: 'pointer',
+                        padding: '0.35rem 0.5rem',
+                        borderRadius: 'var(--radius-sm)',
+                        background: isSelected ? 'rgba(251, 113, 133, 0.12)' : 'transparent',
+                        transition: 'background 0.2s ease',
                       }}
-                    />
+                    >
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: '-1.7rem',
+                          top: '8px',
+                          width: '16px',
+                          height: '16px',
+                          borderRadius: '50%',
+                          background: isSelected
+                            ? '#ffffff'
+                            : isFirst || isLast
+                            ? '#fb7185'
+                            : '#f59e0b',
+                          border: isSelected ? '3px solid var(--color-brand-primary)' : '3px solid var(--color-surface)',
+                          boxShadow: isSelected ? '0 0 12px var(--color-brand-primary)' : '0 0 0 1px var(--color-border)',
+                        }}
+                      />
 
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.4rem' }}>
-                      <span style={{ fontWeight: 700, fontSize: 'var(--text-sm)', color: isSelected ? 'var(--color-brand-primary)' : 'var(--color-text-main)' }}>
-                        Stop #{stop.sequence}: {stop.name}
-                      </span>
-                      {isApproaching && (
-                        <span className="badge badge-progress" style={{ fontSize: '0.7rem', padding: '0.15rem 0.45rem' }}>
-                          Next Stop &bull; {formatEta(etaSeconds)}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.4rem' }}>
+                        <span style={{ fontWeight: 700, fontSize: 'var(--text-sm)', color: isSelected ? 'var(--color-brand-primary)' : 'var(--color-text-main)' }}>
+                          Stop #{index + 1}: {item.stopName}
                         </span>
+                        <span
+                          className="pastel-card-sand"
+                          style={{
+                            fontFamily: 'var(--font-mono)',
+                            fontSize: 'var(--text-xs)',
+                            fontWeight: 800,
+                            padding: '0.15rem 0.5rem',
+                            borderRadius: '4px',
+                            color: '#fb7185',
+                          }}
+                        >
+                          {item.time}
+                        </span>
+                      </div>
+                      {item.location && (
+                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
+                          {item.location}
+                        </div>
                       )}
                     </div>
-                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
-                      {stop.campusLocation}
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
 
-            <div className="pastel-card-sage" style={{ padding: '0.85rem 1rem', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--text-xs)', minWidth: 0 }}>
-              <CheckCircle size={16} style={{ flexShrink: 0 }} />
-              <span>Full corridor verified by SRM University Transport Cell. Operating on Indian Standard Time.</span>
+            {/* Section 2: Evening (from campus) */}
+            <div
+              style={{
+                background: 'var(--color-surface)',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-lg)',
+                padding: '1.5rem',
+                boxShadow: 'var(--shadow-sm)',
+                minWidth: 0,
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <div>
+                  <h3 className="title-card" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--text-base)' }}>
+                    <Moon size={18} color="#38bdf8" /> Evening (from campus)
+                  </h3>
+                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
+                    Leaves campus at 04:30 PM IST &bull; Final drop by ~07:00 PM IST
+                  </div>
+                </div>
+                <span className="badge badge-received" style={{ fontSize: '0.7rem' }}>
+                  Departs 04:30 PM IST
+                </span>
+              </div>
+
+              <div style={{ position: 'relative', paddingLeft: '1.6rem', marginLeft: '0.4rem', minWidth: 0 }}>
+                {/* Vertical connecting line */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '12px',
+                    bottom: '24px',
+                    left: '6px',
+                    width: '2px',
+                    background: 'var(--color-border)',
+                  }}
+                />
+
+                {eveningTimeline.map((item, index) => {
+                  const isFirst = index === 0;
+                  const isLast = index === eveningTimeline.length - 1;
+                  const isSelected = selectedStopIndex === item.originalIndex;
+
+                  return (
+                    <div
+                      key={`eve-${index}`}
+                      onClick={() => handleStopSelect(activeRoute.stops[item.originalIndex] || activeRoute.stops[0], item.originalIndex)}
+                      style={{
+                        position: 'relative',
+                        marginBottom: '1.25rem',
+                        minWidth: 0,
+                        cursor: 'pointer',
+                        padding: '0.35rem 0.5rem',
+                        borderRadius: 'var(--radius-sm)',
+                        background: isSelected ? 'rgba(56, 189, 248, 0.12)' : 'transparent',
+                        transition: 'background 0.2s ease',
+                      }}
+                    >
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: '-1.7rem',
+                          top: '8px',
+                          width: '16px',
+                          height: '16px',
+                          borderRadius: '50%',
+                          background: isSelected
+                            ? '#ffffff'
+                            : isFirst || isLast
+                            ? '#38bdf8'
+                            : '#818cf8',
+                          border: isSelected ? '3px solid #38bdf8' : '3px solid var(--color-surface)',
+                          boxShadow: isSelected ? '0 0 12px #38bdf8' : '0 0 0 1px var(--color-border)',
+                        }}
+                      />
+
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.4rem' }}>
+                        <span style={{ fontWeight: 700, fontSize: 'var(--text-sm)', color: isSelected ? '#38bdf8' : 'var(--color-text-main)' }}>
+                          Drop #{index + 1}: {item.stopName}
+                        </span>
+                        <span
+                          className="pastel-card-sand"
+                          style={{
+                            fontFamily: 'var(--font-mono)',
+                            fontSize: 'var(--text-xs)',
+                            fontWeight: 800,
+                            padding: '0.15rem 0.5rem',
+                            borderRadius: '4px',
+                            color: '#38bdf8',
+                          }}
+                        >
+                          {item.time}
+                        </span>
+                      </div>
+                      {item.location && (
+                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
+                          {item.location}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="pastel-card-sage" style={{ padding: '0.75rem 0.95rem', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--text-xs)', marginTop: '1rem', minWidth: 0 }}>
+                <CheckCircle size={16} style={{ flexShrink: 0 }} />
+                <span>Operating on Indian Standard Time (IST). Verified by SRM University Transport Cell.</span>
+              </div>
             </div>
           </div>
         </div>

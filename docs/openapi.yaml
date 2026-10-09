@@ -55,11 +55,11 @@ components:
           example: stu-demo-fictional-01
         fullName:
           type: string
-          example: Demo Student (Sample Evaluation Account)
+          example: Demo Student
         email:
           type: string
           format: email
-          example: ananya.s@srmist.edu.in
+          example: demo.student@srmuniversity.ac.in
         contactNumber:
           type: string
           example: "+91 99999 00001"
@@ -102,7 +102,7 @@ components:
         email:
           type: string
           format: email
-          example: ananya.s@srmist.edu.in
+          example: demo.student@srmuniversity.ac.in
         contactNumber:
           type: string
           description: Validated for 7–15 digits without country-code bias
@@ -127,7 +127,7 @@ components:
         email:
           type: string
           format: email
-          example: ananya.s@srmist.edu.in
+          example: demo.student@srmuniversity.ac.in
         password:
           type: string
           example: Student@123

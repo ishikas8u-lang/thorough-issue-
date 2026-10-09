@@ -381,7 +381,16 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
               <div style={{ background: 'var(--color-surface-2)', padding: '1.15rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text-subtle)', textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)', marginBottom: '0.35rem' }}>
-                  <Mail size={14} color="var(--color-pink-600)" /> Email Address
+                  <BookOpen size={14} color="var(--color-pink-600)" /> Registration Number
+                </div>
+                <div style={{ fontSize: 'var(--text-base)', fontWeight: 700, color: 'var(--color-brand-primary)', fontFamily: 'var(--font-mono)', overflowWrap: 'anywhere' }}>
+                  {session.student.registrationNumber || 'RA2411003010001'}
+                </div>
+              </div>
+
+              <div style={{ background: 'var(--color-surface-2)', padding: '1.15rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text-subtle)', textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)', marginBottom: '0.35rem' }}>
+                  <Mail size={14} color="var(--color-pink-600)" /> University Email
                 </div>
                 <div style={{ fontSize: 'var(--text-base)', fontWeight: 700, color: 'var(--color-text-main)', overflowWrap: 'anywhere' }}>
                   {session.student.email}
@@ -390,28 +399,46 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
               <div style={{ background: 'var(--color-surface-2)', padding: '1.15rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text-subtle)', textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)', marginBottom: '0.35rem' }}>
-                  <Phone size={14} color="var(--color-pink-600)" /> Contact Number
+                  <GraduationCap size={14} color="var(--color-pink-600)" /> Department / Program
                 </div>
                 <div style={{ fontSize: 'var(--text-base)', fontWeight: 700, color: 'var(--color-text-main)', overflowWrap: 'anywhere' }}>
-                  {session.student.contactNumber}
+                  {session.student.department || session.student.course || 'Computer Science & Engineering'}
                 </div>
               </div>
 
               <div style={{ background: 'var(--color-surface-2)', padding: '1.15rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text-subtle)', textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)', marginBottom: '0.35rem' }}>
-                  <GraduationCap size={14} color="var(--color-pink-600)" /> Course / Program
+                  <Clock size={14} color="var(--color-pink-600)" /> Year of Study
                 </div>
                 <div style={{ fontSize: 'var(--text-base)', fontWeight: 700, color: 'var(--color-text-main)', overflowWrap: 'anywhere' }}>
-                  {session.student.course}
+                  {session.student.year || '3rd Year'}
                 </div>
               </div>
 
-              <div style={{ background: 'var(--color-surface-2)', padding: '1.15rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', gridColumn: '1 / -1', minWidth: 0 }}>
+              <div style={{ background: 'var(--color-surface-2)', padding: '1.15rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text-subtle)', textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)', marginBottom: '0.35rem' }}>
-                  <BookOpen size={14} color="var(--color-pink-600)" /> Branch / Specialization
+                  <Phone size={14} color="var(--color-pink-600)" /> Phone Number
                 </div>
                 <div style={{ fontSize: 'var(--text-base)', fontWeight: 700, color: 'var(--color-text-main)', overflowWrap: 'anywhere' }}>
-                  {session.student.branch}
+                  {session.student.phone || session.student.contactNumber}
+                </div>
+              </div>
+
+              <div style={{ background: 'var(--color-surface-2)', padding: '1.15rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text-subtle)', textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)', marginBottom: '0.35rem' }}>
+                  <span style={{ fontSize: '13px' }}>🏠</span> Residence Type
+                </div>
+                <div style={{ fontSize: 'var(--text-base)', fontWeight: 700, color: 'var(--color-text-main)', overflowWrap: 'anywhere' }}>
+                  {session.student.hostelType === 'dayscholar' ? 'Day Scholar' : 'Hostel Resident'}
+                </div>
+              </div>
+
+              <div style={{ background: 'var(--color-surface-2)', padding: '1.15rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text-subtle)', textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)', marginBottom: '0.35rem' }}>
+                  <span style={{ fontSize: '13px' }}>🚌</span> Transit Bus Route
+                </div>
+                <div style={{ fontSize: 'var(--text-base)', fontWeight: 700, color: 'var(--color-text-main)', overflowWrap: 'anywhere' }}>
+                  {session.student.busRouteId ? 'Delhi NCR ⇄ Sonipat Corridor' : 'Self / Campus Transit'}
                 </div>
               </div>
             </div>
@@ -431,7 +458,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <Clock size={14} /> Last updated: {new Date(session.student.updatedAt).toLocaleString()}
+                <Clock size={14} /> Last updated: {new Date(session.student.updatedAt || Date.now()).toLocaleString()}
               </div>
               <div>
                 Session expires: {new Date(session.expiresAt).toLocaleDateString()}

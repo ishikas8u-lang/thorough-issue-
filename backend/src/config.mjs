@@ -6,7 +6,7 @@ const __dirname = path.dirname(__filename);
 
 export const config = {
   port: parseInt(process.env.PORT || '4000', 10),
-  host: process.env.HOST || '127.0.0.1',
+  host: process.env.HOST || '0.0.0.0',
   nodeEnv: process.env.NODE_ENV || 'development',
   isProd: process.env.NODE_ENV === 'production',
 

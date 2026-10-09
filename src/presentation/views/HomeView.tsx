@@ -86,12 +86,12 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onQuickLookup })
           }}
         >
           <div style={{ fontSize: 'var(--text-sm)', color: 'var(--color-pink-dark-text)', fontWeight: 600 }}>
-            SRM Students: Sign in to manage your verified student profile and contact details.
+            SRM Students: Manage your verified student profile, hostel, and contact details.
           </div>
           <button
             type="button"
             className="btn-pink"
-            onClick={() => onNavigate('signin')}
+            onClick={() => onNavigate('profile')}
             style={{ padding: '0.45rem 0.95rem', minHeight: '44px' }}
             title="Go to Student Account"
           >

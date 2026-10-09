@@ -34,7 +34,7 @@ export async function handleGetSafety(req, res, db) {
       isDemo: Boolean(l.is_demo),
     })),
     disclaimer:
-      'NOTICE: Fictional demonstration directory for class evaluation. Campus Assist is not an emergency dispatch system.',
+      'In an emergency, also call Campus Security: +91-11-2659-1000.',
   };
 
   res.writeHead(200, { 'Content-Type': 'application/json' });

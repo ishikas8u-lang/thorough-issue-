@@ -13,7 +13,9 @@ export function handleCors(req, res) {
     return true;
   }
 
-  const isAllowed = config.allowedOrigins.includes(origin);
+  const host = req.headers['host'];
+  const isSameHost = Boolean(host && (origin.endsWith(`://${host}`) || origin.includes(host)));
+  const isAllowed = isSameHost || config.allowedOrigins.includes(origin) || config.allowedOrigins.includes('*');
 
   if (isAllowed) {
     res.setHeader('Access-Control-Allow-Origin', origin);

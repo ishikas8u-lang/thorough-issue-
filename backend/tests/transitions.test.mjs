@@ -1,14 +1,16 @@
 import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { createTestEnvironment } from './test_helper.mjs';
+import { createTestEnvironment, loginAsStaff } from './test_helper.mjs';
 
 describe('Critical Flow: State Machine Valid and Invalid Status Transitions', () => {
   let env;
   let baseUrl;
+  let staffToken;
 
   before(async () => {
     env = createTestEnvironment();
     baseUrl = await env.start();
+    staffToken = await loginAsStaff(baseUrl);
   });
 
   after(async () => {
@@ -38,7 +40,7 @@ describe('Critical Flow: State Machine Valid and Invalid Status Transitions', ()
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'X-Staff-User': 'staff_vansh',
+        Authorization: `Bearer ${staffToken}`,
       },
       body: JSON.stringify({
         targetStatus: 'RESOLVED',
@@ -57,7 +59,7 @@ describe('Critical Flow: State Machine Valid and Invalid Status Transitions', ()
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'X-Staff-User': 'staff_vansh',
+        Authorization: `Bearer ${staffToken}`,
       },
       body: JSON.stringify({
         targetStatus: 'IN_REVIEW',
@@ -74,7 +76,7 @@ describe('Critical Flow: State Machine Valid and Invalid Status Transitions', ()
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'X-Staff-User': 'staff_vansh',
+        Authorization: `Bearer ${staffToken}`,
       },
       body: JSON.stringify({
         targetStatus: 'IN_PROGRESS',
@@ -90,7 +92,7 @@ describe('Critical Flow: State Machine Valid and Invalid Status Transitions', ()
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'X-Staff-User': 'staff_vansh',
+        Authorization: `Bearer ${staffToken}`,
       },
       body: JSON.stringify({
         targetStatus: 'RESOLVED',
@@ -106,7 +108,7 @@ describe('Critical Flow: State Machine Valid and Invalid Status Transitions', ()
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'X-Staff-User': 'staff_vansh',
+        Authorization: `Bearer ${staffToken}`,
       },
       body: JSON.stringify({
         targetStatus: 'IN_PROGRESS',
@@ -119,7 +121,7 @@ describe('Critical Flow: State Machine Valid and Invalid Status Transitions', ()
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'X-Staff-User': 'staff_vansh',
+        Authorization: `Bearer ${staffToken}`,
       },
       body: JSON.stringify({
         targetStatus: 'IN_REVIEW',

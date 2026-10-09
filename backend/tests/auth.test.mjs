@@ -17,7 +17,11 @@ describe('Critical Flow: Student Authentication & Profile Authorization', () => 
 
   const testStudent = {
     fullName: 'Test Fictional Student',
-    email: 'test.student@example.test',
+    registrationNumber: 'RA2411003019999',
+    email: 'test.student@srmuniversity.ac.in',
+    department: 'Computer Science & Engineering',
+    year: '3rd Year',
+    phone: '+91 98765 43210',
     contactNumber: '+91 98765 43210',
     course: 'B.Tech',
     branch: 'Computer Science',
@@ -36,12 +40,46 @@ describe('Critical Flow: Student Authentication & Profile Authorization', () => 
     assert.ok(data.token, 'Should return session token');
     assert.equal(data.student.email, testStudent.email);
     assert.equal(data.student.fullName, testStudent.fullName);
+    assert.equal(data.student.registrationNumber, testStudent.registrationNumber);
+    assert.equal(data.student.role, 'student');
 
     // Verify DB storage: Password MUST be hashed and NEVER plain text
-    const dbRow = env.db.prepare('SELECT password_hash, password_salt FROM students WHERE email = ?').get(testStudent.email);
+    const dbRow = env.db.prepare('SELECT password_hash, password_salt, role FROM students WHERE email = ?').get(testStudent.email);
     assert.ok(dbRow, 'Student must exist in database');
     assert.notEqual(dbRow.password_hash, testStudent.password, 'Password must NOT be plain text');
     assert.equal(dbRow.password_hash.length, 64, 'SHA-256 hash must be 64 hex characters');
+    assert.equal(dbRow.role, 'student');
+  });
+
+  test('POST /api/auth/signup - rejects non-srmuniversity email with 400', async () => {
+    const res = await fetch(`${baseUrl}/api/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...testStudent,
+        email: 'student@otherdomain.com',
+      }),
+    });
+
+    assert.equal(res.status, 400);
+    const data = await res.json();
+    assert.ok(data.message.includes('@srmuniversity.ac.in'));
+  });
+
+  test('POST /api/auth/signup - rejects invalid registration number format with 400', async () => {
+    const res = await fetch(`${baseUrl}/api/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...testStudent,
+        email: 'invalid.reg@srmuniversity.ac.in',
+        registrationNumber: '12345',
+      }),
+    });
+
+    assert.equal(res.status, 400);
+    const data = await res.json();
+    assert.ok(data.message.includes('Registration number'));
   });
 
   test('POST /api/auth/signup - rejects duplicate email with 409 Conflict', async () => {
@@ -59,7 +97,8 @@ describe('Critical Flow: Student Authentication & Profile Authorization', () => 
   test('POST /api/auth/signup - rejects invalid contact numbers with 400', async () => {
     const invalidStudent = {
       ...testStudent,
-      email: 'another@example.test',
+      email: 'another.student@srmuniversity.ac.in',
+      registrationNumber: 'RA2411003018888',
       contactNumber: '123', // too short (< 7 digits)
     };
 

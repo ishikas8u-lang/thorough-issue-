@@ -12,11 +12,12 @@ import type {
   ReportStatus,
   StudentProfile,
   StudentSession,
+  SosAlert,
 } from '../types';
 
-const API_BASE = '/api';
+const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || '/api';
 
-class ApiError extends Error {
+export class ApiError extends Error {
   public status: number;
   public details?: unknown;
   constructor(message: string, status: number, details?: unknown) {
@@ -32,6 +33,7 @@ async function fetchJson<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const headers = new Headers(options.headers || {});
+  // Only default Content-Type to JSON if body is string and not FormData
   if (!headers.has('Content-Type') && options.body && typeof options.body === 'string') {
     headers.set('Content-Type', 'application/json');
   }
@@ -91,10 +93,16 @@ export const apiClient = {
         method: 'POST',
         body: JSON.stringify({
           fullName: profile.fullName,
+          registrationNumber: profile.registrationNumber,
           email: profile.email,
-          contactNumber: profile.contactNumber,
-          course: profile.course,
-          branch: profile.branch,
+          department: profile.department || profile.branch,
+          year: profile.year,
+          contactNumber: profile.contactNumber || profile.phone,
+          phone: profile.phone || profile.contactNumber,
+          hostelType: profile.hostelType,
+          busRouteId: profile.busRouteId,
+          course: profile.course || profile.department,
+          branch: profile.branch || profile.department,
           password,
         }),
       }
@@ -162,7 +170,23 @@ export const apiClient = {
     locationDescription: string;
     issueDescription: string;
     privacyAgreed?: boolean;
-  }): Promise<{ referenceCode: string; status: ReportStatus; createdAt: string; message: string }> {
+    photo?: File | Blob | null;
+    photoBase64?: string;
+  }): Promise<{ referenceCode: string; status: ReportStatus; photoAvailable?: boolean; createdAt: string; message: string }> {
+    if (report.photo) {
+      const formData = new FormData();
+      formData.append('category', report.category);
+      formData.append('locationDescription', report.locationDescription);
+      formData.append('issueDescription', report.issueDescription);
+      formData.append('privacyAgreed', 'true');
+      formData.append('photo', report.photo);
+
+      return fetchJson('/reports', {
+        method: 'POST',
+        body: formData,
+      });
+    }
+
     return fetchJson('/reports', {
       method: 'POST',
       body: JSON.stringify({
@@ -176,32 +200,110 @@ export const apiClient = {
     return fetchJson<PublicReportView>(`/reports/lookup/${encodeURIComponent(referenceCode)}`);
   },
 
+  // ── Emergency SOS ──
+  async createSos(data: {
+    lat?: number | null;
+    lng?: number | null;
+    accuracy?: number | null;
+    message?: string;
+  }, token?: string): Promise<{ id: string; status: 'new'; createdAt: string; message: string }> {
+    return fetchJson('/sos', {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: JSON.stringify(data),
+    });
+  },
+
+  async getStaffSosAlerts(token?: string): Promise<SosAlert[]> {
+    return fetchJson<SosAlert[]>('/staff/sos', {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+  },
+
+  async updateStaffSosStatus(
+    alertId: string,
+    status: 'new' | 'acknowledged' | 'resolved',
+    token?: string
+  ): Promise<SosAlert> {
+    return fetchJson<SosAlert>(`/staff/sos/${encodeURIComponent(alertId)}`, {
+      method: 'PATCH',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: JSON.stringify({ status }),
+    });
+  },
+
   // ── Staff Triage ──
-  async getStaffReports(staffUser: string = 'admin'): Promise<Report[]> {
+  async getStaffReports(token?: string): Promise<Report[]> {
     return fetchJson<Report[]>('/staff/reports', {
-      headers: {
-        'X-Staff-User': staffUser,
-      },
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
   },
 
   async updateReportStatus(
     reportId: string,
-    targetStatus: ReportStatus,
+    targetStatus?: ReportStatus,
     publicMessage?: string,
     internalNote?: string,
-    staffUser: string = 'admin'
+    adminReply?: string,
+    token?: string
   ): Promise<Report> {
     return fetchJson<Report>(`/staff/reports/${encodeURIComponent(reportId)}/status`, {
       method: 'PATCH',
-      headers: {
-        'X-Staff-User': staffUser,
-      },
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
       body: JSON.stringify({
         targetStatus,
         publicMessage,
         internalNote,
+        adminReply,
       }),
+    });
+  },
+
+  getReportPhotoUrl(reportId: string): string {
+    return `${API_BASE}/staff/reports/${encodeURIComponent(reportId)}/photo`;
+  },
+
+  async fetchReportPhotoBlob(reportId: string, token?: string): Promise<Blob | null> {
+    const url = `${API_BASE}/staff/reports/${encodeURIComponent(reportId)}/photo`;
+    try {
+      const res = await fetch(url, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) return null;
+      return await res.blob();
+    } catch {
+      return null;
+    }
+  },
+
+  async getStudentReports(token: string): Promise<Report[]> {
+    return fetchJson<Report[]>('/student/reports', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  },
+
+  async escalateReport(
+    reportId: string,
+    authority: string,
+    note?: string,
+    token?: string
+  ): Promise<Report> {
+    return fetchJson<Report>(`/staff/reports/${encodeURIComponent(reportId)}/escalate`, {
+      method: 'PATCH',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: JSON.stringify({ authority, note }),
+    });
+  },
+
+  async updateRoute(
+    routeId: string,
+    updates: { driverName?: string; driverPhone?: string; busNumber?: string; timings?: string },
+    token?: string
+  ): Promise<{ route: Route; message: string }> {
+    return fetchJson<{ route: Route; message: string }>(`/staff/routes/${encodeURIComponent(routeId)}`, {
+      method: 'PATCH',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: JSON.stringify(updates),
     });
   },
 

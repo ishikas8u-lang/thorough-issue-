@@ -1,5 +1,7 @@
 #!/usr/bin/env node
+import http from 'node:http';
 import { getDb, runMigrations, getDbPath } from '../src/db.mjs';
+import { createRequestHandler } from '../src/app.mjs';
 import {
   DEMO_STUDENT,
   DEMO_ADMIN,
@@ -10,21 +12,39 @@ import {
 } from '../seeds/demo_seed_data.mjs';
 import { generateSalt, hashPassword } from '../src/security/auth.mjs';
 
-console.log('--- Campus Assist Database Seeder ---');
-console.log(`Database target: ${getDbPath()}`);
+console.log('==============================================');
+console.log('Campus Assist Production Service Initializer');
+console.log('==============================================');
 
-try {
-  const db = getDb();
-  runMigrations(db);
+// 1. Establish database connection & run migrations
+const dbPath = getDbPath();
+console.log(`Connecting to SQLite database at: ${dbPath}`);
+const db = getDb();
+runMigrations(db);
+console.log('✓ Migrations successfully applied.');
 
-  // 1a. Seed Demo Student
-  const salt = generateSalt();
-  const hash = hashPassword(DEMO_STUDENT.passwordPlain, salt);
+// 2. Check if database is empty & seed only if needed
+function isDatabaseEmpty() {
+  try {
+    const studentCount = db.prepare('SELECT COUNT(*) as count FROM students').get().count;
+    const reportCount = db.prepare('SELECT COUNT(*) as count FROM reports').get().count;
+    const adminExists = db.prepare('SELECT id FROM students WHERE email = ?').get(DEMO_ADMIN.email);
+    return (studentCount === 0 && reportCount === 0) || !adminExists;
+  } catch {
+    return true;
+  }
+}
+
+if (isDatabaseEmpty()) {
+  console.log('Database requires seeding. Seeding initial baseline data...');
+
+  // Seed demo student
+  const studentSalt = generateSalt();
+  const studentHash = hashPassword(DEMO_STUDENT.passwordPlain, studentSalt);
   const now = new Date().toISOString();
 
-  db.prepare(`DELETE FROM students WHERE id = ? OR email = ?`).run(DEMO_STUDENT.id, DEMO_STUDENT.email);
   db.prepare(`
-    INSERT INTO students (
+    INSERT OR REPLACE INTO students (
       id, full_name, email, contact_number, phone, course, branch,
       registration_number, department, year, hostel_type, bus_route_id,
       password_salt, password_hash, role, created_at, updated_at
@@ -43,21 +63,18 @@ try {
     DEMO_STUDENT.year,
     DEMO_STUDENT.hostelType,
     DEMO_STUDENT.busRouteId,
-    salt,
-    hash,
+    studentSalt,
+    studentHash,
     DEMO_STUDENT.role || 'student',
     now,
     now
   );
-  console.log(`✓ Seeded demo student: ${DEMO_STUDENT.email} (Password: ${DEMO_STUDENT.passwordPlain})`);
 
-  // 1b. Seed Demo Admin
+  // Seed demo admin
   const adminSalt = generateSalt();
   const adminHash = hashPassword(DEMO_ADMIN.passwordPlain, adminSalt);
-
-  db.prepare(`DELETE FROM students WHERE id = ? OR email = ?`).run(DEMO_ADMIN.id, DEMO_ADMIN.email);
   db.prepare(`
-    INSERT INTO students (
+    INSERT OR REPLACE INTO students (
       id, full_name, email, contact_number, phone, course, branch,
       employee_id, office, department,
       password_salt, password_hash, role, created_at, updated_at
@@ -80,27 +97,24 @@ try {
     now,
     now
   );
-  console.log(`✓ Seeded demo admin: ${DEMO_ADMIN.email} (Password: ${DEMO_ADMIN.passwordPlain})`);
 
-  // 2. Seed Safety Contacts
+  // Seed safety contacts
   for (const c of DEMO_SAFETY_CONTACTS) {
     db.prepare(`
       INSERT OR REPLACE INTO safety_contacts (id, label, phone, instructions, source, verified_at, is_demo)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `).run(c.id, c.label, c.phone, c.instructions, c.source, c.verifiedAt, c.isDemo);
   }
-  console.log(`✓ Seeded ${DEMO_SAFETY_CONTACTS.length} demo safety directory contacts.`);
 
-  // 3. Seed Safety Locations
+  // Seed safety locations
   for (const loc of DEMO_SAFETY_LOCATIONS) {
     db.prepare(`
       INSERT OR REPLACE INTO safety_locations (id, name, kind, campus_location, description, verified_at, is_demo)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `).run(loc.id, loc.name, loc.kind, loc.campusLocation, loc.description, loc.verifiedAt, loc.isDemo);
   }
-  console.log(`✓ Seeded ${DEMO_SAFETY_LOCATIONS.length} demo safety locations.`);
 
-  // 4. Seed Transit Routes & Stops
+  // Seed transit routes
   for (const r of DEMO_TRANSIT_ROUTES) {
     db.prepare(`
       INSERT OR REPLACE INTO transit_routes (id, name, description, operating_days, timezone, last_updated, is_demo, scheduled_departures_json, driver_name, driver_phone, bus_number)
@@ -119,7 +133,6 @@ try {
       r.busNumber || 'DL 1P B-4029'
     );
 
-    // Delete existing stops for idempotency
     db.prepare('DELETE FROM transit_stops WHERE route_id = ?').run(r.id);
     for (const s of r.stops) {
       db.prepare(`
@@ -128,13 +141,12 @@ try {
       `).run(s.id, r.id, s.name, s.sequence, s.campusLocation);
     }
   }
-  console.log(`✓ Seeded ${DEMO_TRANSIT_ROUTES.length} demo transit routes and stops.`);
 
-  // 5. Seed Demo Reports
+  // Seed reports & audit log
   for (const rep of DEMO_REPORTS) {
     db.prepare(`
-      INSERT OR REPLACE INTO reports (id, reference_code, category, location_description, issue_description, status, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT OR REPLACE INTO reports (id, reference_code, category, location_description, issue_description, status, admin_reply, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       rep.id,
       rep.referenceCode,
@@ -142,11 +154,11 @@ try {
       rep.locationDescription,
       rep.issueDescription,
       rep.status,
+      rep.adminReply || null,
       rep.createdAt,
       rep.updatedAt
     );
 
-    // Seed audit trail
     for (const aud of rep.auditTrail) {
       db.prepare(`
         INSERT OR REPLACE INTO report_audit_log (id, report_id, previous_status, new_status, public_message, internal_note, actor_id, created_at)
@@ -163,11 +175,34 @@ try {
       );
     }
   }
-  console.log(`✓ Seeded ${DEMO_REPORTS.length} facilities problem reports.`);
 
-  console.log('✓ Seeding complete.');
-  process.exit(0);
-} catch (err) {
-  console.error('✗ Seeding failed:', err);
-  process.exit(1);
+  console.log('✓ Demo data successfully seeded.');
+} else {
+  console.log('✓ Existing data found. Skipping re-seed to preserve database state.');
 }
+
+// 3. Start unified HTTP service
+const requestHandler = createRequestHandler(db);
+const server = http.createServer(requestHandler);
+
+const port = parseInt(process.env.PORT || '4000', 10);
+const host = process.env.HOST || '0.0.0.0';
+
+server.listen(port, host, () => {
+  console.log('==============================================');
+  console.log(`✓ Campus Assist unified service live on http://${host}:${port}`);
+  console.log(`✓ Serving built frontend (dist/) with API at /api`);
+  console.log(`✓ Health check active at /health and /api/health`);
+  console.log('==============================================');
+});
+
+function shutdown() {
+  console.log('\nShutting down Campus Assist service...');
+  server.close(() => {
+    console.log('✓ Service terminated cleanly.');
+    process.exit(0);
+  });
+}
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);

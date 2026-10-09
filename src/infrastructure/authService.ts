@@ -49,8 +49,8 @@ export class LocalStorageStudentAuthService implements IStudentAuthService {
         const hash = await hashPassword('Student@123', salt);
         const demoAccount: StoredAccount = {
           id: 'stu-srm-01',
-          fullName: 'Ananya Sharma',
-          email: 'ananya.s@srmist.edu.in',
+          fullName: 'Demo Student',
+          email: 'demo.student@srmuniversity.ac.in',
           contactNumber: '+91 98765 43210',
           course: 'B.Tech',
           branch: 'Computer Science & Engineering',
@@ -139,23 +139,24 @@ export class LocalStorageStudentAuthService implements IStudentAuthService {
       throw new Error('Please enter a valid university email address.');
     }
 
-    if (!profileData.fullName.trim() || profileData.fullName.trim().length < 2) {
+    if (!cleanEmail.endsWith('@srmuniversity.ac.in')) {
+      throw new Error('University email must end with @srmuniversity.ac.in');
+    }
+
+    const fullName = (profileData.fullName || '').trim();
+    if (!fullName || fullName.length < 2) {
       throw new Error('Please enter your full name (at least 2 characters).');
     }
 
     // Contact number validation: requires 7-15 digits, supports international prefixes without assuming any single country code
-    const digitsOnly = profileData.contactNumber.replace(/\D/g, '');
-    if (digitsOnly.length < 7 || digitsOnly.length > 15) {
+    const contactNumber = (profileData.contactNumber || profileData.phone || '').trim();
+    const digitsOnly = contactNumber.replace(/\D/g, '');
+    if (contactNumber && (digitsOnly.length < 7 || digitsOnly.length > 15)) {
       throw new Error('Contact number must contain between 7 and 15 digits, including optional country code.');
     }
 
-    if (!profileData.course.trim()) {
-      throw new Error('Please specify your course/program.');
-    }
-
-    if (!profileData.branch.trim()) {
-      throw new Error('Please specify your branch/specialization.');
-    }
+    const course = (profileData.course || profileData.department || '').trim();
+    const branch = (profileData.branch || '').trim();
 
     if (!password || password.length < 6) {
       throw new Error('Password must be at least 6 characters long.');
@@ -174,11 +175,11 @@ export class LocalStorageStudentAuthService implements IStudentAuthService {
 
     const newAccount: StoredAccount = {
       id: newId,
-      fullName: profileData.fullName.trim(),
+      fullName,
       email: cleanEmail,
-      contactNumber: profileData.contactNumber.trim(),
-      course: profileData.course.trim(),
-      branch: profileData.branch.trim(),
+      contactNumber,
+      course,
+      branch,
       passwordSalt: salt,
       passwordHash: hash,
       createdAt: now,

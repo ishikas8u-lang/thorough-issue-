@@ -140,12 +140,14 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html {
   scroll-behavior: smooth;
   font-size: 16px;
   overflow-x: hidden;
+  max-width: 100%;
 }
 
 body {
@@ -157,12 +159,189 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  min-height: 100vh;
+  min-height: 100dvh;
+  max-width: 100%;
   overflow-x: hidden;
   background-image:
     radial-gradient(at 0% 0%, rgba(251, 113, 133, 0.06) 0px, transparent 55%),
     radial-gradient(at 100% 100%, rgba(225, 29, 72, 0.05) 0px, transparent 55%);
   background-attachment: fixed;
+  caret-color: transparent;
+  cursor: default;
+}
+
+/* Caret shows only in real text fields */
+input,
+textarea,
+select,
+[contenteditable] {
+  caret-color: auto;
+}
+
+/* ─────────────────────────────────────────────
+   CURSOR & INTERACTION DISCIPLINE
+   ───────────────────────────────────────────── */
+
+/* Clickable items have pointer cursor */
+button,
+a,
+[role="button"],
+[role="tab"],
+select,
+summary,
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+input[type="checkbox"],
+input[type="radio"],
+input[type="file"],
+label[for],
+.clickable {
+  cursor: pointer;
+}
+
+/* Plain text containers and cards have default cursor */
+body,
+main,
+section,
+article,
+header,
+footer,
+nav,
+.card,
+.service-card,
+.glass-card,
+.portal-card,
+.route-card,
+.stat-card,
+.info-card,
+.tracking-card,
+.staff-card,
+.status-card,
+.sos-card,
+.gps-card,
+.student-geo-card,
+.pastel-card-sand,
+.pastel-card-sage,
+.panel,
+.badge,
+.ref-code-box,
+h1, h2, h3, h4, h5, h6 {
+  cursor: default;
+}
+
+/* Inputs and textareas keep text cursor */
+input[type="text"],
+input[type="search"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+textarea,
+[contenteditable] {
+  cursor: text;
+}
+
+/* ─────────────────────────────────────────────
+   SELECTION DISCIPLINE
+   ───────────────────────────────────────────── */
+
+/* Make non-editable UI unselectable */
+button,
+a,
+nav,
+[role="button"],
+[role="tab"],
+label,
+.card,
+.badge,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.nav-btn,
+.bottom-nav-item,
+.brand-wrap,
+.service-card,
+.glass-card,
+.portal-card,
+.route-card,
+.stat-card,
+.info-card,
+.tracking-card,
+.staff-card,
+.status-card,
+.sos-card,
+.gps-card,
+.student-geo-card,
+.pastel-card-sand,
+.pastel-card-sage,
+.pill,
+.stat-pill,
+.status-badge,
+.tab-btn,
+.btn-primary,
+.btn-secondary,
+.btn-urgent,
+.emergency-pill-btn {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Keep text selectable for paragraphs, report descriptions, reference codes and anything the user may want to copy */
+p,
+code,
+pre,
+kbd,
+samp,
+.ref-code,
+.ref-code-box,
+.ref-code-text,
+.ref-code-value,
+.selectable-text,
+.report-description,
+.card p,
+.service-card p,
+.tracking-card p,
+.report-card p,
+.detail-content p,
+.directory-item p,
+.stat-card p,
+.copyable,
+[data-selectable="true"] {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Real input fields retain natural select and edit behavior */
+input,
+textarea,
+select,
+[contenteditable] {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.app-root-container {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: clamp(1rem, 3.5vw, 2rem);
+  padding-right: clamp(1rem, 3.5vw, 2rem);
+  box-sizing: border-box;
+  overflow-x: clip;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -198,7 +377,20 @@ button {
 
 img, svg { display: block; }
 
-/* ── Focus ring ── */
+/* ── Focus Management: Remove default focus outline on mouse click, keep visible ring for keyboard users ── */
+:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+[role="button"]:focus:not(:focus-visible),
+[role="tab"]:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
 :focus-visible {
   outline: 2.5px solid var(--color-border-focus);
   outline-offset: 2px;
@@ -480,7 +672,6 @@ img, svg { display: block; }
 
 .student-top-link:hover {
   background: var(--color-pink-200);
-  transform: translateY(-1px);
 }
 
 .student-top-signout {
@@ -517,7 +708,6 @@ img, svg { display: block; }
 .student-top-signin-btn:hover {
   background: var(--color-pink-200);
   color: var(--color-pink-dark-text);
-  transform: translateY(-1px);
 }
 
 /* ── Main nav bar ── */
@@ -548,6 +738,11 @@ img, svg { display: block; }
   transition: opacity var(--duration-fast) ease;
   min-width: 0;
   flex-shrink: 0;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
 }
 
 .brand-wrap:hover { opacity: 0.88; }
@@ -569,7 +764,7 @@ img, svg { display: block; }
 
 .brand-wrap:hover .brand-icon {
   box-shadow: 0 6px 20px rgba(244, 63, 94, 0.5);
-  transform: translateY(-1px) scale(1.03);
+  opacity: 0.95;
 }
 
 .brand-title {
@@ -606,40 +801,25 @@ img, svg { display: block; }
   font-size: var(--text-sm);
   font-weight: 600;
   color: var(--color-text-muted);
-  transition: var(--transition-all);
+  background: transparent;
+  border: 1px solid transparent;
+  transition: background-color var(--duration-fast) ease, color var(--duration-fast) ease, border-color var(--duration-fast) ease;
   position: relative;
   white-space: nowrap;
   cursor: pointer;
   flex-shrink: 0;
 }
 
-.nav-btn::after {
-  content: '';
-  position: absolute;
-  bottom: 2px;
-  left: 50%;
-  transform: translateX(-50%) scaleX(0);
-  width: 50%;
-  height: 2px;
-  background: var(--color-brand-accent);
-  border-radius: var(--radius-pill);
-  transition: transform var(--duration-base) var(--ease-spring);
-}
-
 .nav-btn:hover {
   background: var(--color-surface-hover);
   color: var(--color-brand-primary);
-  transform: translateY(-1px);
 }
 
 .nav-btn.active {
   background: var(--color-brand-accent-light);
+  border-color: rgba(244, 63, 94, 0.3);
   color: var(--color-brand-primary);
   font-weight: 700;
-}
-
-.nav-btn.active::after {
-  transform: translateX(-50%) scaleX(1);
 }
 
 .nav-label-mobile { display: none; }
@@ -755,13 +935,13 @@ img, svg { display: block; }
 }
 
 .emergency-pill-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(244, 63, 94, 0.48);
+  box-shadow: 0 6px 18px rgba(244, 63, 94, 0.45);
+  opacity: 0.95;
 }
 
 .emergency-pill-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 3px 8px rgba(244, 63, 94, 0.3);
+  box-shadow: 0 2px 6px rgba(244, 63, 94, 0.3);
+  opacity: 0.9;
 }
 
 /* ─────────────────────────────────────────────
@@ -948,11 +1128,14 @@ img, svg { display: block; }
 
 .btn-primary:hover:not(:disabled) {
   background: linear-gradient(135deg, var(--color-brand-hover), var(--color-brand-primary));
-  transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(244, 63, 94, 0.44);
+  box-shadow: 0 6px 18px rgba(244, 63, 94, 0.44);
+  opacity: 0.96;
 }
 
-.btn-primary:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+.btn-primary:active:not(:disabled) {
+  opacity: 0.9;
+  box-shadow: 0 2px 6px rgba(244, 63, 94, 0.3);
+}
 .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .btn-secondary {
@@ -978,11 +1161,12 @@ img, svg { display: block; }
 .btn-secondary:hover:not(:disabled) {
   background: var(--color-surface-subtle);
   color: var(--color-brand-primary);
-  transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
 }
 
-.btn-secondary:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+.btn-secondary:active:not(:disabled) {
+  opacity: 0.9;
+}
 .btn-secondary:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .btn-pink {
@@ -1008,7 +1192,6 @@ img, svg { display: block; }
   background: var(--color-pink-200);
   color: var(--color-pink-800);
   border-color: var(--color-pink-400);
-  transform: translateY(-1px);
 }
 
 .btn-pink-primary {
@@ -1032,12 +1215,14 @@ img, svg { display: block; }
 }
 
 .btn-pink-primary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(244, 63, 94, 0.44);
+  box-shadow: 0 6px 18px rgba(244, 63, 94, 0.44);
   background: linear-gradient(135deg, #f43f5e, #be123c);
+  opacity: 0.96;
 }
 
-.btn-pink-primary:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+.btn-pink-primary:active:not(:disabled) {
+  opacity: 0.9;
+}
 .btn-pink-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* ─────────────────────────────────────────────
@@ -1648,6 +1833,195 @@ img, svg { display: block; }
 .osm-dark-tiles .leaflet-tile,
 .osm-dark-tiles img {
   filter: invert(100%) hue-rotate(180deg) brightness(88%) contrast(105%) !important;
+}
+
+/* ─────────────────────────────────────────────
+   MOBILE POLISH, BOTTOM NAV & RESPONSIVENESS
+   ───────────────────────────────────────────── */
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+/* Ensure 100dvh support */
+.app-root-container {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Base minimum target size for interactive items */
+button, input, select, textarea, .nav-btn, .btn-primary, .btn-secondary, .btn-pink {
+  min-height: 44px;
+}
+
+/* iOS zoom prevention: inputs must have at least 16px font */
+@media (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Visibility helpers */
+.desktop-only {
+  display: flex !important;
+}
+.mobile-only {
+  display: none !important;
+}
+
+@media (max-width: 767px) {
+  .desktop-only {
+    display: none !important;
+  }
+  .mobile-only {
+    display: flex !important;
+  }
+
+  /* Safe area and layout padding */
+  .app-main-content {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .srm-brand-dept {
+    display: none;
+  }
+
+  .brand-subtitle {
+    display: none;
+  }
+
+  .brand-title {
+    font-size: 1.05rem;
+  }
+
+  .emergency-label-desktop {
+    display: none;
+  }
+
+  .emergency-label-mobile {
+    display: inline;
+  }
+
+  .nav-container {
+    gap: 0.5rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .nav-right-cluster {
+    gap: 0.4rem;
+  }
+
+  .emergency-pill-btn {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .nav-btn-admin {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.8rem;
+  }
+
+  .admin-block-text {
+    font-size: 0.8rem;
+  }
+
+  .nav-cluster-divider {
+    margin: 0 0.15rem;
+  }
+}
+
+/* Mobile Bottom Tab Navigation */
+.bottom-nav-bar {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .bottom-nav-bar {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    background: rgba(18, 20, 25, 0.96);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--color-border);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .bottom-nav-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    height: 58px;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 0 0.25rem;
+  }
+
+  .bottom-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    height: 100%;
+    min-height: 44px;
+    background: transparent;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    padding: 4px 2px;
+    text-decoration: none;
+    transition: color var(--duration-fast) ease;
+  }
+
+  .bottom-nav-item:hover,
+  .bottom-nav-item:focus-visible {
+    color: var(--color-brand-primary);
+  }
+
+  .bottom-nav-item.active {
+    color: var(--color-brand-accent);
+    font-weight: 700;
+  }
+
+  .bottom-nav-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 20px;
+  }
+
+  .bottom-nav-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 

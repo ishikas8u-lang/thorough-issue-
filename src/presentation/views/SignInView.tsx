@@ -33,10 +33,46 @@ export const SignInView: React.FC<SignInViewProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const handleFillDemo = () => {
-    setSignInEmail('ananya.s@srmist.edu.in');
+  const handleUseDemoStudent = async () => {
+    setSignInEmail('demo.student@srmuniversity.ac.in');
     setSignInPassword('Student@123');
+    setIsLoading(true);
     setErrorMessage(null);
+    setSuccessMessage(null);
+
+    try {
+      const session = await authService.signIn('demo.student@srmuniversity.ac.in', 'Student@123');
+      setSuccessMessage('Signed in as Demo Student! Redirecting...');
+      setTimeout(() => {
+        onSuccess(session);
+      }, 400);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unable to sign in with demo student account.';
+      setErrorMessage(msg);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUseDemoAdmin = async () => {
+    setSignInEmail('demo.admin@srmuniversity.ac.in');
+    setSignInPassword('Staff@Reviewer2026');
+    setIsLoading(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    try {
+      const session = await authService.signIn('demo.admin@srmuniversity.ac.in', 'Staff@Reviewer2026');
+      setSuccessMessage('Signed in as Demo Admin Reviewer! Redirecting...');
+      setTimeout(() => {
+        onSuccess(session);
+      }, 400);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unable to sign in with demo admin account.';
+      setErrorMessage(msg);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSignInSubmit = async (e: React.FormEvent) => {
@@ -291,7 +327,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
                 id="signin-email"
                 type="email"
                 className="form-input"
-                placeholder="e.g. ananya.s@srmist.edu.in"
+                placeholder="e.g. student@srmuniversity.ac.in"
                 value={signInEmail}
                 onChange={(e) => setSignInEmail(e.target.value)}
                 required
@@ -317,34 +353,55 @@ export const SignInView: React.FC<SignInViewProps> = ({
               />
             </div>
 
-            {/* Quick Demo Pre-fill for reviewers */}
+            {/* Demo Accounts Card for Reviewers */}
             <div
               style={{
                 background: 'var(--color-pink-50)',
-                border: '1px dashed var(--color-pink-300)',
+                border: '1px solid var(--color-pink-300)',
                 borderRadius: 'var(--radius-md)',
-                padding: '0.8rem 1rem',
+                padding: '1rem',
                 margin: '1.25rem 0',
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                gap: '0.5rem',
-                minWidth: 0,
+                flexDirection: 'column',
+                gap: '0.75rem',
               }}
             >
-              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-pink-dark-text)', overflowWrap: 'anywhere' }}>
-                <strong>Demo Student:</strong> <code>ananya.s@srmist.edu.in</code>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.4rem' }}>
+                <strong style={{ fontSize: 'var(--text-xs)', color: 'var(--color-pink-dark-text)', letterSpacing: '0.03em', textTransform: 'uppercase' }}>
+                  Quick Sign-In Credentials
+                </strong>
+                <span style={{ fontSize: '10px', background: 'var(--color-pink-200)', color: 'var(--color-pink-800)', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
+                  Pre-Configured
+                </span>
               </div>
-              <button
-                type="button"
-                onClick={handleFillDemo}
-                className="btn-pink"
-                style={{ padding: '0.35rem 0.75rem', minHeight: '38px', fontSize: 'var(--text-xs)' }}
-                title="Fill credentials for test student"
-              >
-                Auto-Fill Demo
-              </button>
+
+              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-main)', lineHeight: 1.5 }}>
+                <div>&bull; <strong>Demo Student:</strong> <code>demo.student@srmuniversity.ac.in</code> &bull; Password: <code>Student@123</code></div>
+                <div>&bull; <strong>Demo Admin:</strong> <code>demo.admin@srmuniversity.ac.in</code> &bull; Password: <code>Staff@Reviewer2026</code></div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  onClick={handleUseDemoStudent}
+                  disabled={isLoading}
+                  className="btn-pink"
+                  style={{ flex: 1, minHeight: '44px', fontSize: 'var(--text-xs)', justifyContent: 'center' }}
+                  title="Sign in as demo student"
+                >
+                  Sign in as demo student
+                </button>
+                <button
+                  type="button"
+                  onClick={handleUseDemoAdmin}
+                  disabled={isLoading}
+                  className="btn-secondary"
+                  style={{ flex: 1, minHeight: '44px', fontSize: 'var(--text-xs)', justifyContent: 'center' }}
+                  title="Sign in as demo admin"
+                >
+                  Sign in as demo admin
+                </button>
+              </div>
             </div>
 
             <button
@@ -361,6 +418,20 @@ export const SignInView: React.FC<SignInViewProps> = ({
         {/* Sign Up Form */}
         {mode === 'signup' && (
           <form onSubmit={handleSignUpSubmit}>
+            <div
+              style={{
+                background: 'rgba(34, 197, 94, 0.1)',
+                border: '1px solid rgba(34, 197, 94, 0.3)',
+                borderRadius: 'var(--radius-md)',
+                padding: '0.65rem 0.85rem',
+                marginBottom: '1.25rem',
+                fontSize: 'var(--text-xs)',
+                color: '#86efac',
+              }}
+            >
+              <strong>Registration:</strong> Student accounts activate immediately with university credentials.
+            </div>
+
             <div className="form-group">
               <label className="form-label" htmlFor="signup-name">
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
@@ -388,7 +459,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
                 id="signup-email"
                 type="email"
                 className="form-input"
-                placeholder="e.g. ananya.s@srmist.edu.in"
+                placeholder="e.g. student@srmuniversity.ac.in"
                 value={signUpEmail}
                 onChange={(e) => setSignUpEmail(e.target.value)}
                 required

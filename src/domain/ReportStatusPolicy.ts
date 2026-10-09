@@ -13,8 +13,9 @@ export interface IReportStatusPolicy {
 export class ReportStatusPolicy implements IReportStatusPolicy {
   private static readonly ALLOWED_TRANSITIONS: Record<ReportStatus, ReportStatus[]> = {
     RECEIVED: ['IN_REVIEW', 'DUPLICATE', 'REJECTED'],
-    IN_REVIEW: ['IN_PROGRESS', 'DUPLICATE', 'REJECTED'],
-    IN_PROGRESS: ['RESOLVED', 'IN_REVIEW'],
+    IN_REVIEW: ['IN_PROGRESS', 'ESCALATED', 'DUPLICATE', 'REJECTED'],
+    IN_PROGRESS: ['RESOLVED', 'ESCALATED', 'IN_REVIEW'],
+    ESCALATED: ['IN_PROGRESS', 'RESOLVED', 'IN_REVIEW'],
     RESOLVED: ['IN_REVIEW'],
     DUPLICATE: ['IN_REVIEW'],
     REJECTED: ['IN_REVIEW'],

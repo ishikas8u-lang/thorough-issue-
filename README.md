@@ -66,9 +66,9 @@ The platform is customized for **SRM University** with a dedicated student accou
    - **Zero Plain-Text Password Storage:** Password hashes are computed client-side using standard Web Crypto API (`window.crypto.subtle.digest('SHA-256')`) with per-user cryptographic salts. No plain-text passwords or secret keys are stored or hardcoded.
    - **Route Protection:** Access to the Student Profile route is strictly guarded. Unauthenticated access immediately redirects to the Sign In page with an explanatory notice.
    - **Privacy Guarantee:** Student contact numbers, courses, and branches are strictly isolated and never exposed on public problem tickets, lookup screens, or transport views.
-   - **Demo Credentials:** Pre-seeded for evaluation:
-     - **Email:** `ananya.s@srmist.edu.in`
-     - **Password:** `Student@123` (Quick "Auto-Fill Demo" button provided on Sign In page).
+   - **Demo Credentials:** Pre-configured demo accounts for sign-in:
+     - **Student:** `demo.student@srmuniversity.ac.in` / `Student@123`
+     - **Admin:** `demo.admin@srmuniversity.ac.in` / `Staff@Reviewer2026`
 
 ---
 
@@ -84,7 +84,7 @@ The backend is built with native Node.js (v24+) Clean Architecture, SQLite persi
 # 1. Apply Database Schema Migrations (Idempotent)
 npm run backend:migrate
 
-# 2. Seed Fictional Demo Evaluation Data
+# 2. Seed Baseline Data
 npm run backend:seed
 
 # 3. Start Backend HTTP Server (Default: http://127.0.0.1:4000)
@@ -96,12 +96,12 @@ npm test
 
 ### 2. Automated Test Suite Coverage
 
-The automated test suite (`backend/tests/*.test.mjs`) validates 23 mission-critical flows:
+The automated test suite (`backend/tests/*.test.mjs`) validates 32 mission-critical flows:
 - **Sign-In & Profile Authorization (`auth.test.mjs`):** Salted SHA-256 password hashing, zero plain-text storage, duplicate email prevention, contact number format checks, Bearer token profile authorization, and session invalidation on sign-out.
 - **Report Submission & Privacy Isolation (`reports.test.mjs`):** Anonymous submission generating non-sequential `CA-XXXX-XX` reference codes, privacy projection redacting internal UUIDs, staff actor IDs, and internal notes.
 - **State Machine Transitions (`transitions.test.mjs`):** Enforces legal state machine sequence (`RECEIVED` &rarr; `IN_REVIEW` &rarr; `IN_PROGRESS` &rarr; `RESOLVED`), rejecting illegal direct jumps (e.g. `RECEIVED` &rarr; `RESOLVED` directly returns `422 Unprocessable Entity`).
 - **Staff-Only Operations (`staff.test.mjs`):** Access control guarding triage queues and status transitions against unauthorized actors (401/403).
-- **Transport & Safety Responses (`transport_safety.test.mjs`):** Verified directory responses, fictional demo flagging (`isDemo: true`), and scheduled transit timetables for Delhi NCR ⇄ Sonipat (7:30 AM – 7:00 PM).
+- **Transport & Safety Responses (`transport_safety.test.mjs`):** Verified directory responses, honest safety disclaimers, and scheduled transit timetables for Delhi NCR ⇄ Sonipat (twice-daily runs in IST).
 - **Health-Check Sanitization (`health.test.mjs`):** Proves `/api/health` reports uptime and database status without exposing secrets or configuration.
 
 ### 3. API Documentation & OpenAPI Specification
@@ -125,6 +125,6 @@ The automated test suite (`backend/tests/*.test.mjs`) validates 23 mission-criti
 - [x] **Phase 2:** Student-Facing Core MVP Flows (Safety, Transport, Reporting, Public Status Lookup) — **COMPLETE**
 - [x] **Phase 3:** Admin Block Operations, State Machine Triage & Audit History — **COMPLETE**
 - [x] **Phase 4:** SRM University Branding, Student Sign-In/Sign-Out, Profile Management & Security Hardening — **COMPLETE**
-- [x] **Backend Completion:** Migrations, Fictional Seed Data, Health Check, CORS, Rate Limiting, OpenAPI Spec, and 23 Automated Checks — **COMPLETE**
+- [x] **Backend Completion:** Migrations, Database Seeding, Health Check, CORS, Rate Limiting, OpenAPI Spec, and 32 Automated Checks — **COMPLETE**
 
 

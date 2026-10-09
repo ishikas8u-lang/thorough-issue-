@@ -57,7 +57,10 @@ export function getActiveStudentSession(db, token) {
   if (!token) return null;
 
   const row = db.prepare(`
-    SELECT s.token, s.expires_at, st.id, st.full_name, st.email, st.contact_number, st.course, st.branch, st.updated_at
+    SELECT s.token, s.expires_at,
+           st.id, st.full_name, st.email, st.contact_number, st.phone, st.course, st.branch,
+           st.registration_number, st.department, st.year, st.hostel_type, st.bus_route_id,
+           st.employee_id, st.office, st.role, st.updated_at
     FROM sessions s
     JOIN students st ON st.id = s.student_id
     WHERE s.token = ?
@@ -78,9 +81,18 @@ export function getActiveStudentSession(db, token) {
       id: row.id,
       fullName: row.full_name,
       email: row.email,
-      contactNumber: row.contact_number,
-      course: row.course,
-      branch: row.branch,
+      contactNumber: row.contact_number || row.phone || '',
+      phone: row.phone || row.contact_number || '',
+      course: row.course || '',
+      branch: row.branch || '',
+      registrationNumber: row.registration_number || '',
+      department: row.department || '',
+      year: row.year || '',
+      hostelType: row.hostel_type || '',
+      busRouteId: row.bus_route_id || '',
+      employeeId: row.employee_id || '',
+      office: row.office || '',
+      role: row.role || 'student',
       updatedAt: row.updated_at,
     },
   };
@@ -91,32 +103,89 @@ export function deleteStudentSession(db, token) {
   db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
 }
 
-export function verifyStaffAuth(req) {
-  // Checks staff authorization header or reviewer token
-  const staffHeader = (req.headers['x-staff-user'] || req.headers['x-staff-id'] || '').toLowerCase();
-  const validStaffList = ['staff_vansh', 'staff_krisha', 'admin', 'admin_officer', 'admin_block', 'administrator'];
-  if (staffHeader && validStaffList.includes(staffHeader)) {
+export function verifyStaffAuth(req, db) {
+  const token = extractSessionToken(req);
+  if (!token) {
     return {
-      authenticated: true,
-      staffId: staffHeader,
-      role: 'FACILITIES_REVIEWER',
+      authenticated: false,
+      status: 401,
+      message: 'Staff authentication required to view operations queue.',
     };
   }
 
-  // Also check Bearer staff tokens
-  const authHeader = req.headers['authorization'];
-  if (
-    authHeader &&
-    (authHeader === 'Bearer staff_secret_token_vansh' ||
-      authHeader === 'Bearer staff_secret_token_krisha' ||
-      authHeader === 'Bearer admin_token')
-  ) {
+  if (!db) {
     return {
-      authenticated: true,
-      staffId: authHeader.includes('vansh') ? 'staff_vansh' : 'admin_officer',
-      role: 'FACILITIES_REVIEWER',
+      authenticated: false,
+      status: 401,
+      message: 'Database instance required for session verification.',
     };
   }
 
-  return { authenticated: false };
+  const session = getActiveStudentSession(db, token);
+  if (!session) {
+    return {
+      authenticated: false,
+      status: 401,
+      message: 'Session has expired or is invalid. Please sign in.',
+    };
+  }
+
+  if (session.student.role !== 'staff' && session.student.role !== 'admin') {
+    return {
+      authenticated: false,
+      isForbidden: true,
+      status: 403,
+      message: 'Forbidden: Staff authorization required.',
+    };
+  }
+
+  return {
+    authenticated: true,
+    staffId: session.student.id,
+    staffName: session.student.fullName,
+    role: session.student.role,
+  };
+}
+
+export function verifyStudentAuth(req, db) {
+  const token = extractSessionToken(req);
+  if (!token) {
+    return {
+      authenticated: false,
+      status: 401,
+      message: 'Student authentication required.',
+    };
+  }
+
+  if (!db) {
+    return {
+      authenticated: false,
+      status: 401,
+      message: 'Database instance required.',
+    };
+  }
+
+  const session = getActiveStudentSession(db, token);
+  if (!session) {
+    return {
+      authenticated: false,
+      status: 401,
+      message: 'Session has expired or is invalid. Please sign in.',
+    };
+  }
+
+  if (session.student.role !== 'student') {
+    return {
+      authenticated: false,
+      isForbidden: true,
+      status: 403,
+      message: 'Forbidden: Student authorization required.',
+    };
+  }
+
+  return {
+    authenticated: true,
+    student: session.student,
+    token: session.token,
+  };
 }

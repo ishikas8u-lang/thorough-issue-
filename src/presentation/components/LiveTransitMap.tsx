@@ -41,6 +41,7 @@ interface LiveTransitMapProps {
   userCoords: { lat: number; lng: number } | null;
   onSelectStop?: (stop: Stop, index: number) => void;
   selectedStopIndex?: number | null;
+  isBusActive?: boolean;
 }
 
 // SRM University Delhi-NCR Campus Anchor (Sonipat, Haryana)
@@ -74,6 +75,7 @@ export const LiveTransitMap: React.FC<LiveTransitMapProps> = ({
   userCoords,
   onSelectStop,
   selectedStopIndex,
+  isBusActive = true,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -351,6 +353,14 @@ export const LiveTransitMap: React.FC<LiveTransitMapProps> = ({
 
   // Interpolate Shuttle GPS position based on progress (0 to 1) along waypoints
   useEffect(() => {
+    if (!isBusActive) {
+      if (shuttleMarkerRef.current) {
+        shuttleMarkerRef.current.remove();
+        shuttleMarkerRef.current = null;
+      }
+      return;
+    }
+
     if (waypoints.length < 2) return;
 
     const totalSegments = waypoints.length - 1;
@@ -426,7 +436,7 @@ export const LiveTransitMap: React.FC<LiveTransitMapProps> = ({
         <div style="font-family: Outfit, sans-serif; padding: 4px; min-width: 190px; color: #121316;">
           <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
             <span style="background: #e11d48; color: #fff; padding: 2px 7px; border-radius: 4px; font-weight: 800; font-size: 10px;">
-              LIVE TELEMETRY
+              ESTIMATED POSITION
             </span>
             <span style="font-family: monospace; font-size: 11px; font-weight: 700; color: #0f172a;">
               ${activeShuttle.reg}
@@ -454,7 +464,7 @@ export const LiveTransitMap: React.FC<LiveTransitMapProps> = ({
     if (autoFollowBus) {
       map.panTo([lat, lng], { animate: true, duration: 0.8 });
     }
-  }, [progress, waypoints, activeShuttle, currentSpeed, autoFollowBus]);
+  }, [progress, waypoints, activeShuttle, currentSpeed, autoFollowBus, isBusActive]);
 
   // Update Student User Location Marker & Connector Line
   useEffect(() => {
@@ -729,7 +739,7 @@ export const LiveTransitMap: React.FC<LiveTransitMapProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span className="gps-pulse-live" />
           <span style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-brand-primary)' }}>
-            REAL GPS MAP ACTIVE
+            TIMETABLE ROUTE MAP
           </span>
         </div>
 

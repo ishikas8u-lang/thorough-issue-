@@ -6,8 +6,9 @@ import crypto from 'node:crypto';
  */
 export const ALLOWED_TRANSITIONS = {
   RECEIVED: ['IN_REVIEW', 'DUPLICATE', 'REJECTED'],
-  IN_REVIEW: ['IN_PROGRESS', 'DUPLICATE', 'REJECTED'],
-  IN_PROGRESS: ['RESOLVED', 'IN_REVIEW'],
+  IN_REVIEW: ['IN_PROGRESS', 'ESCALATED', 'DUPLICATE', 'REJECTED'],
+  IN_PROGRESS: ['RESOLVED', 'ESCALATED', 'IN_REVIEW'],
+  ESCALATED: ['IN_PROGRESS', 'RESOLVED', 'IN_REVIEW'],
   RESOLVED: ['IN_REVIEW'], // Reopened defect
   DUPLICATE: ['IN_REVIEW'], // False duplicate appeal
   REJECTED: ['IN_REVIEW'], // Reopened appeal
@@ -17,6 +18,7 @@ export const VALID_STATUSES = [
   'RECEIVED',
   'IN_REVIEW',
   'IN_PROGRESS',
+  'ESCALATED',
   'RESOLVED',
   'DUPLICATE',
   'REJECTED',
@@ -28,6 +30,10 @@ export const VALID_CATEGORIES = [
   'CLEANLINESS',
   'ACCESSIBILITY',
   'TRANSPORT_STOP',
+  'STREET_LIGHT',
+  'ELECTRICITY',
+  'WATER',
+  'FURNITURE',
   'OTHER',
 ];
 

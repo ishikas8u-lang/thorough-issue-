@@ -1,23 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import { Search, MapPin, Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Search, MapPin, Clock, AlertCircle, CheckCircle2, MessageSquare } from 'lucide-react';
 import type { IReportRepository } from '../../application/interfaces';
-import { PublicReportPresenter } from '../../infrastructure/repositories';
-import type { PublicReportView } from '../../types';
+import { apiClient } from '../../infrastructure/apiClient';
+import type { PublicReportView, Report, StudentSession } from '../../types';
 import { CATEGORY_LABELS, STATUS_LABELS } from '../../types';
 
 interface LookupViewProps {
-  reportRepository: IReportRepository;
+  reportRepository?: IReportRepository;
   initialRefCode?: string;
+  studentSession?: StudentSession | null;
 }
 
-export const LookupView: React.FC<LookupViewProps> = ({ reportRepository, initialRefCode }) => {
+
+export const LookupView: React.FC<LookupViewProps> = ({ initialRefCode, studentSession }) => {
   const [refInput, setRefInput] = useState(initialRefCode || '');
   const [searchedRef, setSearchedRef] = useState<string | null>(initialRefCode || null);
   const [reportResult, setReportResult] = useState<PublicReportView | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [studentReports, setStudentReports] = useState<Report[]>([]);
+  const [isLoadingStudentReports, setIsLoadingStudentReports] = useState(false);
 
-  const presenter = new PublicReportPresenter();
+  // Load student's own reports if session is active
+  useEffect(() => {
+    if (studentSession?.token) {
+      setIsLoadingStudentReports(true);
+      apiClient.getStudentReports(studentSession.token)
+        .then((reports) => {
+          setStudentReports(reports || []);
+          // If no initialRefCode and student has reports, auto-show the most recent one
+          if (!initialRefCode && reports && reports.length > 0) {
+            handleLookup(reports[0].referenceCode);
+          }
+        })
+        .catch(() => {})
+        .finally(() => setIsLoadingStudentReports(false));
+    }
+  }, [studentSession?.token]);
 
   const handleLookup = async (codeToSearch: string) => {
     const clean = codeToSearch.trim().toUpperCase();
@@ -28,12 +47,8 @@ export const LookupView: React.FC<LookupViewProps> = ({ reportRepository, initia
     setSearchedRef(clean);
 
     try {
-      const found = await reportRepository.findByReference(clean);
-      if (found) {
-        setReportResult(presenter.present(found));
-      } else {
-        setReportResult(null);
-      }
+      const publicView = await apiClient.lookupReport(clean);
+      setReportResult(publicView || null);
     } catch {
       setReportResult(null);
     } finally {
@@ -52,17 +67,100 @@ export const LookupView: React.FC<LookupViewProps> = ({ reportRepository, initia
     handleLookup(refInput);
   };
 
+
   return (
-    <div className="container" style={{ paddingBottom: '4rem', paddingTop: '1.5rem', maxWidth: '780px' }}>
+    <div className="container" style={{ paddingBottom: '4rem', paddingTop: '1.5rem', maxWidth: '820px' }}>
       {/* Title */}
       <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
-        <h1 className="title-section">
-          Track Campus Report Progress
-        </h1>
+        <h1 className="title-section">My Reports &amp; Track Status</h1>
         <p className="text-lead" style={{ marginTop: '0.45rem' }}>
-          Query your reference code to view sanitized status updates and maintenance progress.
+          Track facilities maintenance tickets, view official Admin Block replies, and follow real-time progress.
         </p>
       </div>
+
+      {/* Authenticated Student: My Submitted Reports Section */}
+      {studentSession && (
+        <div
+          style={{
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-lg)',
+            padding: '1.5rem',
+            marginBottom: '2rem',
+            boxShadow: 'var(--shadow-sm)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <h2 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: 'var(--color-text-main)' }}>
+              My Submitted Reports ({studentReports.length})
+            </h2>
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>
+              Logged under {studentSession.student.email}
+            </span>
+          </div>
+
+          {isLoadingStudentReports ? (
+            <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: 'var(--text-sm)' }}>
+              Loading your submitted tickets...
+            </div>
+          ) : studentReports.length === 0 ? (
+            <div style={{ padding: '1.25rem', textAlign: 'center', color: 'var(--color-text-muted)', background: 'var(--color-surface-2)', borderRadius: 'var(--radius-md)', fontSize: 'var(--text-sm)' }}>
+              You haven't submitted any maintenance reports yet. You can submit one using the <strong>Report Issue</strong> tab.
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 230px), 1fr))', gap: '0.75rem' }}>
+              {studentReports.map((r) => {
+                const isSelected = searchedRef === r.referenceCode;
+                const statusInfo = STATUS_LABELS[r.status] || { label: r.status, tone: 'received' };
+                return (
+                  <div
+                    key={r.id}
+                    onClick={() => {
+                      setRefInput(r.referenceCode);
+                      handleLookup(r.referenceCode);
+                    }}
+                    style={{
+                      background: isSelected ? 'rgba(251, 113, 133, 0.12)' : 'var(--color-surface-2)',
+                      border: isSelected ? '1.5px solid var(--color-brand-primary)' : '1px solid var(--color-border)',
+                      borderRadius: 'var(--radius-md)',
+                      padding: '0.85rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '0.85rem', color: 'var(--color-brand-primary)' }}>
+                        {r.referenceCode}
+                      </span>
+                      <span className={`badge badge-${statusInfo.tone}`} style={{ fontSize: '0.7rem', padding: '0.15rem 0.45rem' }}>
+                        {statusInfo.label}
+                      </span>
+                    </div>
+
+                    <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-text-main)', marginBottom: '0.25rem' }}>
+                      {CATEGORY_LABELS[r.category] || r.category}
+                    </div>
+
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '0.4rem' }}>
+                      {r.locationDescription}
+                    </div>
+
+                    {r.escalatedTo && (
+                      <div style={{ fontSize: '0.7rem', color: '#fde047', fontWeight: 600, marginBottom: '0.3rem' }}>
+                        &bull; Escalated to {r.escalatedTo}
+                      </div>
+                    )}
+
+                    <div style={{ fontSize: '0.7rem', color: 'var(--color-text-subtle)' }}>
+                      {new Date(r.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Search Input Bar */}
       <form
@@ -81,7 +179,7 @@ export const LookupView: React.FC<LookupViewProps> = ({ reportRepository, initia
           <input
             type="text"
             className="form-input"
-            placeholder="Enter Reference Code (e.g. CA-4912-K7)"
+            placeholder="Enter Reference Code (e.g. CA-0000-00)"
             value={refInput}
             onChange={(e) => setRefInput(e.target.value)}
             style={{
@@ -105,11 +203,29 @@ export const LookupView: React.FC<LookupViewProps> = ({ reportRepository, initia
             <span>{isLoading ? 'Searching...' : 'Check Status'}</span>
           </button>
         </div>
+
+        <div
+          style={{
+            marginTop: '0.85rem',
+            fontSize: 'var(--text-xs)',
+            color: 'var(--color-text-muted)',
+          }}
+        >
+          Enter your reference code, e.g. CA-0000-00
+        </div>
       </form>
 
       {/* Results View */}
       {isLoading ? (
-        <div style={{ textAlign: 'center', padding: '3rem', background: 'var(--color-surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)' }}>
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '3rem',
+            background: 'var(--color-surface)',
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--color-border)',
+          }}
+        >
           <p className="text-body-muted">Querying facilities ledger...</p>
         </div>
       ) : reportResult ? (
@@ -124,49 +240,131 @@ export const LookupView: React.FC<LookupViewProps> = ({ reportRepository, initia
           }}
         >
           {/* Header Row */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '1.25rem', marginBottom: '1.5rem', minWidth: 0 }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              flexWrap: 'wrap',
+              gap: '1rem',
+              borderBottom: '1px solid var(--color-border)',
+              paddingBottom: '1.25rem',
+              marginBottom: '1.5rem',
+              minWidth: 0,
+            }}
+          >
             <div>
-              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-subtle)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)' }}>
+              <div
+                style={{
+                  fontSize: 'var(--text-xs)',
+                  color: 'var(--color-text-subtle)',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: 'var(--tracking-wide)',
+                }}
+              >
                 Report Reference
               </div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--color-brand-primary)', overflowWrap: 'anywhere' }}>
+              <div
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: 'var(--text-2xl)',
+                  fontWeight: 800,
+                  color: 'var(--color-brand-primary)',
+                  overflowWrap: 'anywhere',
+                }}
+              >
                 {reportResult.referenceCode}
               </div>
             </div>
 
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-subtle)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)', marginBottom: '0.35rem' }}>
+              <div
+                style={{
+                  fontSize: 'var(--text-xs)',
+                  color: 'var(--color-text-subtle)',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: 'var(--tracking-wide)',
+                  marginBottom: '0.35rem',
+                }}
+              >
                 Current Status
               </div>
-              <span className={`badge badge-${STATUS_LABELS[reportResult.status].tone}`} style={{ fontSize: 'var(--text-xs)', padding: '0.35rem 0.75rem' }}>
+              <span
+                className={`badge badge-${STATUS_LABELS[reportResult.status].tone}`}
+                style={{ fontSize: 'var(--text-xs)', padding: '0.35rem 0.75rem' }}
+              >
                 {STATUS_LABELS[reportResult.status].label}
               </span>
             </div>
           </div>
 
           {/* Details Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
+              gap: '1.25rem',
+              marginBottom: '1.75rem',
+            }}
+          >
             <div>
-              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-subtle)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)' }}>
+              <div
+                style={{
+                  fontSize: 'var(--text-xs)',
+                  color: 'var(--color-text-subtle)',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: 'var(--tracking-wide)',
+                }}
+              >
                 Category
               </div>
               <div style={{ fontWeight: 700, color: 'var(--color-text-main)', marginTop: '0.2rem', fontSize: 'var(--text-sm)' }}>
-                {CATEGORY_LABELS[reportResult.category]}
+                {CATEGORY_LABELS[reportResult.category] || reportResult.category}
               </div>
             </div>
 
             <div>
-              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-subtle)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)' }}>
+              <div
+                style={{
+                  fontSize: 'var(--text-xs)',
+                  color: 'var(--color-text-subtle)',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: 'var(--tracking-wide)',
+                }}
+              >
                 Landmark Location
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-text-main)', fontWeight: 600, marginTop: '0.2rem', fontSize: 'var(--text-sm)', overflowWrap: 'anywhere' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  color: 'var(--color-text-main)',
+                  fontWeight: 600,
+                  marginTop: '0.2rem',
+                  fontSize: 'var(--text-sm)',
+                  overflowWrap: 'anywhere',
+                }}
+              >
                 <MapPin size={15} color="var(--color-brand-accent)" style={{ flexShrink: 0 }} />
                 <span>{reportResult.locationDescription}</span>
               </div>
             </div>
 
             <div>
-              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-subtle)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 'var(--tracking-wide)' }}>
+              <div
+                style={{
+                  fontSize: 'var(--text-xs)',
+                  color: 'var(--color-text-subtle)',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: 'var(--tracking-wide)',
+                }}
+              >
                 Logged At
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-text-muted)', fontSize: 'var(--text-sm)', marginTop: '0.2rem' }}>
@@ -176,14 +374,93 @@ export const LookupView: React.FC<LookupViewProps> = ({ reportRepository, initia
             </div>
           </div>
 
+          {/* Escalation Notice if escalated */}
+          {reportResult.escalatedTo && (
+            <div
+              style={{
+                background: 'rgba(234, 179, 8, 0.1)',
+                border: '1px solid rgba(234, 179, 8, 0.35)',
+                borderRadius: 'var(--radius-md)',
+                padding: '1rem 1.25rem',
+                marginBottom: '1.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.65rem',
+                color: '#fde047',
+              }}
+            >
+              <AlertCircle size={20} style={{ flexShrink: 0 }} />
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Escalated to Higher Authority: {reportResult.escalatedTo}
+                </div>
+                <div style={{ fontSize: '0.8rem', color: '#fef08a', marginTop: '0.15rem' }}>
+                  This maintenance report has been escalated for high-priority operational resolution.
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Admin Block Official Reply Callout */}
+          {reportResult.adminReply && (
+            <div
+              style={{
+                background: 'rgba(56, 189, 248, 0.1)',
+                border: '1px solid rgba(56, 189, 248, 0.35)',
+                borderRadius: 'var(--radius-md)',
+                padding: '1.25rem',
+                marginBottom: '1.75rem',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.45rem',
+                  color: '#38bdf8',
+                  fontSize: 'var(--text-xs)',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  letterSpacing: 'var(--tracking-wide)',
+                  marginBottom: '0.4rem',
+                }}
+              >
+                <MessageSquare size={15} /> Official Admin Block Reply
+              </div>
+              <p
+                style={{
+                  fontSize: 'var(--text-sm)',
+                  color: '#ffffff',
+                  lineHeight: 'var(--leading-relaxed)',
+                  margin: 0,
+                  overflowWrap: 'anywhere',
+                }}
+              >
+                {reportResult.adminReply}
+              </p>
+            </div>
+          )}
+
           {/* Public Updates Timeline */}
-          <h3 className="title-card" style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <h3
+            className="title-card"
+            style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}
+          >
             <CheckCircle2 size={19} color="var(--color-brand-accent)" /> Maintenance Progress &amp; Public Updates
           </h3>
 
-          {reportResult.updates.length > 0 ? (
+          {reportResult.updates && reportResult.updates.length > 0 ? (
             <div style={{ position: 'relative', paddingLeft: '1.5rem', marginLeft: '0.4rem', minWidth: 0 }}>
-              <div style={{ position: 'absolute', top: '8px', bottom: '16px', left: '6px', width: '2px', background: 'var(--color-border)' }} />
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '8px',
+                  bottom: '16px',
+                  left: '6px',
+                  width: '2px',
+                  background: 'var(--color-border)',
+                }}
+              />
               {reportResult.updates.map((update, idx) => (
                 <div key={idx} style={{ position: 'relative', marginBottom: '1.5rem', minWidth: 0 }}>
                   <div
@@ -207,14 +484,33 @@ export const LookupView: React.FC<LookupViewProps> = ({ reportRepository, initia
                       {new Date(update.timestamp).toLocaleString()}
                     </span>
                   </div>
-                  <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-main)', background: 'var(--color-surface-subtle)', padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', marginTop: '0.35rem', lineHeight: 'var(--leading-relaxed)' }}>
+                  <p
+                    style={{
+                      fontSize: 'var(--text-sm)',
+                      color: 'var(--color-text-main)',
+                      background: 'var(--color-surface-subtle)',
+                      padding: '0.8rem 1rem',
+                      borderRadius: 'var(--radius-md)',
+                      border: '1px solid var(--color-border)',
+                      marginTop: '0.35rem',
+                      lineHeight: 'var(--leading-relaxed)',
+                    }}
+                  >
                     {update.message}
                   </p>
                 </div>
               ))}
             </div>
           ) : (
-            <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--text-sm)', background: 'var(--color-surface-subtle)', padding: '1rem', borderRadius: 'var(--radius-md)' }}>
+            <p
+              style={{
+                color: 'var(--color-text-muted)',
+                fontSize: 'var(--text-sm)',
+                background: 'var(--color-surface-subtle)',
+                padding: '1rem',
+                borderRadius: 'var(--radius-md)',
+              }}
+            >
               No public maintenance notes posted yet. The report is awaiting Admin Block inspection.
             </p>
           )}

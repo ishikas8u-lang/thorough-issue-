@@ -60,7 +60,7 @@ Registers a new student profile and generates an active session.
 ```json
 {
   "fullName": "Sample Student",
-  "email": "sample.student@srmist.edu.in",
+  "email": "demo.student@srmuniversity.ac.in",
   "contactNumber": "+91 98765 43210",
   "course": "B.Tech",
   "branch": "Computer Science & Engineering",
@@ -79,7 +79,7 @@ Registers a new student profile and generates an active session.
   "student": {
     "id": "stu-1728315900000-a1b2c3",
     "fullName": "Sample Student",
-    "email": "sample.student@srmist.edu.in",
+    "email": "demo.student@srmuniversity.ac.in",
     "contactNumber": "+91 98765 43210",
     "course": "B.Tech",
     "branch": "Computer Science & Engineering",
@@ -98,7 +98,7 @@ Authenticates an existing student.
 * **Request Body:**
 ```json
 {
-  "email": "ananya.s@srmist.edu.in",
+  "email": "demo.student@srmuniversity.ac.in",
   "password": "Student@123"
 }
 ```
@@ -119,8 +119,8 @@ Retrieves the currently authenticated student's profile.
   "expiresAt": "2026-10-08T15:45:00.000Z",
   "student": {
     "id": "stu-demo-fictional-01",
-    "fullName": "Demo Student (Sample Evaluation Account)",
-    "email": "ananya.s@srmist.edu.in",
+    "fullName": "Demo Student",
+    "email": "demo.student@srmuniversity.ac.in",
     "contactNumber": "+91 99999 00001",
     "course": "B.Tech (Sample Course)",
     "branch": "Computer Science (Sample Branch)",

@@ -13,7 +13,7 @@
 # 1. Run database migrations
 npm run backend:migrate
 
-# 2. Seed fictional evaluation data
+# 2. Seed initial database data
 npm run backend:seed
 
 # 3. Start local development server

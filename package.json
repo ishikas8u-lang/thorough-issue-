@@ -9,9 +9,13 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "node --test backend/tests/*.test.mjs",
+    "start:prod": "node backend/scripts/prod_start.mjs",
     "backend:start": "node backend/src/server.mjs",
     "backend:migrate": "node backend/scripts/migrate.mjs",
     "backend:seed": "node backend/scripts/seed.mjs"
+  },
+  "engines": {
+    "node": ">=22.5.0"
   },
   "dependencies": {
     "@types/leaflet": "^1.9.22",
