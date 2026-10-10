@@ -9,6 +9,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "node --test backend/tests/*.test.mjs",
+    "start": "node backend/scripts/prod_start.mjs",
     "start:prod": "node backend/scripts/prod_start.mjs",
     "backend:start": "node backend/src/server.mjs",
     "backend:migrate": "node backend/scripts/migrate.mjs",

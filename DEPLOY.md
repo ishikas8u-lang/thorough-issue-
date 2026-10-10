@@ -24,8 +24,9 @@ Under the **Settings** tab, configure the following:
   ```
 - **Start Command**:
   ```bash
-  npm run start:prod
+  npm start
   ```
+  *(or `npm run start:prod`)*
 - **Plan**: `Free`
 
 ### Step 3: Set Environment Variables
